@@ -1,11 +1,10 @@
-import { ArrowUpLeft, Building2, Bus, Car, Compass, FileCheck, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
+import { Building2, Bus, Car, Compass, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
 
-const icons = { flight: Plane, visa: FileCheck, hotel: Hotel, car: Car, medical: HeartPulse, security: ShieldCheck, umrah: Moon, bus: Bus, realEstate: Building2 };
+const icons = { flight: Plane, hotel: Hotel, car: Car, medical: HeartPulse, security: ShieldCheck, umrah: Moon, bus: Bus, realEstate: Building2 };
 const routes: Record<string, string> = {
   flight: "/flights",
-  visa: "/visas",
   hotel: "/hotels",
   car: "/car-rental",
   medical: "/medical-tourism",
@@ -18,7 +17,8 @@ const routes: Record<string, string> = {
 export default function Services() {
   const { t, lang } = useApp();
   const ref = useReveal<HTMLDivElement>();
-  const featuredServices = t.services.items.slice(0, 4);
+  const featuredKeys = ["flight", "security", "hotel", "car"];
+  const featuredServices = featuredKeys.map((key) => t.services.items.find((item) => item.key === key)).filter((item) => item !== undefined);
   return (
     <section id="services" className="section">
       <div className="container">
@@ -32,7 +32,6 @@ export default function Services() {
                 <h3>{lang === "ar" ? s.ar : s.en}</h3>
                 <p className="service-sub" lang={lang === "ar" ? "en" : "ar"}>{lang === "ar" ? s.en : s.ar}</p>
                 <p>{s.desc}</p>
-                <span className="service-card-hint">{lang === "ar" ? "عرض تفاصيل الخدمة" : "View service details"} <ArrowUpLeft size={17} aria-hidden="true" /></span>
               </a>
             );
           })}
