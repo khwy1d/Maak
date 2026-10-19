@@ -9,7 +9,7 @@ const ar = {
   langLabel: "English",
   whatsapp: "تواصل عبر واتساب",
   hero: {
-    title: "رحلتك تبدأ بخطوة،\\nونحن {{brand}} في تفاصيلها.",
+    title: "رحلتك تبدأ بخطوة،\nونحن {{brand}} في تفاصيلها.",
     text: "نصمّم رحلتك بعناية، ونرافقك في كل تفصيلة — من التخطيط إلى الوصول.",
     start: "ابدأ رحلتك الآن",
     explore: "استكشف الخدمات",
@@ -96,7 +96,7 @@ const en: typeof ar = {
   langLabel: "العربية",
   whatsapp: "Chat on WhatsApp",
   hero: {
-    title: "Your journey starts with one step,\\nand we are {{brand}} in every detail.",
+    title: "Your journey starts with one step,\nand we are {{brand}} in every detail.",
     text: "We design your journey with care and accompany you through every detail — from planning to arrival.",
     start: "Start your journey now",
     explore: "Explore services",
