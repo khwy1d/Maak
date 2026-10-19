@@ -9,7 +9,6 @@ import SocialFollow from "./SocialFollow";
 const routes = [
   { path: "/services", key: "services", icon: Compass },
   { path: "/flights", key: "flight", topic: "flight" as WaTopic, icon: Plane },
-  { path: "/visas", key: "visa", topic: "visa" as WaTopic, icon: FileCheck },
   { path: "/hotels", key: "hotel", topic: "hotel" as WaTopic, icon: Hotel },
   { path: "/car-rental", key: "car", topic: "car" as WaTopic, icon: Car },
   { path: "/tourism", key: "tourism", icon: MapPinned },
@@ -82,7 +81,7 @@ export default function Pages({ path }: { path: string }) {
   const [travellers, setTravellers] = useState("1");
   const [details, setDetails] = useState("");
   const language = copy[lang];
-  const key = path === "/about" || path === "/contact" ? path.slice(1) : path === "/services" || path === "/" ? "services" : path === "/flights" ? "flight" : path === "/visas" ? "visa" : path === "/hotels" ? "hotel" : path === "/car-rental" ? "car" : path === "/tourism" ? "tourism" : path === "/medical-tourism" ? "medical" : path === "/security-clearance-egypt" ? "security" : path === "/umrah" ? "umrah" : path === "/transport" ? "bus" : path === "/real-estate" ? "realEstate" : "notFound";
+  const key = path === "/about" || path === "/contact" ? path.slice(1) : path === "/services" || path === "/" ? "services" : path === "/flights" ? "flight" : path === "/hotels" ? "hotel" : path === "/car-rental" ? "car" : path === "/tourism" ? "tourism" : path === "/medical-tourism" ? "medical" : path === "/security-clearance-egypt" ? "security" : path === "/umrah" ? "umrah" : path === "/transport" ? "bus" : path === "/real-estate" ? "realEstate" : "notFound";
   const pageContent: Record<string, PageCopy> = {
     services: language.services,
     flight: language.flight,
@@ -103,9 +102,14 @@ export default function Pages({ path }: { path: string }) {
   const isServiceDetail = ["flight", "visa", "hotel", "car", "tourism", "medical", "security", "umrah", "bus", "realEstate"].includes(key);
   const serviceTitle = page.title;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
-  const inquiryMessage = lang === "ar"
-    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}${key === "flight" ? `\nمدينة المغادرة: ${departureCity || "لم أحدد بعد"}` : ""}\n${key === "flight" ? "مدينة الوصول" : "الوجهة"}: ${destination || "لم أحدد بعد"}\nالتاريخ: ${travelDate || "مرن"}\nعدد المسافرين: ${travellers}\nتفاصيل إضافية: ${details || "لا توجد"}`
-    : `Hello MAAK, I would like to enquire about: ${serviceTitle}${key === "flight" ? `\nDeparture city: ${departureCity || "Not decided yet"}` : ""}\n${key === "flight" ? "Arrival city" : "Destination"}: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`;
+  const noFormServices = ["tourism", "medical", "security", "umrah", "realEstate"];
+  const inquiryMessage = noFormServices.includes(key)
+    ? (lang === "ar"
+      ? `مرحبًا معك، أريد معرفة تفاصيل خدمة ${serviceTitle}. ما المتطلبات والإجراءات والتكلفة؟`
+      : `Hello MAAK, I would like to know more about your ${serviceTitle} service. What are the requirements, process and cost?`)
+    : (lang === "ar"
+      ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}${key === "flight" ? `\nمدينة المغادرة: ${departureCity || "لم أحدد بعد"}` : ""}\n${key === "flight" ? "مدينة الوصول" : "الوجهة"}: ${destination || "لم أحدد بعد"}\nالتاريخ: ${travelDate || "مرن"}\nعدد المسافرين: ${travellers}\nتفاصيل إضافية: ${details || "لا توجد"}`
+      : `Hello MAAK, I would like to enquire about: ${serviceTitle}${key === "flight" ? `\nDeparture city: ${departureCity || "Not decided yet"}` : ""}\n${key === "flight" ? "Arrival city" : "Destination"}: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`);
   const inquiryUrl = `https://wa.me/${digits}?text=${encodeURIComponent(inquiryMessage)}`;
   const serviceList = routes.filter((r) => r.key !== "services");
   const aboutPrinciples = lang === "ar" ? [
@@ -126,7 +130,7 @@ export default function Pages({ path }: { path: string }) {
       </div></section>
       {isServices ? <section className="section"><div className="container"><div className="section-head"><h2>{lang === "ar" ? "اختر الخدمة التي تحتاجها" : "Choose the service you need"}</h2><p>{page.intro}</p></div><div className="services page-services">
         {serviceList.map((item) => { const Icon = item.icon; const p = pageContent[item.key]; return <a className="service service-card-link" href={item.path} key={item.path} aria-label={p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}</h3><p>{p?.intro}</p></a>; })}
-      </div></div></section> : key === "about" ? <section className="section about-principles-section"><div className="container"><div className="services about-principles">{aboutPrinciples.map((item) => { const Icon = item.icon; return <article className="service about-principle-card" key={item.title}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></article>; })}</div></div></section> : <section className="section"><div className={`container page-detail${isServiceDetail ? " page-detail-service" : ""}`}><div className="page-detail-card">{!isServiceDetail && <><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p></>}{isServiceDetail && <div className="inquiry-form">
+      </div></div></section> : key === "about" ? <section className="section about-principles-section"><div className="container"><div className="services about-principles">{aboutPrinciples.map((item) => { const Icon = item.icon; return <article className="service about-principle-card" key={item.title}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></article>; })}</div></div></section> : <section className="section"><div className={`container page-detail${isServiceDetail ? " page-detail-service" : ""}`}><div className="page-detail-card">{!isServiceDetail && <><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p></>}{isServiceDetail && !noFormServices.includes(key) && <div className="inquiry-form">
           <h3>{lang === "ar" ? "أرسل تفاصيل طلبك" : "Tell us what you need"}</h3>
           <p>{lang === "ar" ? "املأ ما تعرفه من التفاصيل، وسنجهّز لك رسالة واتساب يمكنك مراجعتها قبل الإرسال." : "Fill in what you know. We’ll prepare a WhatsApp message for you to review before sending."}</p>
           {key === "flight" && <><label htmlFor="inquiry-departure">{lang === "ar" ? "المغادرة من" : "Departure city"}</label><input id="inquiry-departure" value={departureCity} onChange={(e) => setDepartureCity(e.target.value)} placeholder={lang === "ar" ? "مثال: تعز" : "e.g. Taiz"} /></>}
@@ -139,7 +143,7 @@ export default function Pages({ path }: { path: string }) {
           <label htmlFor="inquiry-details">{lang === "ar" ? "تفاصيل إضافية (اختياري)" : "Additional details (optional)"}</label>
           <textarea id="inquiry-details" rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder={lang === "ar" ? "اكتب أي متطلبات أو أسئلة" : "Any requirements or questions"} />
           <a className="btn btn-primary inquiry-submit" href={inquiryUrl} target="_blank" rel="noopener noreferrer"><Send size={18} />{lang === "ar" ? "متابعة عبر واتساب" : "Continue on WhatsApp"}</a>
-        </div>}{!isServiceDetail && <WhatsAppButton topic="general" label={language.cta} />}</div>{key !== "flight" && <div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div>}</div></section>}
+        </div>}{(!isServiceDetail || noFormServices.includes(key)) && <a className="btn btn-primary inquiry-submit" href={inquiryUrl} target="_blank" rel="noopener noreferrer"><Send size={18} />{lang === "ar" ? "استفسر عن تفاصيل الخدمة عبر واتساب" : "Ask about this service on WhatsApp"}</a>}</div>{key !== "flight" && <div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div>}</div></section>}
       {key === "contact" && <SocialFollow />}
     </main>
   );
