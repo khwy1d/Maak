@@ -237,3 +237,21 @@ img { max-width: 100%; display: block; }
 .inquiry-row > div { min-width: 0; }
 .inquiry-submit { margin-top: 10px; width: 100%; white-space: normal; text-align: center; }
 @media (max-width: 420px) { .inquiry-row { grid-template-columns: 1fr; } }
+
+
+/* ===== Final mobile usability polish ===== */
+button, input, select, textarea { touch-action: manipulation; }
+.btn, .icon-btn { -webkit-tap-highlight-color: transparent; }
+.inquiry-form input, .inquiry-form select, .inquiry-form textarea { min-width: 0; }
+.inquiry-form input[type="date"] { min-height: 48px; }
+.inquiry-form .btn:focus-visible { outline-offset: 4px; }
+@media (max-width: 560px) {
+  .page-hero { padding-top: 136px; padding-bottom: 44px; }
+  .page-hero h1 { font-size: clamp(2.1rem, 9vw, 3.1rem); overflow-wrap: anywhere; }
+  .page-hero .lead { font-size: 1.05rem; }
+  .page-detail { gap: 16px; }
+  .page-detail-card, .page-side-card { padding: 22px; border-radius: 20px; }
+  .inquiry-form { gap: 8px; }
+  .inquiry-form label { margin-top: 8px; }
+  .inquiry-submit { min-height: 52px; }
+}
