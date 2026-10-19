@@ -1,4 +1,4 @@
-import { ArrowUpRight, Building2, Bus, Car, Compass, FileCheck, HeartPulse, Hotel, Moon, Plane, MapPinned, Send, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Building2, Bus, Car, Compass, FileCheck, HeartPulse, Hotel, Moon, Plane, MapPinned, Send, ShieldCheck, Target, Eye, Flag } from "lucide-react";
 import { useState } from "react";
 import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
@@ -106,16 +106,25 @@ export default function Pages({ path }: { path: string }) {
     : `Hello MAAK, I would like to enquire about: ${serviceTitle}\nDestination: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`;
   const inquiryUrl = `https://wa.me/${digits}?text=${encodeURIComponent(inquiryMessage)}`;
   const serviceList = routes.filter((r) => r.key !== "services");
+  const aboutPrinciples = lang === "ar" ? [
+    { title: "رسالتنا", text: "تسهيل تجربة السفر عبر خدمات واضحة وتواصل مباشر، ومساعدة عملائنا على ترتيب رحلاتهم بثقة وراحة.", icon: Flag },
+    { title: "رؤيتنا", text: "أن نكون الخيار الموثوق والقريب للمسافرين، وأن نجعل التخطيط للرحلات أكثر بساطة ووضوحًا.", icon: Eye },
+    { title: "مهمتنا", text: "تقديم إرشاد عملي وخيارات مناسبة لاحتياجات كل عميل، ومرافقته في خطوات السفر من التخطيط حتى الوصول.", icon: Target },
+  ] : [
+    { title: "Our Message", text: "To make travel easier through clear services and direct communication, helping customers arrange their trips with confidence and peace of mind.", icon: Flag },
+    { title: "Our Vision", text: "To become a trusted, approachable choice for travelers and make trip planning simpler and clearer.", icon: Eye },
+    { title: "Our Mission", text: "To provide practical guidance and suitable options for each customer, supporting them from planning through arrival.", icon: Target },
+  ];
   return (
     <main className="inner-page">
       <section className="page-hero"><div className="container">
-        {!isServices && <p className="slogan"><span className="slogan-dot" />{t.slogan}</p>}
+        {!isServices && key !== "about" && <p className="slogan"><span className="slogan-dot" />{t.slogan}</p>}
         <h1>{page.title}</h1><p className="lead">{page.intro}</p>
         {!isServices && <div className="actions"><WhatsAppButton topic={key === "flight" || key === "visa" || key === "hotel" || key === "car" ? key : "general"} /><a className="btn btn-ghost" href="/services">{lang === "ar" ? "استعرض الخدمات" : "Explore services"} <ArrowUpRight size={17} /></a></div>}
       </div></section>
       {isServices ? <section className="section"><div className="container"><div className="section-head"><h2>{lang === "ar" ? "اختر الخدمة التي تحتاجها" : "Choose the service you need"}</h2><p>{page.intro}</p></div><div className="services page-services">
         {serviceList.map((item) => { const Icon = item.icon; const p = pageContent[item.key]; return <a className="service service-card-link" href={item.path} key={item.path} aria-label={p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}</h3><p>{p?.intro}</p></a>; })}
-      </div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p>{isServiceDetail && <div className="inquiry-form">
+      </div></div></section> : key === "about" ? <section className="section about-principles-section"><div className="container"><div className="section-head"><h2>{lang === "ar" ? "ما الذي يوجّهنا؟" : "What guides us"}</h2><p>{lang === "ar" ? "قيم واضحة توجه طريقة عملنا واهتمامنا بتجربة كل مسافر." : "Clear principles guide our work and our care for every traveler."}</p></div><div className="services about-principles">{aboutPrinciples.map((item) => { const Icon = item.icon; return <article className="service about-principle-card" key={item.title}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></article>; })}</div><div className="container page-detail about-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "من نحن" : "Who we are"}</h2><p>{page.intro}</p><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul></div></div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p>{isServiceDetail && <div className="inquiry-form">
           <h3>{lang === "ar" ? "أرسل تفاصيل طلبك" : "Tell us what you need"}</h3>
           <p>{lang === "ar" ? "املأ ما تعرفه من التفاصيل، وسنجهّز لك رسالة واتساب يمكنك مراجعتها قبل الإرسال." : "Fill in what you know. We’ll prepare a WhatsApp message for you to review before sending."}</p>
           <label htmlFor="inquiry-destination">{lang === "ar" ? "الوجهة أو المدينة" : "Destination or city"}</label>
