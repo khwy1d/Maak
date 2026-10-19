@@ -1,6 +1,8 @@
-import { ArrowUpRight, Car, Compass, FileCheck, Hotel, Plane, MapPinned } from "lucide-react";
+import { ArrowUpRight, Car, Compass, FileCheck, Hotel, Plane, MapPinned, Send } from "lucide-react";
+import { useState } from "react";
+import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
-import { whatsappUrl, type WaTopic } from "../utils/whatsapp";
+import type { WaTopic } from "../utils/whatsapp";
 import WhatsAppButton from "./WhatsAppButton";
 
 const routes = [
@@ -53,6 +55,10 @@ const copy: Record<"ar" | "en", LocaleCopy> = {
 
 export default function Pages({ path }: { path: string }) {
   const { lang, t } = useApp();
+  const [destination, setDestination] = useState("");
+  const [travelDate, setTravelDate] = useState("");
+  const [travellers, setTravellers] = useState("1");
+  const [details, setDetails] = useState("");
   const language = copy[lang];
   const key = path === "/about" || path === "/contact" ? path.slice(1) : path === "/services" || path === "/" ? "services" : path === "/flights" ? "flight" : path === "/visas" ? "visa" : path === "/hotels" ? "hotel" : path === "/car-rental" ? "car" : path === "/tourism" ? "tourism" : "notFound";
   const pageContent: Record<string, PageCopy> = {
@@ -67,6 +73,13 @@ export default function Pages({ path }: { path: string }) {
   };
   const page = pageContent[key] ?? { title: lang === "ar" ? "الصفحة غير موجودة" : "Page not found", intro: lang === "ar" ? "لم نعثر على الصفحة المطلوبة. يمكنك العودة إلى الرئيسية أو استعراض خدماتنا." : "We couldn't find that page. Return home or explore our services.", bullets: [] as string[] };
   const isServices = key === "services";
+  const isServiceDetail = ["flight", "visa", "hotel", "car", "tourism"].includes(key);
+  const serviceTitle = page.title;
+  const digits = siteConfig.whatsappNumber.replace(/\\D/g, "");
+  const inquiryMessage = lang === "ar"
+    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}\\nالوجهة: ${destination || "لم أحدد بعد"}\\nالتاريخ: ${travelDate || "مرن"}\\nعدد المسافرين: ${travellers}\\nتفاصيل إضافية: ${details || "لا توجد"}`
+    : `Hello MAAK, I would like to enquire about: ${serviceTitle}\\nDestination: ${destination || "Not decided yet"}\\nDate: ${travelDate || "Flexible"}\\nTravellers: ${travellers}\\nAdditional details: ${details || "None"}`;
+  const inquiryUrl = `https://wa.me/${digits}?text=${encodeURIComponent(inquiryMessage)}`;
   const serviceList = routes.filter((r) => r.key !== "services");
   return (
     <main className="inner-page">
@@ -77,7 +90,19 @@ export default function Pages({ path }: { path: string }) {
       </div></section>
       {isServices ? <section className="section"><div className="container"><div className="section-head"><h2>{lang === "ar" ? "اختر الخدمة التي تحتاجها" : "Choose the service you need"}</h2><p>{page.intro}</p></div><div className="services page-services">
         {serviceList.map((item) => { const Icon = item.icon; const p = pageContent[item.key]; return <article className="service" key={item.path}><span className="service-icon"><Icon size={26} /></span><h3>{p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}</h3><p>{p?.intro}</p><a className="service-link" href={item.path}>{lang === "ar" ? "اعرف المزيد" : "Learn more"} <ArrowUpRight size={16} /></a></article>; })}
-      </div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p><WhatsAppButton topic={key === "flight" || key === "visa" || key === "hotel" || key === "car" ? key : "general"} label={language.cta} /></div><div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div></div></section>}
+      </div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p>{isServiceDetail && <div className="inquiry-form">
+          <h3>{lang === "ar" ? "أرسل تفاصيل طلبك" : "Tell us what you need"}</h3>
+          <p>{lang === "ar" ? "املأ ما تعرفه من التفاصيل، وسنجهّز لك رسالة واتساب يمكنك مراجعتها قبل الإرسال." : "Fill in what you know. We’ll prepare a WhatsApp message for you to review before sending."}</p>
+          <label htmlFor="inquiry-destination">{lang === "ar" ? "الوجهة أو المدينة" : "Destination or city"}</label>
+          <input id="inquiry-destination" value={destination} onChange={(e) => setDestination(e.target.value)} placeholder={lang === "ar" ? "مثال: القاهرة" : "e.g. Cairo"} />
+          <div className="inquiry-row">
+            <div><label htmlFor="inquiry-date">{lang === "ar" ? "التاريخ التقريبي" : "Approximate date"}</label><input id="inquiry-date" type="date" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} /></div>
+            <div><label htmlFor="inquiry-travellers">{lang === "ar" ? "عدد المسافرين" : "Travellers"}</label><select id="inquiry-travellers" value={travellers} onChange={(e) => setTravellers(e.target.value)}>{Array.from({length: 10}, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
+          </div>
+          <label htmlFor="inquiry-details">{lang === "ar" ? "تفاصيل إضافية (اختياري)" : "Additional details (optional)"}</label>
+          <textarea id="inquiry-details" rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder={lang === "ar" ? "اكتب أي متطلبات أو أسئلة" : "Any requirements or questions"} />
+          <a className="btn btn-primary inquiry-submit" href={inquiryUrl} target="_blank" rel="noopener noreferrer"><Send size={18} />{lang === "ar" ? "متابعة عبر واتساب" : "Continue on WhatsApp"}</a>
+        </div>}{!isServiceDetail && <WhatsAppButton topic="general" label={language.cta} />}</div><div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div></div></section>}
     </main>
   );
 }
