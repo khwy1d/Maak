@@ -41,7 +41,8 @@ export default function Pages({ path }: { path: string }) {
   const { lang, t } = useApp();
   const language = copy[lang];
   const key = path === "/about" || path === "/contact" ? path.slice(1) : path === "/services" || path === "/" ? "services" : path === "/flights" ? "flight" : path === "/visas" ? "visa" : path === "/hotels" ? "hotel" : path === "/car-rental" ? "car" : path === "/tourism" ? "tourism" : "notFound";
-  const page = language[key as keyof typeof language] ?? { title: lang === "ar" ? "الصفحة غير موجودة" : "Page not found", intro: lang === "ar" ? "لم نعثر على الصفحة المطلوبة. يمكنك العودة إلى الرئيسية أو استعراض خدماتنا." : "We couldn't find that page. Return home or explore our services.", bullets: [] as string[] };
+  const pageContent = language as Record<string, { title: string; intro: string; bullets?: string[] }>;
+  const page = pageContent[key] ?? { title: lang === "ar" ? "الصفحة غير موجودة" : "Page not found", intro: lang === "ar" ? "لم نعثر على الصفحة المطلوبة. يمكنك العودة إلى الرئيسية أو استعراض خدماتنا." : "We couldn't find that page. Return home or explore our services.", bullets: [] as string[] };
   const isServices = key === "services";
   const serviceList = routes.filter((r) => r.key !== "services");
   return (
