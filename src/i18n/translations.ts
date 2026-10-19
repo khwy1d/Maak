@@ -23,6 +23,11 @@ const ar = {
       { key: "visa", ar: "خدمات التأشيرات", en: "Visa Services", desc: "نوضّح لك الخطوات والمستندات المعتادة ونرافقك في تجهيز طلبك. القرار النهائي يعود للجهة المختصة." },
       { key: "hotel", ar: "حجوزات الفنادق", en: "Hotel Reservations", desc: "نساعدك في اختيار الإقامة المناسبة لوجهتك ومدة إقامتك واحتياجاتك." },
       { key: "car", ar: "تأجير السيارات", en: "Car Rentals", desc: "نساعدك في ترتيب سيارة تناسب رحلتك، سواء للتنقل اليومي أو للسفر مع العائلة." },
+      { key: "medical", ar: "السفر العلاجي", en: "Medical Travel", desc: "ننسق استفسارات السفر العلاجي والمواعيد والإقامة والنقل المرتبط بالرحلة الطبية." },
+      { key: "security", ar: "الموافقات الأمنية لمصر", en: "Egypt Security Clearance", desc: "مساعدة في الاستفسار عن إجراءات ومتطلبات الموافقات الأمنية لمصر، دون ضمان الموافقة." },
+      { key: "umrah", ar: "الحج والعمرة", en: "Hajj & Umrah", desc: "التنسيق للاستفسار عن رحلات الحج والعمرة ومتطلبات التأشيرات والسكن والنقل." },
+      { key: "bus", ar: "حجز الباصات والنقل البري", en: "Bus Tickets & Ground Transport", desc: "استفسر عن خيارات النقل البري وحجوزات الباصات المحلية والدولية." },
+      { key: "realEstate", ar: "الخدمات العقارية", en: "Real Estate Services", desc: "استفسر عن تنسيق خدمات العقارات مثل الإيجار والبيع والشراء وإدارة الأملاك." },
     ],
   },
   why: {
@@ -73,6 +78,11 @@ const ar = {
     visa: "مرحبًا، أرغب في الاستفسار عن خدمات التأشيرات.",
     hotel: "مرحبًا، أرغب في الاستفسار عن حجوزات الفنادق.",
     car: "مرحبًا، أرغب في الاستفسار عن تأجير السيارات.",
+    medical: "مرحبًا، أرغب في الاستفسار عن السفر العلاجي.",
+    security: "مرحبًا، أرغب في الاستفسار عن الموافقات الأمنية لمصر.",
+    umrah: "مرحبًا، أرغب في الاستفسار عن خدمات الحج والعمرة.",
+    bus: "مرحبًا، أرغب في الاستفسار عن حجز الباصات والنقل البري.",
+    realEstate: "مرحبًا، أرغب في الاستفسار عن الخدمات العقارية.",
   },
 };
 
@@ -99,6 +109,11 @@ const en: typeof ar = {
       { key: "visa", ar: "خدمات التأشيرات", en: "Visa Services", desc: "We explain the usual steps and documents and support you in preparing your application. Final decisions rest with the relevant authority." },
       { key: "hotel", ar: "حجوزات الفنادق", en: "Hotel Reservations", desc: "We help you find accommodation that suits your destination, length of stay and needs." },
       { key: "car", ar: "تأجير السيارات", en: "Car Rentals", desc: "We help you arrange a car that fits your trip, from daily getting around to family travel." },
+      { key: "medical", ar: "السفر العلاجي", en: "Medical Travel", desc: "We coordinate enquiries about medical travel, appointments, accommodation and related transport." },
+      { key: "security", ar: "الموافقات الأمنية لمصر", en: "Egypt Security Clearance", desc: "Ask about Egypt security-clearance procedures and requirements; approval is never guaranteed." },
+      { key: "umrah", ar: "الحج والعمرة", en: "Hajj & Umrah", desc: "Enquire about Hajj and Umrah trips, visa requirements, accommodation and transport." },
+      { key: "bus", ar: "حجز الباصات والنقل البري", en: "Bus Tickets & Ground Transport", desc: "Ask about local and international bus bookings and ground transport options." },
+      { key: "realEstate", ar: "الخدمات العقارية", en: "Real Estate Services", desc: "Enquire about real-estate coordination such as rentals, sales, purchases and property management." },
     ],
   },
   why: {
@@ -149,6 +164,11 @@ const en: typeof ar = {
     visa: "Hello, I'd like to inquire about visa services.",
     hotel: "Hello, I'd like to inquire about hotel reservations.",
     car: "Hello, I'd like to inquire about car rentals.",
+    medical: "Hello, I'd like to inquire about medical travel.",
+    security: "Hello, I'd like to inquire about Egypt security clearance.",
+    umrah: "Hello, I'd like to inquire about Hajj and Umrah services.",
+    bus: "Hello, I'd like to inquire about bus tickets and ground transport.",
+    realEstate: "Hello, I'd like to inquire about real-estate services.",
   },
 };
 
