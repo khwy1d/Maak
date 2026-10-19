@@ -313,3 +313,25 @@ button, input, select, textarea { touch-action: manipulation; }
   .hero h1 { font-size: clamp(1.9rem, 6.8vw, 3rem); max-width: 15ch; }
   .hero-watermark { width: 86%; opacity: .10; }
 }
+
+
+/* Fine-tune hero image visibility and headline scale */
+.hero h1 {
+  font-size: clamp(1.95rem, 4vw, 3.35rem);
+  line-height: 1.24;
+  max-width: 16ch;
+}
+.hero-watermark {
+  opacity: .19;
+  background-image: linear-gradient(90deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 5%, transparent) 28%, transparent 72%), url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=85");
+}
+[dir="rtl"] .hero-watermark {
+  background-image: linear-gradient(270deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 5%, transparent) 28%, transparent 72%), url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1600&q=85");
+}
+@media (max-width: 899px) {
+  .hero h1 {
+    font-size: clamp(1.75rem, 6.2vw, 2.75rem);
+    max-width: 16ch;
+  }
+  .hero-watermark { opacity: .17; }
+}
