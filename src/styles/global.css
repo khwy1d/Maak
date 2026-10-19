@@ -490,14 +490,3 @@ svg { color: var(--c-gold); }
 /* Keep WhatsApp icons in WhatsApp green instead of the gold brand icon colour */
 a[href*="wa.me"] svg, a[href*="whatsapp.com"] svg { color: #25D366; }
 
-/* WhatsApp contact buttons are gold sitewide; keep the WhatsApp glyph green */
-a.btn[href*="wa.me"], a.btn[href*="whatsapp.com"] {
-  background: var(--c-gold);
-  color: #102A2A;
-  border-color: var(--c-gold);
-}
-a.btn[href*="wa.me"] svg, a.btn[href*="whatsapp.com"] svg { color: #25D366; }
-a.btn[href*="wa.me"]:hover, a.btn[href*="whatsapp.com"]:hover {
-  background: color-mix(in srgb, var(--c-gold) 88%, white);
-  border-color: var(--c-gold);
-}
