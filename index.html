@@ -7,18 +7,24 @@
     <meta name="description" content="معك لخدمات السفر: حجز تذاكر الطيران، خدمات التأشيرات، حجوزات الفنادق، وتأجير السيارات." />
     <meta name="theme-color" content="#142C4E" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://maaktravel.vercel.app/" />
     <meta property="og:title" content="معك | MAAK — دائمًا معك" />
     <meta property="og:description" content="Always with you. | دائمًا معك" />
-    <meta property="og:image" content="/favicon.png" />
+    <meta property="og:image" content="https://maaktravel.vercel.app/favicon.png" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://maaktravel.vercel.app/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <script>
       try {
-        var d = document.documentElement, l = localStorage.getItem("maak-lang") || "ar";
-        d.lang = l; d.dir = l === "ar" ? "rtl" : "ltr";
-        d.dataset.theme = localStorage.getItem("maak-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        var d = document.documentElement;
+        var l = localStorage.getItem("maak-lang");
+        if (l !== "ar" && l !== "en") l = "ar";
+        var t = localStorage.getItem("maak-theme");
+        if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        d.lang = l; d.dir = l === "ar" ? "rtl" : "ltr"; d.dataset.theme = t;
       } catch (e) {}
     </script>
   </head>

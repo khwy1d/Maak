@@ -1,8 +1,10 @@
-/** Central site configuration. Replace the placeholder values when real details are available. */
+/** Central site configuration. */
 export const siteConfig = {
-  // PLACEHOLDER — replace with the real WhatsApp number (any format; digits are extracted).
-  whatsappNumber: "+000 000 000 0000",
-  // Optional contact details. Leave empty ("") to hide them. Nothing here is invented.
+  // Official WhatsApp contact number in international format.
+  whatsappNumber: "+967776002190",
+  // Optional contact details. Leave empty ("") to hide them.
   email: "",
   address: "",
+  // Current production deployment.
+  siteUrl: "https://maaktravel.vercel.app",
 };
