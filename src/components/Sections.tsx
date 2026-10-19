@@ -1,4 +1,4 @@
-import { ChevronDown, Handshake, ListChecks, MessagesSquare, Sparkles, MapPinned } from "lucide-react";
+import { ChevronDown, Handshake, ListChecks, MessagesSquare, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
