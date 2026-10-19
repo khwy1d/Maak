@@ -1,7 +1,7 @@
 import { siteConfig } from "../config/site";
 import { translations, type Lang } from "../i18n/translations";
 
-export type WaTopic = "general" | "flight" | "visa" | "hotel" | "car";
+export type WaTopic = "general" | "flight" | "visa" | "hotel" | "car" | "medical" | "security" | "umrah" | "bus" | "realEstate";
 
 /** Click-to-chat URL with a prefilled, URL-encoded message in the chosen language. */
 export function whatsappUrl(lang: Lang, topic: WaTopic = "general"): string {
