@@ -335,3 +335,68 @@ button, input, select, textarea { touch-action: manipulation; }
   }
   .hero-watermark { opacity: .17; }
 }
+
+
+/* Glassmorphism service cards inspired by the supplied reference */
+.services { grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 18px; }
+@media (min-width: 640px) {
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+}
+@media (min-width: 1000px) {
+  .services { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+}
+.service.service-card-link {
+  position: relative;
+  min-width: 0;
+  min-height: 270px;
+  overflow: hidden;
+  cursor: pointer;
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(255,255,255,.76), rgba(255,255,255,.34));
+  border: 1px solid rgba(255,255,255,.72);
+  box-shadow: 0 14px 36px rgba(20,44,78,.10), inset 0 1px 0 rgba(255,255,255,.7);
+  backdrop-filter: blur(18px) saturate(155%);
+  -webkit-backdrop-filter: blur(18px) saturate(155%);
+  text-decoration: none;
+}
+:root[data-theme="dark"] .service.service-card-link {
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(30,52,80,.78), rgba(12,27,51,.60));
+  border-color: rgba(217,226,236,.16);
+  box-shadow: 0 14px 36px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.service.service-card-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 12% 0%, rgba(255,255,255,.42), transparent 52%);
+  opacity: .85;
+}
+.service.service-card-link > * { position: relative; }
+.service.service-card-link:hover,
+.service.service-card-link:focus-visible {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 48%, white);
+  box-shadow: 0 18px 42px rgba(20,44,78,.16), inset 0 1px 0 rgba(255,255,255,.8);
+}
+.service.service-card-link h3 { font-size: 1.22rem; }
+.service.service-card-link .service-icon {
+  background: rgba(32,184,166,.14);
+  border: 1px solid rgba(255,255,255,.48);
+}
+.service-card-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 8px;
+  color: var(--accent-text);
+  font-size: .92rem;
+  font-weight: 700;
+}
+.services-all-wrap { display: flex; justify-content: center; margin-top: 30px; }
+.services-all { min-height: 50px; padding-inline: 24px; }
+@media (max-width: 639px) {
+  .service.service-card-link { min-height: 230px; padding: 23px; }
+}
