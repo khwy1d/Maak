@@ -4,6 +4,7 @@ import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
 import type { WaTopic } from "../utils/whatsapp";
 import WhatsAppButton from "./WhatsAppButton";
+import SocialFollow from "./SocialFollow";
 
 const routes = [
   { path: "/services", key: "services", icon: Compass },
@@ -137,6 +138,7 @@ export default function Pages({ path }: { path: string }) {
           <textarea id="inquiry-details" rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder={lang === "ar" ? "اكتب أي متطلبات أو أسئلة" : "Any requirements or questions"} />
           <a className="btn btn-primary inquiry-submit" href={inquiryUrl} target="_blank" rel="noopener noreferrer"><Send size={18} />{lang === "ar" ? "متابعة عبر واتساب" : "Continue on WhatsApp"}</a>
         </div>}{!isServiceDetail && <WhatsAppButton topic="general" label={language.cta} />}</div><div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div></div></section>}
+      {key === "contact" && <SocialFollow />}
     </main>
   );
 }
