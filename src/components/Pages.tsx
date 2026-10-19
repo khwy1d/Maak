@@ -76,6 +76,7 @@ const copy: Record<"ar" | "en", LocaleCopy> = {
 
 export default function Pages({ path }: { path: string }) {
   const { lang, t } = useApp();
+  const [departureCity, setDepartureCity] = useState("");
   const [destination, setDestination] = useState("");
   const [travelDate, setTravelDate] = useState("");
   const [travellers, setTravellers] = useState("1");
@@ -103,8 +104,8 @@ export default function Pages({ path }: { path: string }) {
   const serviceTitle = page.title;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const inquiryMessage = lang === "ar"
-    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}\nالوجهة: ${destination || "لم أحدد بعد"}\nالتاريخ: ${travelDate || "مرن"}\nعدد المسافرين: ${travellers}\nتفاصيل إضافية: ${details || "لا توجد"}`
-    : `Hello MAAK, I would like to enquire about: ${serviceTitle}\nDestination: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`;
+    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}${key === "flight" ? `\nمدينة المغادرة: ${departureCity || "لم أحدد بعد"}` : ""}\n${key === "flight" ? "مدينة الوصول" : "الوجهة"}: ${destination || "لم أحدد بعد"}\nالتاريخ: ${travelDate || "مرن"}\nعدد المسافرين: ${travellers}\nتفاصيل إضافية: ${details || "لا توجد"}`
+    : `Hello MAAK, I would like to enquire about: ${serviceTitle}${key === "flight" ? `\nDeparture city: ${departureCity || "Not decided yet"}` : ""}\n${key === "flight" ? "Arrival city" : "Destination"}: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`;
   const inquiryUrl = `https://wa.me/${digits}?text=${encodeURIComponent(inquiryMessage)}`;
   const serviceList = routes.filter((r) => r.key !== "services");
   const aboutPrinciples = lang === "ar" ? [
@@ -119,17 +120,18 @@ export default function Pages({ path }: { path: string }) {
   return (
     <main className="inner-page">
       <section className="page-hero"><div className="container">
-        {!isServices && key !== "about" && <p className="slogan"><span className="slogan-dot" />{t.slogan}</p>}
+        {!isServices && key !== "about" && key !== "flight" && <p className="slogan"><span className="slogan-dot" />{t.slogan}</p>}
         <h1>{page.title}</h1><p className="lead">{page.intro}</p>
         {!isServices && <div className="actions"><WhatsAppButton topic={key === "flight" || key === "visa" || key === "hotel" || key === "car" ? key : "general"} /><a className="btn btn-ghost" href="/services">{lang === "ar" ? "استعرض الخدمات" : "Explore services"} <ArrowUpRight size={17} /></a></div>}
       </div></section>
       {isServices ? <section className="section"><div className="container"><div className="section-head"><h2>{lang === "ar" ? "اختر الخدمة التي تحتاجها" : "Choose the service you need"}</h2><p>{page.intro}</p></div><div className="services page-services">
         {serviceList.map((item) => { const Icon = item.icon; const p = pageContent[item.key]; return <a className="service service-card-link" href={item.path} key={item.path} aria-label={p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{p?.title ?? (lang === "ar" ? "السياحة والرحلات" : "Tourism and trips")}</h3><p>{p?.intro}</p></a>; })}
-      </div></div></section> : key === "about" ? <section className="section about-principles-section"><div className="container"><div className="services about-principles">{aboutPrinciples.map((item) => { const Icon = item.icon; return <article className="service about-principle-card" key={item.title}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></article>; })}</div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card"><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p>{isServiceDetail && <div className="inquiry-form">
+      </div></div></section> : key === "about" ? <section className="section about-principles-section"><div className="container"><div className="services about-principles">{aboutPrinciples.map((item) => { const Icon = item.icon; return <article className="service about-principle-card" key={item.title}><span className="service-icon"><Icon size={26} aria-hidden="true" /></span><h3>{item.title}</h3><p>{item.text}</p></article>; })}</div></div></section> : <section className="section"><div className="container page-detail"><div className="page-detail-card">{key !== "flight" && <><h2>{lang === "ar" ? "كيف نساعدك؟" : "How we can help"}</h2><ul>{(page.bullets ?? []).map((b) => <li key={b}>{b}</li>)}</ul><p className="note">{language.note}</p></>}{isServiceDetail && <div className="inquiry-form">
           <h3>{lang === "ar" ? "أرسل تفاصيل طلبك" : "Tell us what you need"}</h3>
           <p>{lang === "ar" ? "املأ ما تعرفه من التفاصيل، وسنجهّز لك رسالة واتساب يمكنك مراجعتها قبل الإرسال." : "Fill in what you know. We’ll prepare a WhatsApp message for you to review before sending."}</p>
-          <label htmlFor="inquiry-destination">{lang === "ar" ? "الوجهة أو المدينة" : "Destination or city"}</label>
-          <input id="inquiry-destination" value={destination} onChange={(e) => setDestination(e.target.value)} placeholder={lang === "ar" ? "مثال: القاهرة" : "e.g. Cairo"} />
+          {key === "flight" && <><label htmlFor="inquiry-departure">{lang === "ar" ? "المغادرة من" : "Departure city"}</label><input id="inquiry-departure" value={departureCity} onChange={(e) => setDepartureCity(e.target.value)} placeholder={lang === "ar" ? "مثال: تعز" : "e.g. Taiz"} /></>}
+          <label htmlFor="inquiry-destination">{key === "flight" ? (lang === "ar" ? "الوصول إلى" : "Arrival city") : (lang === "ar" ? "الوجهة أو المدينة" : "Destination or city")}</label>
+          <input id="inquiry-destination" value={destination} onChange={(e) => setDestination(e.target.value)} placeholder={lang === "ar" ? (key === "flight" ? "مثال: القاهرة" : "مثال: القاهرة") : "e.g. Cairo"} />
           <div className="inquiry-row">
             <div><label htmlFor="inquiry-date">{lang === "ar" ? "التاريخ التقريبي" : "Approximate date"}</label><input id="inquiry-date" type="date" value={travelDate} onChange={(e) => setTravelDate(e.target.value)} /></div>
             <div><label htmlFor="inquiry-travellers">{lang === "ar" ? "عدد المسافرين" : "Travellers"}</label><select id="inquiry-travellers" value={travellers} onChange={(e) => setTravellers(e.target.value)}>{Array.from({length: 10}, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
@@ -137,7 +139,7 @@ export default function Pages({ path }: { path: string }) {
           <label htmlFor="inquiry-details">{lang === "ar" ? "تفاصيل إضافية (اختياري)" : "Additional details (optional)"}</label>
           <textarea id="inquiry-details" rows={3} value={details} onChange={(e) => setDetails(e.target.value)} placeholder={lang === "ar" ? "اكتب أي متطلبات أو أسئلة" : "Any requirements or questions"} />
           <a className="btn btn-primary inquiry-submit" href={inquiryUrl} target="_blank" rel="noopener noreferrer"><Send size={18} />{lang === "ar" ? "متابعة عبر واتساب" : "Continue on WhatsApp"}</a>
-        </div>}{!isServiceDetail && <WhatsAppButton topic="general" label={language.cta} />}</div><div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div></div></section>}
+        </div>}{!isServiceDetail && <WhatsAppButton topic="general" label={language.cta} />}</div>{key !== "flight" && <div className="page-side-card glass"><MapPinned size={34} /><h2>{lang === "ar" ? "دائمًا معك" : "Always with you"}</h2><p>{lang === "ar" ? "تواصل مباشر لمناقشة احتياجات رحلتك والخطوات التالية." : "Direct contact to discuss your travel needs and next steps."}</p></div>}</div></section>}
       {key === "contact" && <SocialFollow />}
     </main>
   );
