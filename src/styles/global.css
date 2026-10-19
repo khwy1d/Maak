@@ -475,9 +475,9 @@ button, input, select, textarea { touch-action: manipulation; }
 }
 
 
-/* Flight inquiry card should use the full desktop width when its side card is hidden */
+/* Service inquiry cards use the available desktop width when the side card is hidden */
 @media (min-width: 800px) {
-  .page-detail-flight { grid-template-columns: minmax(0, 1fr); }
-  .page-detail-flight > .page-detail-card { width: 100%; min-width: 0; }
-  .page-detail-flight .inquiry-form { max-width: none; }
+  .page-detail-service { grid-template-columns: minmax(0, 1fr); }
+  .page-detail-service > .page-detail-card { width: 100%; min-width: 0; }
+  .page-detail-service .inquiry-form { max-width: none; }
 }
