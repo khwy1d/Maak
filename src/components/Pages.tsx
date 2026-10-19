@@ -12,7 +12,21 @@ const routes = [
   { path: "/tourism", key: "tourism", icon: MapPinned },
 ];
 
-const copy = {
+type PageCopy = { title: string; intro: string; bullets?: string[] };
+type LocaleCopy = {
+  services: PageCopy;
+  flight: PageCopy;
+  visa: PageCopy;
+  hotel: PageCopy;
+  car: PageCopy;
+  tourism: PageCopy;
+  about: PageCopy;
+  contact: PageCopy;
+  cta: string;
+  note: string;
+};
+
+const copy: Record<"ar" | "en", LocaleCopy> = {
   ar: {
     services: { title: "خدمات معك", intro: "خدمات سفر أساسية، وتواصل مباشر لمساعدتك في ترتيب رحلتك." },
     flight: { title: "حجز تذاكر الطيران", intro: "أخبرنا بوجهتك وتواريخ سفرك لنساعدك في استكشاف خيارات الرحلات والخطوات التالية.", bullets: ["الاستفسار عن الرحلات والوجهات", "مقارنة الخيارات وفق احتياجك", "المساعدة في خطوات الحجز"] },
@@ -41,7 +55,16 @@ export default function Pages({ path }: { path: string }) {
   const { lang, t } = useApp();
   const language = copy[lang];
   const key = path === "/about" || path === "/contact" ? path.slice(1) : path === "/services" || path === "/" ? "services" : path === "/flights" ? "flight" : path === "/visas" ? "visa" : path === "/hotels" ? "hotel" : path === "/car-rental" ? "car" : path === "/tourism" ? "tourism" : "notFound";
-  const pageContent = language as Record<string, { title: string; intro: string; bullets?: string[] }>;
+  const pageContent: Record<string, PageCopy> = {
+    services: language.services,
+    flight: language.flight,
+    visa: language.visa,
+    hotel: language.hotel,
+    car: language.car,
+    tourism: language.tourism,
+    about: language.about,
+    contact: language.contact,
+  };
   const page = pageContent[key] ?? { title: lang === "ar" ? "الصفحة غير موجودة" : "Page not found", intro: lang === "ar" ? "لم نعثر على الصفحة المطلوبة. يمكنك العودة إلى الرئيسية أو استعراض خدماتنا." : "We couldn't find that page. Return home or explore our services.", bullets: [] as string[] };
   const isServices = key === "services";
   const serviceList = routes.filter((r) => r.key !== "services");
