@@ -33,7 +33,6 @@ export function How() {
           {t.how.steps.map((s, i) => (
             <li key={s.t}><span className="step-n" aria-hidden="true">{i + 1}</span><h3>{s.t}</h3><p>{s.d}</p></li>))}
         </ol>
-        <p className="note">{t.how.note}</p>
       </div>
     </section>
   );
