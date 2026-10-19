@@ -75,10 +75,10 @@ export default function Pages({ path }: { path: string }) {
   const isServices = key === "services";
   const isServiceDetail = ["flight", "visa", "hotel", "car", "tourism"].includes(key);
   const serviceTitle = page.title;
-  const digits = siteConfig.whatsappNumber.replace(/\\D/g, "");
+  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const inquiryMessage = lang === "ar"
-    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}\\nالوجهة: ${destination || "لم أحدد بعد"}\\nالتاريخ: ${travelDate || "مرن"}\\nعدد المسافرين: ${travellers}\\nتفاصيل إضافية: ${details || "لا توجد"}`
-    : `Hello MAAK, I would like to enquire about: ${serviceTitle}\\nDestination: ${destination || "Not decided yet"}\\nDate: ${travelDate || "Flexible"}\\nTravellers: ${travellers}\\nAdditional details: ${details || "None"}`;
+    ? `مرحبًا معك، أريد الاستفسار عن: ${serviceTitle}\nالوجهة: ${destination || "لم أحدد بعد"}\nالتاريخ: ${travelDate || "مرن"}\nعدد المسافرين: ${travellers}\nتفاصيل إضافية: ${details || "لا توجد"}`
+    : `Hello MAAK, I would like to enquire about: ${serviceTitle}\nDestination: ${destination || "Not decided yet"}\nDate: ${travelDate || "Flexible"}\nTravellers: ${travellers}\nAdditional details: ${details || "None"}`;
   const inquiryUrl = `https://wa.me/${digits}?text=${encodeURIComponent(inquiryMessage)}`;
   const serviceList = routes.filter((r) => r.key !== "services");
   return (
