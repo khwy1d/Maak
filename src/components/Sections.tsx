@@ -102,9 +102,9 @@ export function Footer() {
       <div className="container footer-grid">
         <div><Logo size={48} /><p className="footer-desc">{t.footer.desc}</p><WhatsAppButton variant="ghost" /></div>
         <nav aria-label={t.footer.links}><h4>{t.footer.links}</h4>
-          <a href="#home">{t.nav.home}</a><a href="#services">{t.nav.services}</a><a href="#about">{t.nav.about}</a><a href="#contact">{t.nav.contact}</a></nav>
+          <a href="/">{t.nav.home}</a><a href="/services">{t.nav.services}</a><a href="/about">{t.nav.about}</a><a href="/contact">{t.nav.contact}</a></nav>
         <nav aria-label={t.footer.services}><h4>{t.footer.services}</h4>
-          {t.services.items.map((s) => <a key={s.key} href="#services">{lang === "ar" ? s.ar : s.en}</a>)}</nav>
+          {t.services.items.map((s) => <a key={s.key} href={s.key === "flight" ? "/flights" : s.key === "visa" ? "/visas" : s.key === "hotel" ? "/hotels" : "/car-rental"}>{lang === "ar" ? s.ar : s.en}</a>)}</nav>
       </div>
       <div className="container copy">© {new Date().getFullYear()} {t.brand}. {t.footer.rights}</div>
     </footer>
