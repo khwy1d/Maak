@@ -481,3 +481,8 @@ button, input, select, textarea { touch-action: manipulation; }
   .page-detail-service > .page-detail-card { width: 100%; min-width: 0; }
   .page-detail-service .inquiry-form { max-width: none; }
 }
+
+
+/* Brand icon colour: gold across the site, preserving social platform colours */
+svg { color: var(--c-gold); }
+.social-follow-link svg { color: inherit; }
