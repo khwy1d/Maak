@@ -17,7 +17,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="nav glass">
-        <a href="#home" className="nav-logo" aria-label={t.brand} onClick={() => setOpen(false)}><Logo size={40} /></a>
+        <a href="/" className="nav-logo" aria-label={t.nav.home} onClick={() => setOpen(false)}><Logo size={40} /></a>
         <nav id="main-nav" className={`nav-links ${open ? "open" : ""}`} aria-label={t.a11y.nav}>
           {links.map(([h, l]) => <a key={h} href={h} onClick={() => setOpen(false)}>{l}</a>)}
           <div className="nav-wa-mobile"><WhatsAppButton /></div>
