@@ -9,8 +9,9 @@ const ar = {
   langLabel: "English",
   whatsapp: "تواصل عبر واتساب",
   hero: {
-    title: "رحلتك تبدأ من هنا.",
-    text: "نرافقك في ترتيبات سفرك، من حجز الطيران إلى الإقامة والخدمات التي تحتاجها.",
+    title: "رحلتك تبدأ بخطوة،\nونحن {{brand}} في تفاصيلها.",
+    text: "نصمّم رحلتك بعناية، ونرافقك في كل تفصيلة — من التخطيط إلى الوصول.",
+    start: "ابدأ رحلتك الآن",
     explore: "استكشف الخدمات",
     chips: ["طيران", "تأشيرات", "فنادق", "سيارات"],
   },
@@ -95,8 +96,9 @@ const en: typeof ar = {
   langLabel: "العربية",
   whatsapp: "Chat on WhatsApp",
   hero: {
-    title: "Your journey starts here.",
-    text: "We make travel arrangements simpler, with support for flights, visas, hotels, and car rentals.",
+    title: "Your journey starts with one step,\nand we are {{brand}} in every detail.",
+    text: "We design your journey with care and accompany you through every detail — from planning to arrival.",
+    start: "Start your journey now",
     explore: "Explore services",
     chips: ["Flights", "Visas", "Hotels", "Cars"],
   },
