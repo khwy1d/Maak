@@ -2,7 +2,7 @@ export type Lang = "ar" | "en";
 
 const ar = {
   meta: { title: "معك | MAAK — دائمًا معك", description: "معك لخدمات السفر: حجز تذاكر الطيران، خدمات التأشيرات، حجوزات الفنادق، وتأجير السيارات. تواصل معنا عبر واتساب." },
-  brand: "معك | MAAK",
+  brand: "معك",
   slogan: "دائمًا معك",
   a11y: { menu: "فتح القائمة", close: "إغلاق القائمة", lang: "Switch to English", themeDark: "التبديل إلى الوضع الداكن", themeLight: "التبديل إلى الوضع الفاتح", nav: "التنقل الرئيسي", logo: "شعار معك" },
   nav: { home: "الرئيسية", services: "خدماتنا", about: "من نحن", contact: "تواصل معنا" },
@@ -78,7 +78,7 @@ const ar = {
 
 const en: typeof ar = {
   meta: { title: "MAAK | معك — Always with you", description: "MAAK travel services: flight bookings, visa services, hotel reservations and car rentals. Get in touch on WhatsApp." },
-  brand: "MAAK | معك",
+  brand: "MAAK",
   slogan: "Always with you.",
   a11y: { menu: "Open menu", close: "Close menu", lang: "التبديل إلى العربية", themeDark: "Switch to dark mode", themeLight: "Switch to light mode", nav: "Main navigation", logo: "MAAK logo" },
   nav: { home: "Home", services: "Services", about: "About us", contact: "Contact" },

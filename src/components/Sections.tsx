@@ -104,7 +104,8 @@ export function Footer() {
         <nav aria-label={t.footer.links}><h4>{t.footer.links}</h4>
           <a href="/">{t.nav.home}</a><a href="/services">{t.nav.services}</a><a href="/about">{t.nav.about}</a><a href="/contact">{t.nav.contact}</a></nav>
         <nav aria-label={t.footer.services}><h4>{t.footer.services}</h4>
-          {t.services.items.map((s) => <a key={s.key} href={s.key === "flight" ? "/flights" : s.key === "visa" ? "/visas" : s.key === "hotel" ? "/hotels" : "/car-rental"}>{lang === "ar" ? s.ar : s.en}</a>)}</nav>
+          {t.services.items.map((s) => <a key={s.key} href={s.key === "flight" ? "/flights" : s.key === "visa" ? "/visas" : s.key === "hotel" ? "/hotels" : "/car-rental"}>{lang === "ar" ? s.ar : s.en}</a>)}
+          <a href="/tourism">{lang === "ar" ? "السياحة والرحلات" : "Tourism and trips"}</a></nav>
       </div>
       <div className="container copy">© {new Date().getFullYear()} {t.brand}. {t.footer.rights}</div>
     </footer>
