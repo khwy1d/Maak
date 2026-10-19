@@ -1,9 +1,9 @@
-import { ArrowUpRight, Car, FileCheck, Hotel, Plane } from "lucide-react";
+import { ArrowUpRight, Building2, Bus, Car, FileCheck, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
 import { whatsappUrl, type WaTopic } from "../utils/whatsapp";
 
-const icons = { flight: Plane, visa: FileCheck, hotel: Hotel, car: Car };
+const icons = { flight: Plane, visa: FileCheck, hotel: Hotel, car: Car, medical: HeartPulse, security: ShieldCheck, umrah: Moon, bus: Bus, realEstate: Building2 };
 
 export default function Services() {
   const { t, lang } = useApp();
