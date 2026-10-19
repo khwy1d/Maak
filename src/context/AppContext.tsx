@@ -5,15 +5,25 @@ type Theme = "light" | "dark";
 interface Ctx { lang: Lang; theme: Theme; t: typeof translations.ar; toggleLang: () => void; toggleTheme: () => void; }
 const AppContext = createContext<Ctx | null>(null);
 
-const read = <T extends string>(key: string, fallback: T): T => {
-  try { return (localStorage.getItem(key) as T) || fallback; } catch { return fallback; }
+const readLang = (): Lang => {
+  try {
+    const value = localStorage.getItem("maak-lang");
+    return value === "ar" || value === "en" ? value : "ar";
+  } catch { return "ar"; }
+};
+const readTheme = (): Theme => {
+  try {
+    const value = localStorage.getItem("maak-theme");
+    if (value === "light" || value === "dark") return value;
+  } catch { /* storage may be unavailable */ }
+  try { return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }
+  catch { return "light"; }
 };
 const write = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>(() => read<Lang>("maak-lang", "ar"));
-  const [theme, setTheme] = useState<Theme>(() =>
-    read<Theme>("maak-theme", matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
+  const [lang, setLang] = useState<Lang>(readLang);
+  const [theme, setTheme] = useState<Theme>(readTheme);
 
   useEffect(() => {
     const d = document.documentElement;
