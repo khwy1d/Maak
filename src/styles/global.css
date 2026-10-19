@@ -486,3 +486,6 @@ button, input, select, textarea { touch-action: manipulation; }
 /* Brand icon colour: gold across the site, preserving social platform colours */
 svg { color: var(--c-gold); }
 .social-follow-link svg { color: inherit; }
+
+/* Keep WhatsApp icons in WhatsApp green instead of the gold brand icon colour */
+a[href*="wa.me"] svg, a[href*="whatsapp.com"] svg { color: #25D366; }
