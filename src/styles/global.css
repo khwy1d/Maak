@@ -590,14 +590,14 @@ body { background: transparent; }
 /* ===== Reference-matched glassmorphism system ===== */
 :root {
   --teal: #20B8A6; --navy: #142C4E; --gold: #F5B52E; --slate: #D9E2EC;
-  --glass: rgba(255,255,255,.68); --glass-strong: rgba(255,255,255,.82);
+  --glass: rgba(255,255,255,.46); --glass-strong: rgba(255,255,255,.62);
   --glass-brd: rgba(255,255,255,.75); --glass-hi: rgba(255,255,255,.9);
   --glass-border: var(--glass-brd);
   --glass-shadow: 0 10px 40px -12px rgba(20,44,78,.22);
   --orb1: rgba(32,184,166,.38); --orb2: rgba(245,181,46,.22); --orb3: rgba(120,160,215,.45);
 }
 :root[data-theme="dark"] {
-  --glass: rgba(20,44,78,.72); --glass-strong: rgba(20,44,78,.84);
+  --glass: rgba(20,44,78,.46); --glass-strong: rgba(20,44,78,.62);
   --glass-brd: rgba(255,255,255,.14); --glass-hi: rgba(255,255,255,.28);
   --glass-border: var(--glass-brd);
   --glass-shadow: 0 14px 44px -14px rgba(0,0,0,.65);
