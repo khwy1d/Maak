@@ -22,10 +22,17 @@ export default function App() {
   const isHome = path === "/";
   return (
     <>
+      <div className="bg-blobs" aria-hidden="true">
+        <span className="blob blob-1" />
+        <span className="blob blob-2" />
+        <span className="blob blob-3" />
+      </div>
+      <div className="site-content">
       <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
       {isHome ? <><main><Hero /><Services /><Why /><How /><Contact /><SocialFollow /></main></> : <Pages path={path} />}
       <Footer />
+      </div>
     </>
   );
 }
