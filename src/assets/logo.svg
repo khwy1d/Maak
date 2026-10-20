@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-24 -50 560 560">
   <defs>
     <linearGradient id="headL" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0" stop-color="#2cf2de"/><stop offset="0.45" stop-color="#05cdc4"/><stop offset="1" stop-color="#087b86"/></linearGradient>
     <linearGradient id="headR" x1="0.4" y1="0" x2="0.6" y2="1"><stop offset="0" stop-color="#1a9db4"/><stop offset="0.45" stop-color="#046a8c"/><stop offset="1" stop-color="#03223f"/></linearGradient>
