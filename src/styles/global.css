@@ -490,3 +490,98 @@ svg { color: var(--c-gold); }
 /* Keep WhatsApp icons in WhatsApp green instead of the gold brand icon colour */
 a[href*="wa.me"] svg, a[href*="whatsapp.com"] svg { color: #25D366; }
 
+
+
+/* ===== MAAK atmospheric glass background ===== */
+html { background: var(--bg); }
+body { background: transparent; }
+.site-content { position: relative; z-index: 1; min-height: 100vh; }
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+  background: var(--bg);
+}
+.blob {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(80px);
+  will-change: auto;
+}
+.blob-1 {
+  width: min(650px, 85vw);
+  height: min(650px, 85vw);
+  top: -180px;
+  left: -180px;
+  background: radial-gradient(circle, rgba(32,184,166,.28) 0%, transparent 70%);
+}
+.blob-2 {
+  width: min(850px, 100vw);
+  height: min(850px, 100vw);
+  right: -200px;
+  bottom: -250px;
+  background: radial-gradient(circle, rgba(20,44,78,.14) 0%, transparent 70%);
+}
+.blob-3 {
+  width: min(500px, 75vw);
+  height: min(500px, 75vw);
+  top: 35%;
+  left: 45%;
+  filter: blur(100px);
+  background: radial-gradient(circle, rgba(245,181,46,.12) 0%, transparent 70%);
+}
+:root[data-theme="dark"] .bg-blobs { background: #0A1930; }
+:root[data-theme="dark"] .blob-1 {
+  background: radial-gradient(circle, rgba(32,184,166,.18) 0%, transparent 70%);
+}
+:root[data-theme="dark"] .blob-2 {
+  background: radial-gradient(circle, rgba(20,44,78,.45) 0%, transparent 70%);
+}
+:root[data-theme="dark"] .blob-3 {
+  background: radial-gradient(circle, rgba(245,181,46,.07) 0%, transparent 70%);
+}
+/* Let the ambient background show through sections without changing content layout. */
+.section.alt { background: transparent; }
+.page-hero { background: radial-gradient(ellipse at 85% 0%, color-mix(in srgb, var(--accent) 12%, transparent), transparent 55%); }
+/* Shared glass surface for existing content cards. */
+.service:not(.feature),
+.page-detail-card,
+.page-side-card,
+.about-principle-card,
+.social-follow-card {
+  background: var(--glass);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(20px) saturate(145%);
+  -webkit-backdrop-filter: blur(20px) saturate(145%);
+  box-shadow: 0 8px 32px rgba(20,44,78,.08), inset 0 1px 0 rgba(255,255,255,.48);
+}
+.service:not(.feature):hover {
+  background: color-mix(in srgb, var(--glass) 86%, white);
+  border-color: color-mix(in srgb, var(--c-gold) 30%, var(--glass-border));
+  box-shadow: 0 16px 40px rgba(20,44,78,.12), inset 0 1px 0 rgba(255,255,255,.52);
+}
+:root[data-theme="dark"] .service:not(.feature),
+:root[data-theme="dark"] .page-detail-card,
+:root[data-theme="dark"] .page-side-card,
+:root[data-theme="dark"] .about-principle-card,
+:root[data-theme="dark"] .social-follow-card {
+  background: rgba(20,44,78,.38);
+  border-color: rgba(255,255,255,.10);
+  box-shadow: 0 8px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+:root[data-theme="dark"] .service:not(.feature):hover {
+  background: rgba(20,44,78,.50);
+  border-color: rgba(245,181,46,.25);
+}
+@media (max-width: 600px) {
+  .blob-1 { left: -260px; top: -140px; }
+  .blob-2 { right: -320px; bottom: -220px; }
+  .blob-3 { left: 18%; top: 44%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .service:not(.feature) { transition: none; }
+}
