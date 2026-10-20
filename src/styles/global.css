@@ -585,3 +585,72 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) {
   .service:not(.feature) { transition: none; }
 }
+
+
+/* ===== Reference-matched glassmorphism system ===== */
+:root {
+  --teal: #20B8A6; --navy: #142C4E; --gold: #F5B52E; --slate: #D9E2EC;
+  --glass: rgba(255,255,255,.42); --glass-strong: rgba(255,255,255,.62);
+  --glass-brd: rgba(255,255,255,.75); --glass-hi: rgba(255,255,255,.9);
+  --glass-border: var(--glass-brd);
+  --glass-shadow: 0 10px 40px -12px rgba(20,44,78,.22);
+  --orb1: rgba(32,184,166,.38); --orb2: rgba(245,181,46,.22); --orb3: rgba(120,160,215,.45);
+}
+:root[data-theme="dark"] {
+  --glass: rgba(255,255,255,.06); --glass-strong: rgba(255,255,255,.10);
+  --glass-brd: rgba(255,255,255,.14); --glass-hi: rgba(255,255,255,.28);
+  --glass-border: var(--glass-brd);
+  --glass-shadow: 0 14px 44px -14px rgba(0,0,0,.65);
+  --orb1: rgba(32,184,166,.30); --orb2: rgba(245,181,46,.12); --orb3: rgba(60,100,170,.45);
+}
+.glass {
+  background: linear-gradient(135deg,var(--glass-strong),var(--glass));
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid var(--glass-brd);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+}
+.btn-glass {
+  background: var(--glass); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-brd); box-shadow: inset 0 1px 0 var(--glass-hi);
+}
+.glass-card { position: relative; overflow: hidden; transition: transform .3s,border-color .3s; }
+.glass-card::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s;
+  background: radial-gradient(circle at var(--x,80%) var(--y,0%),rgba(255,255,255,.35),transparent 55%);
+}
+:root[data-theme="dark"] .glass-card::before {
+  background: radial-gradient(circle at var(--x,80%) var(--y,0%),rgba(32,184,166,.22),transparent 55%);
+}
+.glass-card:hover { transform: translateY(-4px); border-color: var(--teal); }
+.glass-card:hover::before { opacity: 1; }
+.bg { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.orb { position: absolute; border-radius: 50%; filter: blur(30px); }
+.o1 { width: 420px; height: 420px; top: -80px; inset-inline-end: -120px; background: radial-gradient(circle at 35% 35%,var(--orb1),transparent 70%); }
+.o2 { width: 360px; height: 360px; top: 38%; inset-inline-start: -140px; background: radial-gradient(circle,var(--orb3),transparent 70%); }
+.o3 { width: 300px; height: 300px; bottom: -60px; inset-inline-end: 10%; background: radial-gradient(circle,var(--orb2),transparent 70%); }
+#root { position: relative; z-index: 1; }
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { .glass { background: var(--glass-strong); } }
+.service.service-card-link.glass,
+.about-principle-card.glass,
+.page-detail-card.glass,
+.page-side-card.glass,
+.social-follow-card.glass {
+  background: linear-gradient(135deg,var(--glass-strong),var(--glass));
+  border-color: var(--glass-brd);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-hi);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+.service.service-card-link.glass:hover { border-color: var(--teal); }
+.btn-ghost.btn-glass { background: var(--glass); border-color: var(--glass-brd); }
+@media (max-width: 600px) {
+  .o1 { inset-inline-end: -230px; top: -120px; }
+  .o2 { inset-inline-start: -230px; }
+  .o3 { inset-inline-end: -30px; bottom: -80px; }
+}
+@media (prefers-reduced-motion: reduce) { .glass-card { transition: none; } }
+
+
+/* Let the atmospheric hero watermark blend with the glass background. */
+.hero-watermark { opacity: .4; }
