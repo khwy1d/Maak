@@ -5,6 +5,7 @@ import Services from "./components/Services";
 import Pages from "./components/Pages";
 import { Contact, Footer, How, Why } from "./components/Sections";
 import SocialFollow from "./components/SocialFollow";
+import GlassBackground from "./components/GlassBackground";
 
 function currentPath() {
   const path = window.location.pathname.replace(/\/+$/, "");
@@ -22,11 +23,7 @@ export default function App() {
   const isHome = path === "/";
   return (
     <>
-      <div className="bg-blobs" aria-hidden="true">
-        <span className="blob blob-1" />
-        <span className="blob blob-2" />
-        <span className="blob blob-3" />
-      </div>
+      <GlassBackground />
       <div className="site-content">
       <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
