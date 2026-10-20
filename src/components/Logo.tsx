@@ -1,6 +1,7 @@
-import logo from "../assets/logo.png";
+import logo from "../assets/logo.svg";
 import { useApp } from "../context/AppContext";
-/** Official logo, unaltered (only surrounding whitespace was trimmed). */
+
+/** Official vector logo icon with a live localized wordmark. */
 export default function Logo({ size = 44, wordmark = true }: { size?: number; wordmark?: boolean }) {
   const { t, lang } = useApp();
   const brandName = lang === "ar" ? "معك" : "MAAK";
