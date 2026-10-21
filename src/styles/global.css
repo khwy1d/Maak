@@ -712,3 +712,23 @@ body { background: transparent; }
 @media (min-width: 640px) and (max-width: 767px) {
   .services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+
+/* Mobile review refinements */
+@media (max-width: 767px) {
+  .menu-btn { display: none !important; }
+  .hero .hero-start { display: none !important; }
+  .page-hero .lead { display: none !important; }
+  .home-contact-cta { display: none !important; }
+  .mobile-dock {
+    border-color: var(--glass-border);
+    background: var(--glass);
+  }
+  .mobile-dock .dock-primary {
+    color: var(--c-navy);
+    background: var(--c-gold);
+  }
+  .mobile-dock .dock-primary svg { color: var(--c-navy); }
+  .mobile-dock a { font-size: clamp(.58rem, 2.5vw, .7rem); }
+  .mobile-dock a span { white-space: nowrap; }
+}
