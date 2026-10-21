@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="MAAK app icon">
-  <rect width="512" height="512" rx="112" fill="#142C4E"/>
-  <svg x="20" y="20" width="472" height="472" viewBox="-24 -50 560 560">
+  <rect width="512" height="512" fill="#FFFFFF"/>
+  <svg x="80" y="80" width="352" height="352" viewBox="-24 -50 560 560">
     
   <defs>
     <linearGradient id="headL" x1="0.3" y1="0" x2="0.7" y2="1"><stop offset="0" stop-color="#2cf2de"/><stop offset="0.45" stop-color="#05cdc4"/><stop offset="1" stop-color="#087b86"/></linearGradient>
