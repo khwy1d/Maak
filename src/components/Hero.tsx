@@ -14,7 +14,6 @@ export default function Hero() {
             <a className="btn btn-ghost" href="#services"><Compass size={18} aria-hidden="true" /> {t.hero.explore}</a>
           </div>
         </div>
-        <div className="hero-watermark" aria-hidden="true" />
       </div>
     </section>
   );
