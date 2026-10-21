@@ -652,3 +652,83 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) { .glass-card { transition: none; } }
 
 
+
+
+/* ===== Mobile app-like experience for MAAK; desktop layout remains intact ===== */
+.mobile-dock { display: none; }
+@media (max-width: 767px) {
+  html { scroll-padding-bottom: 92px; }
+  .site-content { padding-bottom: 82px; }
+  .header { inset: 8px 0 auto; }
+  .nav { width: calc(100% - 24px); padding: 7px 10px; border-radius: 22px; }
+  .nav-logo .logo-word { display: inline; }
+  .nav-tools { gap: 5px; }
+  .nav-tools .icon-btn { min-width: 38px; height: 38px; padding-inline: 8px; }
+  .nav-wa-desktop { display: none !important; }
+  .hero { padding: 108px 0 22px; }
+  .hero::before { width: 100vw; height: 100vw; opacity: .45; }
+  .hero-grid { min-height: 0; gap: 0; align-content: start; }
+  .hero-copy { max-width: none; }
+  .hero h1 { font-size: clamp(1.8rem, 7vw, 2.35rem); line-height: 1.3; max-width: 18ch; }
+  .hero .lead { margin-top: 10px; font-size: .98rem; line-height: 1.7; max-width: 40ch; }
+  .hero-watermark { display: none; }
+  .hero .actions { margin-top: 16px; gap: 8px; }
+  .hero .actions .btn { flex: 1 1 auto; min-height: 46px; padding-inline: 15px; font-size: .92rem; }
+  .hero .actions .btn-ghost { display: none; }
+  #services.section { padding-top: 22px; padding-bottom: 34px; }
+  #services .section-head { margin-bottom: 18px; }
+  #services .section-head h2 { font-size: 1.55rem; }
+  #services .section-head p { font-size: .94rem; margin-top: 6px; }
+  .services { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .service.service-card-link { min-height: 154px; padding: 15px 11px; border-radius: 20px; align-items: center; text-align: center; gap: 7px; }
+  .service.service-card-link .service-icon { width: 48px; height: 48px; border-radius: 15px; margin: 0 0 3px; }
+  .service.service-card-link .service-icon svg { width: 25px; height: 25px; }
+  .service.service-card-link h3 { font-size: .98rem; line-height: 1.45; }
+  .service.service-card-link .service-sub,
+  .service.service-card-link > p:not(.service-sub) { display: none; }
+  .services-all-wrap { margin-top: 16px; }
+  .services-all { min-height: 44px; font-size: .92rem; }
+  .mobile-dock {
+    position: fixed; z-index: 80; inset: auto 10px max(8px, env(safe-area-inset-bottom)) 10px;
+    display: grid; grid-template-columns: 1fr 1fr 1.12fr 1fr 1fr; align-items: center;
+    gap: 2px; padding: 8px 7px;
+    border: 1px solid var(--glass-brd); border-radius: 28px;
+    background: linear-gradient(135deg, var(--glass-strong), var(--glass));
+    -webkit-backdrop-filter: blur(24px) saturate(160%); backdrop-filter: blur(24px) saturate(160%);
+    box-shadow: 0 12px 36px rgba(20,44,78,.18), inset 0 1px 0 var(--glass-hi);
+  }
+  .mobile-dock a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0; min-height: 48px; color: var(--muted); font-size: .68rem; font-weight: 600; line-height: 1.35; text-align: center; }
+  .mobile-dock a svg { width: 21px; height: 21px; color: var(--c-navy); }
+  :root[data-theme="dark"] .mobile-dock a svg { color: var(--c-gold); }
+  .mobile-dock a[aria-current="page"] { color: var(--accent-text); }
+  .mobile-dock a[aria-current="page"] svg { color: var(--c-gold); }
+  .mobile-dock .dock-primary { width: 48px; height: 48px; min-height: 48px; justify-self: center; border-radius: 50%; background: var(--c-gold); color: var(--c-navy); box-shadow: 0 5px 14px rgba(245,181,46,.28); }
+  .mobile-dock .dock-primary svg { color: var(--c-navy); width: 25px; height: 25px; }
+  .mobile-dock .dock-primary span { display: none; }
+  .section { padding: 42px 0; }
+  .section-head { margin-bottom: 24px; }
+  .footer { padding-bottom: 30px; }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .services { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+
+/* Mobile review refinements */
+@media (max-width: 767px) {
+  .menu-btn { display: none !important; }
+  .hero .hero-start { display: none !important; }
+  .page-hero .lead { display: none !important; }
+  .home-contact-cta { display: none !important; }
+  .mobile-dock {
+    border-color: var(--glass-border);
+    background: var(--glass);
+  }
+  .mobile-dock .dock-primary {
+    color: var(--c-navy);
+    background: var(--c-gold);
+  }
+  .mobile-dock .dock-primary svg { color: var(--c-navy); }
+  .mobile-dock a { font-size: clamp(.58rem, 2.5vw, .7rem); }
+  .mobile-dock a span { white-space: nowrap; }
+}

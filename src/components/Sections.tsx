@@ -57,7 +57,7 @@ export function About() {
 export function Contact() {
   const { t } = useApp(); const ref = useReveal<HTMLDivElement>();
   return (
-    <section id="contact" className="section">
+    <section id="contact" className="section home-contact-cta">
       <div className="container">
         <div className="cta reveal" ref={ref}>
           <h2>{t.contact.title}</h2>
