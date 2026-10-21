@@ -652,5 +652,3 @@ body { background: transparent; }
 @media (prefers-reduced-motion: reduce) { .glass-card { transition: none; } }
 
 
-/* Let the atmospheric hero watermark blend with the glass background. */
-.hero-watermark { opacity: .4; }
