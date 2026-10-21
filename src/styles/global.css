@@ -190,7 +190,7 @@ img { max-width: 100%; display: block; }
 .footer { background: var(--c-navy); color: #E7EEF6; padding: 64px 0 28px; }
 .footer-grid { display: grid; gap: 36px; }
 .footer-desc { margin: 16px 0 20px; max-width: 36ch; color: #B7C5D8; }
-.footer nav { display: flex; flex-direction: column; } .footer h4 { margin-bottom: 8px; font-size: 1rem; color: #fff; }
+.footer nav { display: flex; flex-direction: column; } .footer-heading { margin: 0 0 8px; font-size: 1rem; line-height: inherit; color: #fff; }
 .footer nav a { padding: 6px 0; color: #B7C5D8; transition: color .2s; } .footer nav a:hover { color: var(--c-turquoise); }
 .footer .btn-ghost { color: #fff; border-color: rgba(255, 255, 255, .3); }
 .copy { margin-top: 44px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .14); font-size: .9rem; color: #B7C5D8; }
