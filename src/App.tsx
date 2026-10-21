@@ -30,12 +30,12 @@ export default function App() {
       <Header />
       {isHome ? <><main><Hero /><Services /><Why /><How /><Contact /><SocialFollow /></main></> : <Pages path={path} />}
       <Footer />
-      <nav className="mobile-dock" aria-label="التنقل السريع">
-        <a href="/" aria-label="الرئيسية" aria-current={isHome ? "page" : undefined}><House aria-hidden="true" /><span>الرئيسية</span></a>
-        <a href="/services" aria-label="الخدمات" aria-current={path === "/services" ? "page" : undefined}><LayoutGrid aria-hidden="true" /><span>الخدمات</span></a>
-        <a className="dock-primary" href="https://wa.me/967776002190" aria-label="ابدأ استفسارك عبر واتساب"><Plus aria-hidden="true" /><span>ابدأ</span></a>
-        <a href="/flights" aria-label="حجوزات الطيران"><Plane aria-hidden="true" /><span>الطيران</span></a>
-        <a href="/contact" aria-label="تواصل معنا" aria-current={path === "/contact" ? "page" : undefined}><MessageCircle aria-hidden="true" /><span>تواصل</span></a>
+      <nav className="mobile-dock" aria-label="Quick navigation">
+        <a href="/" aria-label="Home" aria-current={isHome ? "page" : undefined}><House aria-hidden="true" /><span>Home</span></a>
+        <a href="/services" aria-label="Services" aria-current={path === "/services" ? "page" : undefined}><LayoutGrid aria-hidden="true" /><span>Services</span></a>
+        <a className="dock-primary" href="https://wa.me/967776002190" aria-label="Start a WhatsApp inquiry"><Plus aria-hidden="true" /><span>Start</span></a>
+        <a href="/flights" aria-label="Flight tickets"><Plane aria-hidden="true" /><span>Flights</span></a>
+        <a href="/contact" aria-label="Contact us" aria-current={path === "/contact" ? "page" : undefined}><MessageCircle aria-hidden="true" /><span>Contact</span></a>
       </nav>
       </div>
     </>
