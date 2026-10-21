@@ -1,0 +1,28 @@
+# MAAK | معك للسفر والسياحة
+
+> MAAK is a travel services brand offering travel enquiries and assistance through direct contact. The website provides information; it does not complete bookings online.
+
+## Main pages
+
+- [Home](https://maaktravel.vercel.app/): Overview of MAAK travel services.
+- [Services](https://maaktravel.vercel.app/services): Browse available travel services.
+- [About MAAK](https://maaktravel.vercel.app/about): Learn about the company.
+- [Contact MAAK](https://maaktravel.vercel.app/contact): Contact the team about a travel enquiry.
+
+## Travel services
+
+- [Flight bookings](https://maaktravel.vercel.app/flights): Enquiries about routes, destinations, and flight booking steps.
+- [Hotel reservations](https://maaktravel.vercel.app/hotels): Enquiries about accommodation options.
+- [Car rental and transport](https://maaktravel.vercel.app/car-rental): Enquiries about car rental and transport.
+- [Tourism and trips](https://maaktravel.vercel.app/tourism): Travel planning and trip-related enquiries.
+- [Medical travel](https://maaktravel.vercel.app/medical-tourism): Coordination enquiries for medical travel.
+- [Egypt security clearance](https://maaktravel.vercel.app/security-clearance-egypt): Enquiries about requirements and procedures.
+- [Hajj and Umrah](https://maaktravel.vercel.app/umrah): Enquiries about pilgrimage travel arrangements.
+- [Bus tickets and ground transport](https://maaktravel.vercel.app/transport): Enquiries about local and international ground transport.
+- [Real estate services](https://maaktravel.vercel.app/real-estate): Enquiries about property-related services.
+
+## Contact and limitations
+
+- Enquiries are handled directly through the contact options provided on the website, including WhatsApp.
+- Prices, availability, eligibility, and final booking conditions must be confirmed directly with MAAK and the relevant providers.
+- This website does not currently expose a public AI agent, MCP server, or machine-callable booking API.
