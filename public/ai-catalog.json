@@ -1,0 +1,9 @@
+{
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "MAAK | معك للسفر والسياحة",
+    "identifier": "maaktravel.vercel.app",
+    "documentationUrl": "https://maaktravel.vercel.app/services"
+  },
+  "entries": []
+}
