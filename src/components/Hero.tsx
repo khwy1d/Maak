@@ -5,6 +5,7 @@ export default function Hero() {
   const { t } = useApp();
   return (
     <section id="home" className="hero">
+      <div className="hero-watermark" aria-hidden="true" />
       <div className="container hero-grid">
         <div className="hero-copy">
           <h1>{t.hero.title.split("{{brand}}")[0]}<span className="hero-brand">{t.brand}</span>{t.hero.title.split("{{brand}}")[1]}</h1>
