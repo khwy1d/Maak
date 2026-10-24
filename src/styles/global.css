@@ -805,3 +805,10 @@ body { background: transparent; }
     padding-top: 112px;
   }
 }
+
+
+/* On gold primary WhatsApp buttons, use navy icon in dark mode for contrast. */
+:root[data-theme="dark"] a.btn-primary[href*="wa.me"] svg,
+:root[data-theme="dark"] a.btn-primary[href*="whatsapp.com"] svg {
+  color: var(--c-navy);
+}
