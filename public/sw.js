@@ -1,5 +1,5 @@
-const CACHE_NAME = "maak-pwa-v1";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/maak-pwa-icon.svg", "/favicon.png"];
+const CACHE_NAME = "maak-pwa-v2";
+const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/favicon.svg", "/favicon.ico", "/favicon-96x96.png", "/apple-touch-icon.png", "/web-app-manifest-192x192.png", "/web-app-manifest-512x512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
