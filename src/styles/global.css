@@ -812,3 +812,11 @@ body { background: transparent; }
 :root[data-theme="dark"] a.btn-primary[href*="whatsapp.com"] svg {
   color: var(--c-navy);
 }
+
+
+/* About page: always stack principle cards on phone-sized screens. */
+@media (max-width: 767px) {
+  .about-principles-section .about-principles {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
