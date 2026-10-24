@@ -797,3 +797,11 @@ body { background: transparent; }
     display: none;
   }
 }
+
+
+/* Keep the first service cards clear of the fixed header on mobile. */
+@media (max-width: 767px) {
+  .services-list-section {
+    padding-top: 112px;
+  }
+}
