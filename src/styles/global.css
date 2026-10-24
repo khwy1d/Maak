@@ -788,3 +788,12 @@ body { background: transparent; }
   .inquiry-form > h3, .inquiry-form > p, .inquiry-form > .inquiry-hotel-options,
   .inquiry-form > .inquiry-field-wide, .inquiry-form > .inquiry-submit { grid-column: 1; }
 }
+
+
+/* On mobile, the services page opens directly on the service cards. */
+@media (max-width: 767px) {
+  .page-hero-services,
+  .services-list-section > .container > .section-head {
+    display: none;
+  }
+}
