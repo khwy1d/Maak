@@ -43,7 +43,6 @@ export function About() {
   return (
     <section id="about" className="section alt">
       <div className="container about reveal" ref={ref}>
-        <div className="about-mark glass"><Logo size={76} wordmark={false} /></div>
         <div>
           <h2>{t.about.title}</h2>
           <p>{t.about.p1}</p><p>{t.about.p2}</p>
