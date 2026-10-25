@@ -63,7 +63,7 @@ export default function FlightBookingForm({lang}:{lang:Lang}) {
  const countryName=(p:Place)=>{const c=countryFor(p);return c?(ar?c.ar:c.en):""};
  const cityName=(p:Place)=>{const c=countryFor(p)?.cities.find(x=>x.en===p.city);return c?(ar?c.ar:c.en):""};
  const airportName=(p:Place)=>{const c=countryFor(p)?.cities.find(x=>x.en===p.city);const a=c&&"airports" in c?c.airports?.find(x=>x.en===p.airport):undefined;return a?(ar?a.ar:a.en):""};
- const chooseTrip=(v:"domestic"|"international")=>{setTrip(v);setDep(empty);setDest(empty);setAirline("");setSearch({departure:"",destination:""});setOpen(null)};
+ const chooseTrip=(v:"domestic"|"international")=>{setTrip(v);setDep(p=>v==="domestic"?(p.country==="YE"?p:empty):p);setDest(p=>v==="domestic"?(p.country==="YE"?p:empty):(p.country==="YE"?empty:p));setAirline("");setSearch({departure:"",destination:""});setOpen(null)};
  const renderPlace=(which:"departure"|"destination")=>{
   const p=place(which), list=options(which), c=countryFor(p), cities=c?.cities||[];
   return <div className="flight-place-group"><div className="flight-country-wrap">
