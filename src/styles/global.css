@@ -828,3 +828,11 @@ body { background: transparent; }
     display: none;
   }
 }
+
+
+/* Hide the site footer on mobile across all pages; keep desktop footer unchanged. */
+@media (max-width: 767px) {
+  .footer {
+    display: none !important;
+  }
+}
