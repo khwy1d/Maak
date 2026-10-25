@@ -170,7 +170,7 @@ img { max-width: 100%; display: block; }
 .about-mark .logo-tile { background: transparent; box-shadow: none; }
 .about p { color: var(--muted); font-size: 1.1rem; max-width: 52ch; margin-top: 16px; }
 .about-slogan { color: var(--accent-text) !important; font-weight: 700; font-size: 1.4rem !important; }
-@media (min-width: 800px) { .about { grid-template-columns: auto 1fr; gap: 72px; } .about-mark { padding: 44px; } }
+@media (min-width: 800px) { .about { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 
 .cta { background: var(--gradient); color: #fff; border-radius: 32px; padding: clamp(32px, 6vw, 72px); display: grid; gap: 18px; justify-items: start; position: relative; overflow: hidden; }
 .cta::after { content: ""; position: absolute; width: 340px; height: 340px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); inset-inline-end: -90px; top: -90px; pointer-events: none; }
