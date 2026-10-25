@@ -26,7 +26,7 @@ export function Why() {
 export function How() {
   const { t } = useApp(); const ref = useReveal<HTMLOListElement>();
   return (
-    <section className="section">
+    <section className="section how-section">
       <div className="container">
         <div className="section-head"><h2>{t.how.title}</h2></div>
         <ol className="steps reveal" ref={ref}>
