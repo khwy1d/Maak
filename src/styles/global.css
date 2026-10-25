@@ -894,3 +894,77 @@ body { background: transparent; }
   .pwa-install-action { padding-inline: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .pwa-install-prompt { animation: none; } }
+
+
+/* ===== Homepage mobile review: balanced welcome + immediate service discovery ===== */
+@media (max-width: 767px) {
+  /* Keep the app-like mobile experience, but let visitors see the actual services. */
+  .home-services-section {
+    display: block !important;
+    padding-top: 24px;
+    padding-bottom: 30px;
+  }
+  .home-services-section > .container > .services {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+  .home-services-section .section-head {
+    margin-bottom: 16px;
+  }
+  .home-services-section .section-head h2 {
+    font-size: 1.5rem;
+  }
+  .home-services-section .section-head p {
+    font-size: .92rem;
+    line-height: 1.65;
+    margin-top: 7px;
+  }
+  .home-services-section .service.service-card-link {
+    min-height: 145px;
+    padding: 15px 10px;
+    border-radius: 19px;
+    gap: 7px;
+  }
+  .home-services-section .service.service-card-link .service-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 2px;
+  }
+  .home-services-section .service.service-card-link h3 {
+    font-size: .96rem;
+    line-height: 1.4;
+  }
+  .home-services-section .services-all-wrap {
+    margin-top: 14px;
+  }
+  .home-services-section .services-all {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 15px;
+  }
+  /* The first screen stays concise; the service grid follows the welcome immediately. */
+  .hero {
+    padding-top: 100px;
+    padding-bottom: 14px;
+  }
+  .hero .lead {
+    max-width: 38ch;
+    line-height: 1.65;
+  }
+  .hero .mobile-services-cta {
+    min-height: 52px;
+    margin-top: 12px;
+    border-radius: 16px;
+    font-size: 1rem;
+    box-shadow: 0 7px 20px -9px rgba(245,181,46,.42);
+  }
+  .home-services-section + .section {
+    padding-top: 30px;
+  }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .home-services-section > .container > .services {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
