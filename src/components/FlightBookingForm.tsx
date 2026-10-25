@@ -84,8 +84,8 @@ export default function FlightBookingForm({lang}:{lang:Lang}) {
  if(date)rows.push([txt("تاريخ الذهاب","Departure date"),date]);if(ticket==="return"&&returnDate)rows.push([txt("تاريخ العودة","Return date"),returnDate]);
  const people=[adults?txt("بالغون: ","Adults: ")+adults:"",children?txt("أطفال: ","Children: ")+children:"",infants?txt("رضّع: ","Infants: ")+infants:""].filter(Boolean).join("، ");
  if(people)rows.push([txt("المسافرون","Passengers"),people]);if(notes.trim())rows.push([txt("ملاحظات إضافية","Additional notes"),notes.trim()]);
- const message=rows.length?rows.map(([k,v])=>k+": "+v).join("\\n"):txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن حجز تذكرة طيران.","No details specified yet; I’d like to enquire about a flight ticket.");
- const wa=txt("مرحبًا فريق معك، أود الاستفسار عن حجز تذكرة طيران.\\n","Hello MAAK team, I’d like to enquire about a flight ticket.\\n")+message+"\\n"+txt("يرجى تأكيد المسارات والأسعار والتوافر قبل أي حجز.","Please confirm routes, prices and availability before any booking.");
+ const message=rows.length?rows.map(([k,v])=>k+": "+v).join("\n"):txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن حجز تذكرة طيران.","No details specified yet; I’d like to enquire about a flight ticket.");
+ const wa=txt("مرحبًا فريق معك، أود الاستفسار عن حجز تذكرة طيران.\n","Hello MAAK team, I’d like to enquire about a flight ticket.\n")+message+"\n"+txt("يرجى تأكيد المسارات والأسعار والتوافر قبل أي حجز.","Please confirm routes, prices and availability before any booking.");
  const yemenRoute=trip==="domestic"||dep.country==="YE";
  return <div className="inquiry-form flight-booking-form">
   <h3>{txt("قدّم طلب حجز تذكرة","Request a flight ticket")}</h3><p>{txt("اختر ما تعرفه من التفاصيل، واترك ما لم يتحدد بعد فارغًا. جميع الحقول اختيارية.","Fill in what you know and leave anything undecided blank. All fields are optional.")}</p>
