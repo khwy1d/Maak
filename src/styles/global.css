@@ -1011,3 +1011,19 @@ body { background: transparent; }
   .section:has(> .container.about) .about-mark { width: 76px; height: 76px; }
   .section:has(> .container.about) .about-mark svg { width: 58px; height: 58px; }
 }
+
+
+/* Homepage About section and step-layout corrections */
+.about-mark { width: 92px; height: 92px; display: grid; place-items: center; margin-inline: auto; }
+.about-mark svg { max-width: 76px; max-height: 76px; }
+@media (min-width: 768px) {
+  .steps li { position: relative; }
+  .steps li .step-n { position: static; display: inline-grid; place-items: center; margin-bottom: 10px; }
+  .steps li h3, .steps li p { position: relative; z-index: 1; }
+}
+@media (max-width: 767px) {
+  .how-section { display: none !important; }
+  .about-mark { width: 68px; height: 68px; margin: 0 auto 14px; }
+  .about-mark svg { width: 54px !important; height: 54px !important; }
+  .about.section { text-align: center; }
+}
