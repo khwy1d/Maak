@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarDays, MessageCircle, Users, BedDouble, MapPin, X } from "lucide-react";
+import { CalendarDays, MessageCircle, Users, BedDouble, MapPin, X, Search, ChevronDown } from "lucide-react";
 import { siteConfig } from "../config/site";
 
 type Lang = "ar" | "en";
@@ -11,6 +11,8 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const ar = lang === "ar";
   const txt = (a: string, e: string) => ar ? a : e;
   const [country, setCountry] = useState("");
+  const [countrySearch, setCountrySearch] = useState("");
+  const [countryMenuOpen, setCountryMenuOpen] = useState(false);
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
   const [stayType, setStayType] = useState("");
@@ -24,6 +26,8 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const today = new Date().toISOString().slice(0, 10);
   const digits = siteConfig.whatsappNumber.replace(/\\D/g, "");
   const selectedCountry = countries.find(c => c[1] === country);
+  const countryOptions = countries.filter(c => !countrySearch.trim() || c[0].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()) || c[1].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()));
+  const citySuggestions = [["عدن","Aden"],["صنعاء","Sanaa"],["جدة","Jeddah"],["مكة المكرمة","Makkah"],["الرياض","Riyadh"],["المدينة المنورة","Madinah"],["دبي","Dubai"],["أبوظبي","Abu Dhabi"],["القاهرة","Cairo"],["عمّان","Amman"],["مسقط","Muscat"],["الدوحة","Doha"],["إسطنبول","Istanbul"],["لندن","London"],["باريس","Paris"],["نيويورك","New York"],["كوالالمبور","Kuala Lumpur"],["جاكرتا","Jakarta"]] as const;
   const rows: [string, string][] = [];
   if (country) rows.push([txt("البلد", "Country"), selectedCountry ? selectedCountry[ar ? 0 : 1] : country]);
   if (city.trim()) rows.push([txt("المدينة", "City"), city.trim()]);
@@ -46,8 +50,8 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
     <div className="flight-group">
       <h4>{txt("١. وجهة الإقامة", "1. Accommodation destination")}</h4>
       <div className="flight-input-grid">
-        <div className="inquiry-field flight-field"><label><MapPin size={16}/>{txt("البلد", "Country")}</label><select value={country} onChange={e=>setCountry(e.target.value)}><option value="">{txt("اختر البلد", "Choose a country")}</option>{countries.map(c=><option key={c[1]} value={c[1]}>{ar?c[0]:c[1]}</option>)}</select></div>
-        <div className="inquiry-field flight-field"><label>{txt("المدينة", "City")}</label><input value={city} onChange={e=>setCity(e.target.value)} placeholder={txt("اكتب اسم المدينة", "Enter city")} /></div>
+        <div className="inquiry-field flight-field hotel-country-wrap"><label><MapPin size={16}/>{txt("البلد", "Country")}</label><button type="button" className="flight-country-trigger" onClick={()=>setCountryMenuOpen(v=>!v)} aria-expanded={countryMenuOpen}><span>{selectedCountry ? selectedCountry[ar?0:1] : txt("اختر البلد","Choose a country")}</span><ChevronDown size={18}/></button>{countryMenuOpen&&<div className="flight-country-menu"><div className="flight-country-search"><Search size={17}/><input autoFocus value={countrySearch} onChange={e=>setCountrySearch(e.target.value)} placeholder={txt("ابحث باسم الدولة بالعربية أو الإنجليزية","Search country in Arabic or English")}/><button type="button" onClick={()=>setCountryMenuOpen(false)} aria-label={txt("إغلاق","Close")}><X size={16}/></button></div><div className="flight-country-options">{countryOptions.map(c=><button type="button" key={c[1]} onClick={()=>{setCountry(c[1]);setCountrySearch("");setCountryMenuOpen(false)}}>{ar?c[0]:c[1]}</button>)}{!countryOptions.length&&<p>{txt("لا توجد نتائج","No results")}</p>}</div></div>}</div>
+        <div className="inquiry-field flight-field"><label>{txt("المدينة", "City")}</label><input list="hotel-city-suggestions" value={city} onChange={e=>setCity(e.target.value)} placeholder={txt("ابحث أو اكتب اسم المدينة بالعربية أو الإنجليزية", "Search or enter city in Arabic or English")} /><datalist id="hotel-city-suggestions">{citySuggestions.map(c=><><option key={c[0]} value={c[0]} label={c[1]}/><option key={c[1]} value={c[1]} label={c[0]}/></>)}</datalist></div>
         <div className="inquiry-field flight-field"><label>{txt("المنطقة أو الحي", "Area or neighbourhood")}</label><input value={area} onChange={e=>setArea(e.target.value)} placeholder={txt("اختياري", "Optional")} /></div>
       </div>
     </div>
