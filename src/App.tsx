@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { House, LayoutGrid, MessageCircle, Plane, Users } from "lucide-react";
+import { Download, House, LayoutGrid, MessageCircle, Plane, Users, X } from "lucide-react";
 import { useApp } from "./context/AppContext";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -16,12 +16,44 @@ function currentPath() {
 
 export default function App() {
   const [path, setPath] = useState(currentPath);
-  const { t } = useApp();
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [installDismissed, setInstallDismissed] = useState(false);
+  const { t, lang } = useApp();
   useEffect(() => {
     const sync = () => { setPath(currentPath()); window.scrollTo(0, 0); };
     window.addEventListener("popstate", sync);
     return () => window.removeEventListener("popstate", sync);
   }, []);
+
+  useEffect(() => {
+    const wasDismissed = () => {
+      try { return sessionStorage.getItem("maak-install-dismissed") === "1"; }
+      catch { return false; }
+    };
+    setInstallDismissed(wasDismissed());
+    const onInstallAvailable = (event: Event) => {
+      event.preventDefault();
+      if (!wasDismissed()) setInstallPrompt(event);
+    };
+    const onInstalled = () => setInstallPrompt(null);
+    window.addEventListener("beforeinstallprompt", onInstallAvailable);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onInstallAvailable);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+    await (installPrompt as any).prompt();
+    setInstallPrompt(null);
+  };
+  const dismissInstall = () => {
+    setInstallDismissed(true);
+    setInstallPrompt(null);
+    try { sessionStorage.setItem("maak-install-dismissed", "1"); } catch { /* storage may be unavailable */ }
+  };
 
   const isHome = path === "/";
   return (
@@ -30,6 +62,17 @@ export default function App() {
       <div className="site-content">
       <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
+      {installPrompt && !installDismissed && (
+        <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
+          <div className="pwa-install-icon" aria-hidden="true"><Download size={22} /></div>
+          <div className="pwa-install-copy">
+            <strong>{lang === "ar" ? "ثبّت تطبيق معك" : "Install MAAK"}</strong>
+            <span>{lang === "ar" ? "وصول أسرع إلى خدمات السفر من شاشة هاتفك" : "Quick access to travel services from your home screen"}</span>
+          </div>
+          <button className="btn btn-primary pwa-install-action" onClick={handleInstall}>{lang === "ar" ? "تثبيت" : "Install"}</button>
+          <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
+        </aside>
+      )}
       {isHome ? <><main><Hero /><Services /><Why /><How /><Contact /><SocialFollow /></main></> : <Pages path={path} />}
       <Footer />
       <nav className="mobile-dock" aria-label={t.a11y.nav}>
