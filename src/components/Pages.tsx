@@ -124,7 +124,7 @@ export default function Pages({ path }: { path: string }) {
   ];
   return (
     <main className="inner-page">
-      <section className={`page-hero${isServices ? " page-hero-services" : ""}`}><div className="container">
+      <section className={`page-hero${isServices ? " page-hero-services" : ""}${key === "flight" ? " page-hero-flight" : ""}`}><div className="container">
         {!isServices && key !== "about" && !isServiceDetail && <p className="slogan"><span className="slogan-dot" />{t.slogan}</p>}
         <h1>{page.title}</h1><p className="lead">{page.intro}</p>
         {!isServices && key !== "flight" && <div className="actions"><WhatsAppButton topic={key === "visa" || key === "hotel" || key === "car" ? key : "general"} /><a className="btn btn-ghost btn-glass" href="/services">{lang === "ar" ? "استعرض الخدمات" : "Explore services"} <ArrowUpRight size={17} /></a></div>}
