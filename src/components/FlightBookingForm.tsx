@@ -39,7 +39,7 @@ const countries = [
  {code:"NL",ar:"هولندا",en:"Netherlands",cities:[{ar:"أمستردام",en:"Amsterdam"}]},
  {code:"CA",ar:"كندا",en:"Canada",cities:[{ar:"تورونتو",en:"Toronto"},{ar:"مونتريال",en:"Montreal"}]}
 ] as const;
-const airlines = [{value:"yemenia",ar:"الخطوط الجوية اليمنية",en:"Yemenia Airways"},{value:"aden",ar:"طيران عدن",en:"FlyAden Airlines"}];
+const airlines = [{value:"yemenia",ar:"الخطوط الجوية اليمنية",en:"Yemenia Airways"},{value:"aden",ar:"طيران عدن",en:"FlyAden Airlines"},{value:"djibouti",ar:"طيران جيبوتي",en:"Air Djibouti"}];
 
 export default function FlightBookingForm({lang}:{lang:Lang}) {
  const ar=lang==="ar", txt=(a:string,e:string)=>ar?a:e;
@@ -87,7 +87,7 @@ export default function FlightBookingForm({lang}:{lang:Lang}) {
  const message=rows.length?rows.map(([k,v])=>k+": "+v).join("\n"):txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن حجز تذكرة طيران.","No details specified yet; I’d like to enquire about a flight ticket.");
  const wa=txt("مرحبًا فريق معك، أود الاستفسار عن حجز تذكرة طيران.\n","Hello MAAK team, I’d like to enquire about a flight ticket.\n")+message+"\n"+txt("يرجى تأكيد المسارات والأسعار والتوافر قبل أي حجز.","Please confirm routes, prices and availability before any booking.");
  const yemenRoute=trip==="domestic"||dep.country==="YE";
- const availableAirlines=trip==="domestic"?airlines.filter(a=>a.value==="yemenia"):dep.country==="YE"?airlines:[];
+ const supportedCodes=dest.country==="SA"||dest.country==="EG"||dest.country==="JO"?["yemenia","aden"]:dest.country==="ET"||dest.country==="IN"||dest.country==="KW"?["yemenia"]:dest.country==="DJ"?["yemenia","djibouti"]:[];\n const availableAirlines=trip==="domestic"?airlines.filter(a=>a.value==="yemenia"):dep.country==="YE"?airlines.filter(a=>supportedCodes.includes(a.value)):[];
  return <div className="inquiry-form flight-booking-form">
   <h3>{txt("قدّم طلب حجز تذكرة","Request a flight ticket")}</h3><p>{txt("اختر ما تعرفه من التفاصيل، واترك ما لم يتحدد بعد فارغًا. جميع الحقول اختيارية.","Fill in what you know and leave anything undecided blank. All fields are optional.")}</p>
   <div className="flight-group"><h4>{txt("١. نوع الرحلة","1. Trip type")}</h4><div className="flight-choice-row"><button type="button" className={trip==="domestic"?"flight-choice active":"flight-choice"} onClick={()=>chooseTrip("domestic")}><Plane size={18}/>{txt("رحلة داخلية داخل اليمن","Domestic within Yemen")}</button><button type="button" className={trip==="international"?"flight-choice active":"flight-choice"} onClick={()=>chooseTrip("international")}><Plane size={18}/>{txt("رحلة دولية","International flight")}</button></div></div>
