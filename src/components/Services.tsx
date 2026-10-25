@@ -20,7 +20,7 @@ export default function Services() {
   const featuredKeys = ["flight", "security", "hotel", "car"];
   const featuredServices = featuredKeys.map((key) => t.services.items.find((item) => item.key === key)).filter((item) => item !== undefined);
   return (
-    <section id="services" className="section">
+    <section id="services" className="section home-services-section">
       <div className="container">
         <div className="section-head"><h2>{t.services.title}</h2><p>{t.services.intro}</p></div>
         <div className="services reveal" ref={ref}>

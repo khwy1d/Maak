@@ -820,3 +820,11 @@ body { background: transparent; }
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
+
+/* Hide only the four featured service cards on the homepage on small screens. */
+@media (max-width: 699px) {
+  .home-services-section > .container > .services {
+    display: none;
+  }
+}
