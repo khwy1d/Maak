@@ -74,7 +74,8 @@ img { max-width: 100%; display: block; }
 .logo-word { font-weight: 700; font-size: 1.15rem; }
 
 /* ===== Header ===== */
-.header { position: fixed; inset: 12px 0 auto; z-index: 50; }
+.header { position: fixed; inset: 12px 0 auto; z-index: 50; opacity: 1; transform: translateY(0); transition: transform 220ms ease, opacity 180ms ease; will-change: transform, opacity; }
+.header.header-hidden { transform: translateY(calc(-100% - 20px)); opacity: 0; pointer-events: none; }
 .nav { width: min(1160px, 100% - 24px); margin-inline: auto; padding: 8px 12px; border-radius: 999px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: relative; }
 .nav-logo { flex: none; }
 .nav-tools { display: flex; align-items: center; gap: 8px; }
