@@ -13,7 +13,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const [country, setCountry] = useState("");
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
-  const [stayType, setStayType] = useState("hotel");
+  const [stayType, setStayType] = useState("");
   const [rooms, setRooms] = useState("");
   const [guests, setGuests] = useState("");
   const [stars, setStars] = useState("");
@@ -54,7 +54,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
     <div className="flight-group">
       <h4>{txt("٢. نوع الإقامة والتفاصيل", "2. Accommodation type and preferences")}</h4>
       <div className="flight-input-grid">
-        <div className="inquiry-field flight-field"><label><BedDouble size={16}/>{txt("نوع الإقامة", "Accommodation type")}</label><select value={stayType} onChange={e=>setStayType(e.target.value)}><option value="hotel">{txt("فندق", "Hotel")}</option><option value="apartment">{txt("شقة سكنية", "Apartment")}</option><option value="serviced">{txt("شقة فندقية", "Serviced apartment")}</option><option value="room">{txt("غرفة", "Room")}</option><option value="resort">{txt("منتجع", "Resort")}</option><option value="any">{txt("أي خيار مناسب", "Any suitable option")}</option></select></div>
+        <div className="inquiry-field flight-field"><label><BedDouble size={16}/>{txt("نوع الإقامة", "Accommodation type")}</label><select value={stayType} onChange={e=>setStayType(e.target.value)}><option value="">{txt("اختر نوع الإقامة", "Choose accommodation type")}</option><option value="hotel">{txt("فندق", "Hotel")}</option><option value="apartment">{txt("شقة سكنية", "Apartment")}</option><option value="serviced">{txt("شقة فندقية", "Serviced apartment")}</option><option value="room">{txt("غرفة", "Room")}</option><option value="resort">{txt("منتجع", "Resort")}</option><option value="any">{txt("أي خيار مناسب", "Any suitable option")}</option></select></div>
         <div className="inquiry-field flight-field"><label>{txt("عدد الغرف أو الوحدات", "Rooms or units")}</label><select value={rooms} onChange={e=>setRooms(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({length:10},(_,i)=><option key={i+1} value={String(i+1)}>{i+1}</option>)}</select></div>
         <div className="inquiry-field flight-field"><label><Users size={16}/>{txt("عدد الأشخاص", "Number of guests")}</label><select value={guests} onChange={e=>setGuests(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({length:20},(_,i)=><option key={i+1} value={String(i+1)}>{i+1}</option>)}</select></div>
         <div className="inquiry-field flight-field"><label>{txt("تصنيف الفندق", "Hotel star rating")}</label><select value={stars} onChange={e=>setStars(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option><option value="any">{txt("أي تصنيف", "Any rating")}</option>{[1,2,3,4,5].map(n=><option key={n} value={String(n)}>{n} {txt("نجوم","stars")}</option>)}</select></div>
