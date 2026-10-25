@@ -43,7 +43,7 @@ type LocaleCopy = {
 const copy: Record<"ar" | "en", LocaleCopy> = {
   ar: {
     services: { title: "خدمات معك", intro: "خدمات سفر أساسية، وتواصل مباشر لمساعدتك في ترتيب رحلتك." },
-    flight: { title: "حجز تذاكر الطيران", intro: "أخبرنا بوجهتك وتواريخ سفرك لنساعدك في استكشاف خيارات الرحلات والخطوات التالية.", bullets: ["الاستفسار عن الرحلات والوجهات", "مقارنة الخيارات وفق احتياجك", "المساعدة في خطوات الحجز"] },
+    flight: { title: "حجز تذاكر الطيران", intro: "احجز رحلتك بسهولة، واختر وجهتك وتاريخ سفرك، وسنتواصل معك عبر واتساب لمتابعة طلبك.", bullets: ["الاستفسار عن الرحلات والوجهات", "مقارنة الخيارات وفق احتياجك", "المساعدة في خطوات الحجز"] },
     visa: { title: "خدمات التأشيرات", intro: "نساعدك على فهم الخطوات والمستندات المعتادة وتجهيز استفسارك وفق وجهتك.", bullets: ["التعرّف على الخطوات المطلوبة", "قائمة أولية بالمستندات", "متابعة الاستفسارات المتعلقة بالطلب"] },
     hotel: { title: "حجوزات الفنادق", intro: "شاركنا الوجهة ومدة الإقامة وعدد المسافرين لنساعدك في بحث خيارات الإقامة المناسبة.", bullets: ["خيارات وفق الوجهة والمدة", "مراعاة احتياجات المسافرين", "التواصل بشأن تفاصيل الحجز"] },
     car: { title: "تأجير السيارات والنقل", intro: "أخبرنا بمكان الاستلام والمدة ونوع السيارة الذي تحتاجه لنبدأ ترتيب الخيارات.", bullets: ["احتياجات التنقل داخل الوجهة", "خيارات تناسب طبيعة الرحلة", "تنسيق التفاصيل قبل التأكيد"] },
@@ -59,7 +59,7 @@ const copy: Record<"ar" | "en", LocaleCopy> = {
   },
   en: {
     services: { title: "MAAK services", intro: "Essential travel services with direct contact to help you arrange your trip." },
-    flight: { title: "Flight bookings", intro: "Tell us your destination and travel dates so we can help explore flight options and next steps.", bullets: ["Ask about routes and destinations", "Compare options for your needs", "Get help with booking steps"] },
+    flight: { title: "Flight bookings", intro: "Request your trip easily by choosing a destination and travel date. We’ll contact you on WhatsApp to follow up.", bullets: ["Ask about routes and destinations", "Compare options for your needs", "Get help with booking steps"] },
     visa: { title: "Visa services", intro: "We help you understand typical steps and documents for your destination.", bullets: ["Understand the usual process", "Prepare an initial document checklist", "Discuss questions about your application"] },
     hotel: { title: "Hotel reservations", intro: "Share your destination, stay dates and number of travellers so we can help explore suitable accommodation.", bullets: ["Options by destination and duration", "Consider traveller needs", "Discuss reservation details"] },
     car: { title: "Car rental and transport", intro: "Tell us the pickup location, duration and vehicle type you need to start exploring options.", bullets: ["Transport needs at your destination", "Options suited to your trip", "Coordinate details before confirmation"] },
