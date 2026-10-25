@@ -1123,3 +1123,16 @@ body { background: transparent; }
   .flight-summary-actions { display: grid; grid-template-columns: 1fr; }
   .flight-summary-actions .btn { width: 100%; min-height: 42px; padding: 10px 12px; }
 }
+
+
+/* Keep the ground-transport service description visible on mobile, like flights. */
+@media (max-width: 767px) {
+  .page-hero-bus .lead { display: block !important; }
+}
+.ground-transport-form .ground-route-grid { grid-template-columns: minmax(0,1fr) 38px minmax(0,1fr); }
+.ground-transport-form .ground-side { display: grid; align-content: start; gap: 7px; min-width: 0; }
+.ground-transport-form .ground-side label:not(:first-child) { margin-top: 5px; }
+@media (max-width: 640px) {
+  .ground-transport-form .ground-route-grid { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .ground-transport-form .ground-route-grid .flight-swap { min-height: 24px; transform: rotate(90deg); }
+}
