@@ -33,12 +33,12 @@ const ar = {
   },
   why: {
     title: "لماذا معك؟",
-    intro: "نؤمن أن السفر يبدأ براحة البال. هذه هي المبادئ التي نعمل بها.",
+    intro: "سفر أسهل يبدأ بتواصل واضح وخيارات مناسبة.",
     items: [
-      { t: "تواصل واضح", d: "نشرح الخيارات والخطوات بلغة بسيطة ومباشرة." },
-      { t: "ترتيبات أبسط", d: "نختصر عليك تعقيد التفاصيل لتركّز على رحلتك." },
-      { t: "مساعدة في الاختيار", d: "نساعدك في الوصول إلى الخيار الأنسب لاحتياجك." },
-      { t: "تواصل مباشر", d: "محادثة واحدة عبر واتساب بدل التنقل بين القنوات." },
+      { t: "تواصل واضح", d: "خيارات وخطوات واضحة." },
+      { t: "ترتيبات أبسط", d: "ترتيبات أبسط لرحلتك." },
+      { t: "مساعدة في الاختيار", d: "مساعدة لاختيار الأنسب لك." },
+      { t: "تواصل مباشر", d: "تواصل مباشر عبر واتساب." },
     ],
   },
   how: {
@@ -120,12 +120,12 @@ const en: typeof ar = {
   },
   why: {
     title: "Why MAAK?",
-    intro: "Good travel starts with peace of mind. These are the principles we work by.",
+    intro: "Clear communication and suitable options make travel easier.",
     items: [
-      { t: "Clear communication", d: "We explain options and steps in plain, direct language." },
-      { t: "Simpler arrangements", d: "We handle the detail so you can focus on your trip." },
-      { t: "Help choosing", d: "We help you reach the option that suits your needs." },
-      { t: "Direct contact", d: "One WhatsApp conversation instead of juggling channels." },
+      { t: "Clear communication", d: "Clear options and next steps." },
+      { t: "Simpler arrangements", d: "Simpler arrangements for your trip." },
+      { t: "Help choosing", d: "Help choosing what suits you." },
+      { t: "Direct contact", d: "Direct contact through WhatsApp." },
     ],
   },
   how: {

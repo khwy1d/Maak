@@ -26,7 +26,7 @@ export function Why() {
 export function How() {
   const { t } = useApp(); const ref = useReveal<HTMLOListElement>();
   return (
-    <section className="section">
+    <section className="section how-section">
       <div className="container">
         <div className="section-head"><h2>{t.how.title}</h2></div>
         <ol className="steps reveal" ref={ref}>
@@ -43,7 +43,6 @@ export function About() {
   return (
     <section id="about" className="section alt">
       <div className="container about reveal" ref={ref}>
-        <div className="about-mark glass"><Logo size={120} wordmark={false} /></div>
         <div>
           <h2>{t.about.title}</h2>
           <p>{t.about.p1}</p><p>{t.about.p2}</p>

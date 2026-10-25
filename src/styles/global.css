@@ -170,7 +170,7 @@ img { max-width: 100%; display: block; }
 .about-mark .logo-tile { background: transparent; box-shadow: none; }
 .about p { color: var(--muted); font-size: 1.1rem; max-width: 52ch; margin-top: 16px; }
 .about-slogan { color: var(--accent-text) !important; font-weight: 700; font-size: 1.4rem !important; }
-@media (min-width: 800px) { .about { grid-template-columns: auto 1fr; gap: 72px; } .about-mark { padding: 44px; } }
+@media (min-width: 800px) { .about { grid-template-columns: minmax(0, 1fr); gap: 0; } }
 
 .cta { background: var(--gradient); color: #fff; border-radius: 32px; padding: clamp(32px, 6vw, 72px); display: grid; gap: 18px; justify-items: start; position: relative; overflow: hidden; }
 .cta::after { content: ""; position: absolute; width: 340px; height: 340px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .25); inset-inline-end: -90px; top: -90px; pointer-events: none; }
@@ -894,3 +894,136 @@ body { background: transparent; }
   .pwa-install-action { padding-inline: 11px; }
 }
 @media (prefers-reduced-motion: reduce) { .pwa-install-prompt { animation: none; } }
+
+
+/* ===== Homepage mobile review: balanced welcome + immediate service discovery ===== */
+@media (max-width: 767px) {
+  /* Keep the app-like mobile experience, but let visitors see the actual services. */
+  .home-services-section {
+    display: block !important;
+    padding-top: 24px;
+    padding-bottom: 30px;
+  }
+  .home-services-section > .container > .services {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+  }
+  .home-services-section .section-head {
+    margin-bottom: 16px;
+  }
+  .home-services-section .section-head h2 {
+    font-size: 1.5rem;
+  }
+  .home-services-section .section-head p {
+    font-size: .92rem;
+    line-height: 1.65;
+    margin-top: 7px;
+  }
+  .home-services-section .service.service-card-link {
+    min-height: 145px;
+    padding: 15px 10px;
+    border-radius: 19px;
+    gap: 7px;
+  }
+  .home-services-section .service.service-card-link .service-icon {
+    width: 44px;
+    height: 44px;
+    margin-bottom: 2px;
+  }
+  .home-services-section .service.service-card-link h3 {
+    font-size: .96rem;
+    line-height: 1.4;
+  }
+  .home-services-section .services-all-wrap {
+    margin-top: 14px;
+  }
+  .home-services-section .services-all {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 15px;
+  }
+  /* The first screen stays concise; the service grid follows the welcome immediately. */
+  .hero {
+    padding-top: 100px;
+    padding-bottom: 14px;
+  }
+  .hero .lead {
+    max-width: 38ch;
+    line-height: 1.65;
+  }
+  .hero .mobile-services-cta {
+    min-height: 52px;
+    margin-top: 12px;
+    border-radius: 16px;
+    font-size: 1rem;
+    box-shadow: 0 7px 20px -9px rgba(245,181,46,.42);
+  }
+  .home-services-section + .section {
+    padding-top: 30px;
+  }
+}
+@media (min-width: 640px) and (max-width: 767px) {
+  .home-services-section > .container > .services {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+
+/* Compact mobile content refinements; desktop styling is intentionally untouched */
+@media (max-width: 767px) {
+  .section:has(> .container.why) { padding-top: 28px; padding-bottom: 28px; }
+  .why .section-head { margin-bottom: 14px; }
+  .why .section-head p { margin-top: 6px; line-height: 1.55; }
+  .why-list { gap: 10px; }
+  .why-list li { gap: 10px; padding: 12px 13px; border-radius: 16px; }
+  .why-list li > svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  .why-list li h3 { margin-bottom: 3px; font-size: .98rem; }
+  .why-list li p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .steps { gap: 10px; }
+  .steps li { padding: 15px 13px; }
+  .steps li h3 { margin: 8px 0 4px; font-size: .98rem; }
+  .steps li p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .section:has(> .container > .steps) { padding-top: 28px; padding-bottom: 28px; }
+  .section:has(> .container > .steps) .section-head { margin-bottom: 14px; }
+  .social-follow-section { padding-top: 24px; padding-bottom: 26px; }
+  .social-follow-card { padding: 18px 16px; gap: 12px; text-align: center; }
+  .social-follow-copy { gap: 5px; }
+  .social-follow-copy p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .social-follow-links { justify-content: center; align-items: center; gap: 12px; width: 100%; }
+  .social-follow-link { width: 44px; height: 44px; display: grid; place-items: center; }
+  .social-follow-link svg { width: 26px; height: 26px; }
+  .site-content { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  main { padding-bottom: 10px; }
+  .inner-page { padding-bottom: 16px; }
+  .about-why-section .section { padding-top: 22px; padding-bottom: 22px; }
+  .about-why-section .section-head { margin-bottom: 12px; }
+  .about-principles-section { padding-top: 22px; padding-bottom: 28px; }
+  .about-principles-section .about-principles { gap: 12px; }
+  .about-principle-card { padding: 16px 14px; }
+  .about-principle-card .service-icon { margin-bottom: 5px; }
+  .about-principle-card p { line-height: 1.55; }
+  .about.section { padding-top: 22px; padding-bottom: 22px; }
+}
+
+@media (max-width: 767px) {
+  .section:has(> .container.about) { padding-top: 22px; padding-bottom: 22px; }
+  .section:has(> .container.about) .about-mark { width: 76px; height: 76px; }
+  .section:has(> .container.about) .about-mark svg { width: 58px; height: 58px; }
+}
+
+
+/* Homepage About section and step-layout corrections */
+.about-mark { width: 92px; height: 92px; display: grid; place-items: center; margin-inline: auto; }
+.about-mark svg { max-width: 76px; max-height: 76px; }
+@media (min-width: 768px) {
+  .steps li { position: relative; }
+  .steps li .step-n { position: static; display: inline-grid; place-items: center; margin-bottom: 10px; }
+  .steps li h3, .steps li p { position: relative; z-index: 1; }
+}
+@media (max-width: 767px) {
+  .how-section { display: none !important; }
+  .about-mark { width: 68px; height: 68px; margin: 0 auto 14px; }
+  .about-mark svg { width: 54px !important; height: 54px !important; }
+  .about.section { text-align: center; }
+}
