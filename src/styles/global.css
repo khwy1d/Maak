@@ -1083,3 +1083,43 @@ body { background: transparent; }
  .flight-summary-actions { flex-direction: column; }
  .flight-summary-actions .btn { width: 100%; }
 }
+
+
+/* Flight form review: inline summary and compact, balanced actions */
+.flight-summary {
+  position: static;
+  inset: auto;
+  transform: none;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+  margin-top: 8px;
+  padding: 20px;
+  border-radius: 18px;
+  box-shadow: none;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+.flight-summary-actions {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.flight-summary-actions .btn {
+  flex: 0 1 auto;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: .9rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+.flight-summary-actions .btn svg { width: 17px; height: 17px; flex: 0 0 auto; }
+.flight-summary-head button { flex: 0 0 34px; width: 34px; height: 34px; }
+@media (max-width: 767px) {
+  .page-hero-flight .lead { display: block !important; }
+  .flight-summary { padding: 15px; }
+  .flight-summary-actions { display: grid; grid-template-columns: 1fr; }
+  .flight-summary-actions .btn { width: 100%; min-height: 42px; padding: 10px 12px; }
+}
