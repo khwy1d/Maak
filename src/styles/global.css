@@ -968,3 +968,40 @@ body { background: transparent; }
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+
+/* Compact mobile content refinements; desktop styling is intentionally untouched */
+@media (max-width: 767px) {
+  .section:has(> .container.why) { padding-top: 28px; padding-bottom: 28px; }
+  .why .section-head { margin-bottom: 14px; }
+  .why .section-head p { margin-top: 6px; line-height: 1.55; }
+  .why-list { gap: 10px; }
+  .why-list li { gap: 10px; padding: 12px 13px; border-radius: 16px; }
+  .why-list li > svg { width: 20px; height: 20px; flex: 0 0 20px; }
+  .why-list li h3 { margin-bottom: 3px; font-size: .98rem; }
+  .why-list li p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .steps { gap: 10px; }
+  .steps li { padding: 15px 13px; }
+  .steps li h3 { margin: 8px 0 4px; font-size: .98rem; }
+  .steps li p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .section:has(> .container > .steps) { padding-top: 28px; padding-bottom: 28px; }
+  .section:has(> .container > .steps) .section-head { margin-bottom: 14px; }
+  .social-follow-section { padding-top: 24px; padding-bottom: 26px; }
+  .social-follow-card { padding: 18px 16px; gap: 12px; text-align: center; }
+  .social-follow-copy { gap: 5px; }
+  .social-follow-copy p { margin: 0; font-size: .88rem; line-height: 1.5; }
+  .social-follow-links { justify-content: center; align-items: center; gap: 12px; width: 100%; }
+  .social-follow-link { width: 44px; height: 44px; display: grid; place-items: center; }
+  .social-follow-link svg { width: 26px; height: 26px; }
+  .site-content { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  main { padding-bottom: 10px; }
+  .inner-page { padding-bottom: 16px; }
+  .about-why-section .section { padding-top: 22px; padding-bottom: 22px; }
+  .about-why-section .section-head { margin-bottom: 12px; }
+  .about-principles-section { padding-top: 22px; padding-bottom: 28px; }
+  .about-principles-section .about-principles { gap: 12px; }
+  .about-principle-card { padding: 16px 14px; }
+  .about-principle-card .service-icon { margin-bottom: 5px; }
+  .about-principle-card p { line-height: 1.55; }
+  .about.section { padding-top: 22px; padding-bottom: 22px; }
+}
