@@ -13,7 +13,7 @@ const yemenGovernorates = [
   ["عمران", "Amran"], ["ذمار", "Dhamar"], ["حضرموت", "Hadramaut"], ["حجة", "Hajjah"],
   ["إب", "Ibb"], ["لحج", "Lahij"], ["مأرب", "Marib"], ["ريمة", "Raymah"],
   ["صعدة", "Saada"], ["صنعاء", "Sana'a"], ["شبوة", "Shabwah"], ["تعز", "Taiz"],
-  ["الضالع", "Al Dhale'e"], ["عمران", "Amran"], ["سقطرى", "Socotra"]
+  ["الضالع", "Al Dhale'e"], ["المهرة", "Al Mahrah"], ["سقطرى", "Socotra"]
 ] as const;
 const saudiCities = [["مكة المكرمة", "Makkah"], ["جدة", "Jeddah"], ["الرياض", "Riyadh"]] as const;
 
