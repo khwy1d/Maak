@@ -854,3 +854,11 @@ body { background: transparent; }
   }
   .hero .mobile-services-cta svg { width: 23px; height: 23px; }
 }
+
+
+/* The mobile hero CTA replaces the homepage services teaser on phones. */
+@media (max-width: 767px) {
+  .home-services-section {
+    display: none !important;
+  }
+}
