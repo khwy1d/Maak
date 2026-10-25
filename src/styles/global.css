@@ -1005,3 +1005,9 @@ body { background: transparent; }
   .about-principle-card p { line-height: 1.55; }
   .about.section { padding-top: 22px; padding-bottom: 22px; }
 }
+
+@media (max-width: 767px) {
+  .section:has(> .container.about) { padding-top: 22px; padding-bottom: 22px; }
+  .section:has(> .container.about) .about-mark { width: 76px; height: 76px; }
+  .section:has(> .container.about) .about-mark svg { width: 58px; height: 58px; }
+}
