@@ -1148,3 +1148,14 @@ body { background: transparent; }
   .hotel-booking-form .flight-input-grid,
   .hotel-booking-form .flight-group:first-of-type .flight-input-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* Keep the service-specific introduction visible on small screens, like flights. */
+@media (max-width: 767px) {
+  .page-hero-request .lead { display: block !important; }
+}
+
+.specialized-request-form .flight-group { min-width: 0; }
+.specialized-request-form .flight-input-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 640px) {
+  .specialized-request-form .flight-input-grid { grid-template-columns: minmax(0, 1fr); }
+}
