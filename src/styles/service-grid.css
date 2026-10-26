@@ -1,0 +1,16 @@
+/* Keep service cards at the same width when the final row is incomplete. */
+@media (min-width: 700px) {
+  .services {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1000px) {
+  .services {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .services > .service:last-child {
+    grid-column: auto;
+  }
+}
