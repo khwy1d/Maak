@@ -1,10 +1,10 @@
 import { useApp } from "../context/AppContext";
 
 const socials = [
-  { key: "instagram", href: "https://www.instagram.com/", labelAr: "إنستغرام", labelEn: "Instagram" },
-  { key: "facebook", href: "https://www.facebook.com/", labelAr: "فيسبوك", labelEn: "Facebook" },
-  { key: "x", href: "https://x.com/", labelAr: "إكس", labelEn: "X" },
-  { key: "tiktok", href: "https://www.tiktok.com/", labelAr: "تيك توك", labelEn: "TikTok" },
+  { key: "instagram", href: "https://www.instagram.com/maaktravel", labelAr: "إنستغرام", labelEn: "Instagram" },
+  { key: "facebook", href: "https://www.facebook.com/share/1MxwiuHyvi/", labelAr: "فيسبوك", labelEn: "Facebook" },
+  { key: "x", href: "https://x.com/maaktravel", labelAr: "إكس", labelEn: "X" },
+  { key: "tiktok", href: "https://www.tiktok.com/@maaktravel", labelAr: "تيك توك", labelEn: "TikTok" },
 ];
 
 function BrandIcon({ name }: { name: string }) {
