@@ -1304,3 +1304,43 @@ body { background: transparent; }
     grid-column: 1 / -1;
   }
 }
+
+/* Shared MAAK service-form shell: compact header, progress, and persistent actions. */
+.maak-service-flow { position:relative; padding:0 0 104px!important; border-top:0!important; }
+.maak-service-flow .maak-flight-head { display:flex; align-items:center; gap:12px; padding:10px 0 14px; margin:0; }
+.maak-service-flow .maak-flight-head>div:nth-child(2) { flex:1; min-width:0; }
+.maak-service-flow .maak-flight-head span { display:block; font-size:.72rem; letter-spacing:.08em; color:var(--muted); font-weight:700; }
+.maak-service-flow .maak-flight-head h2 { font-size:1.2rem!important; line-height:1.4; margin:3px 0 0!important; color:var(--text); }
+.maak-service-flow .maak-back { width:44px; height:44px; flex:0 0 44px; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:14px; display:grid; place-items:center; cursor:pointer; }
+.maak-service-flow .maak-step-badge { flex:0 0 auto; font-size:.88rem; font-weight:750; color:var(--accent-text); background:color-mix(in srgb,var(--accent) 12%,transparent); border-radius:12px; padding:8px 11px; }
+.maak-service-flow .maak-progress { height:4px; border-radius:99px; background:var(--border); overflow:hidden; margin:0 0 22px; }
+.maak-service-flow .maak-progress span { display:block; height:100%; border-radius:inherit; background:var(--gradient); transition:width .2s ease; }
+.maak-service-flow > h3,.maak-service-flow > p:not(.maak-service-intro) { display:none!important; }
+.maak-service-flow .maak-service-intro { font-size:.84rem; line-height:1.65; color:var(--muted); margin:0 0 16px; }
+.maak-service-flow .flight-group { border:1px solid var(--border); border-radius:17px; padding:15px; margin:0 0 12px; background:var(--glass); }
+.maak-service-flow .flight-group h4 { margin:0 0 14px; color:var(--text); font-size:1rem; }
+.maak-service-flow .flight-input-grid { gap:14px; }
+.maak-service-flow .inquiry-field label { color:var(--text); font-weight:650; margin-bottom:7px; }
+.maak-service-flow input:not([type="checkbox"]),.maak-service-flow select,.maak-service-flow textarea { min-height:48px; border-radius:12px; font:inherit; }
+.maak-service-flow textarea { min-height:92px; }
+.maak-service-flow .flight-step-nav { position:fixed!important; z-index:40; bottom:0!important; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0!important; padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important; border:0!important; border-top:1px solid var(--border)!important; border-radius:0!important; background:color-mix(in srgb,var(--bg) 90%,transparent)!important; backdrop-filter:blur(16px); }
+.maak-service-flow .flight-step-count { font-size:.82rem; font-weight:700; }
+.maak-service-flow .flight-step-buttons { gap:8px; }
+.maak-service-flow .flight-step-buttons .btn { min-height:48px; border-radius:13px; padding-inline:18px; }
+.maak-service-flow .flight-summary { margin-top:0; border:1px solid var(--border); border-radius:17px; padding:15px; background:var(--glass); }
+.maak-service-flow .flight-summary-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.maak-service-flow .flight-summary-head h4 { margin:0; color:var(--text); }
+.maak-service-flow .flight-summary dl { margin-top:14px; }
+.maak-service-flow .flight-summary dl>div { padding:10px 0; border-top:1px solid var(--border); }
+.maak-service-flow .flight-summary-actions { gap:10px; margin-top:16px; }
+body:has(.maak-service-flow) .site-header,
+body:has(.maak-service-flow) header.site-header,
+body:has(.maak-service-flow) .bottom-nav,
+body:has(.maak-service-flow) .mobile-bottom-nav,
+body:has(.maak-service-flow) nav[aria-label="Mobile navigation"] { display:none!important; }
+@media(max-width:1023px) {
+ .maak-service-flow { width:100%; max-width:none; min-width:0; }
+ .maak-service-flow .flight-step-nav { position:fixed!important; }
+ .maak-service-flow .flight-summary-actions { flex-direction:column; }
+ .maak-service-flow .flight-summary-actions .btn { width:100%; }
+}
