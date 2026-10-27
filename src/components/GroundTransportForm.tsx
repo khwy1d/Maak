@@ -25,6 +25,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const [date, setDate] = useState("");
   const [passengers, setPassengers] = useState("");
   const [summary, setSummary] = useState(false);
+  const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
 
@@ -72,10 +73,10 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     + message + "\n" + txt("يرجى تأكيد المسار والمواعيد والتكلفة والتوافر قبل تأكيد الحجز.", "Please confirm the route, schedule, price and availability before any booking is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(waMessage);
 
-  return <div className="inquiry-form flight-booking-form ground-transport-form">
+  return <div className={`inquiry-form flight-booking-form ground-transport-form step-${step}`}>
     <h3>{txt("قدّم طلب النقل البري", "Request ground transport")}</h3>
     <p>{txt("اختر بلد المغادرة والوصول، وأضف ما تعرفه من التفاصيل. جميع الحقول اختيارية.", "Choose departure and destination countries, then add any details you know. All fields are optional.")}</p>
-    <div className="flight-group">
+    <div className="flight-group" data-step="1">
       <h4>{txt("١. مسار الرحلة", "1. Travel route")}</h4>
       <div className="flight-route-grid ground-route-grid">
         {renderSide("departure", departure)}
@@ -84,19 +85,20 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
       </div>
       <p className="flight-disclaimer">{txt("تُراجع المسارات والمواعيد والتوافر عند التواصل، والطلب لا يُعد حجزًا مؤكدًا.", "Routes, schedules and availability are checked during follow-up; submitting a request does not confirm a booking.")}</p>
     </div>
-    <div className="flight-group">
+    <div className="flight-group" data-step="2">
       <h4>{txt("٢. تاريخ السفر وعدد المسافرين", "2. Travel date and passengers")}</h4>
       <div className="flight-input-grid">
         <div className="inquiry-field flight-field"><label><CalendarDays size={16} />{txt("تاريخ السفر (اختياري)", "Travel date (optional)")}</label><input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} /></div>
         <div className="inquiry-field flight-field"><label><Users size={16} />{txt("عدد المسافرين (اختياري)", "Passengers (optional)")}</label><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({ length: 20 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
       </div>
     </div>
-    <button type="button" className="btn btn-primary inquiry-submit" onClick={() => setSummary(true)}><MessageCircle size={20} />{txt("متابعة الطلب", "Continue request")}</button>
-    {summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
-      <div className="flight-summary-head"><h4>{txt("مراجعة ملخص الطلب", "Review request summary")}</h4><button type="button" onClick={() => setSummary(false)} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
+    
+    {step === 3 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
+      <div className="flight-summary-head"><h4>{txt("مراجعة ملخص الطلب", "Review request summary")}</h4><button type="button" onClick={() => {setSummary(false);setStep(2);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
       <p>{txt("هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل البيانات قبل فتح واتساب.", "This is an enquiry, not a confirmed booking. You can return to edit details before opening WhatsApp.")}</p>
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن حجز الباصات والنقل البري", "General bus and ground transport enquiry")}</dd></div>}</dl>
-      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => setSummary(false)}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
+      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
     </section>}
+    <div className="flight-step-nav"><span className="flight-step-count">{txt(`الخطوة ${Math.min(step,3)} من 3`,`Step ${Math.min(step,3)} of 3`)}</span><div className="flight-step-buttons">{step>1 && <button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(s=>s-1);}}>{txt("السابق","Back")}</button>}{step<3 && <button type="button" className="btn btn-primary" onClick={()=>{if(step===2)setSummary(true);setStep(s=>Math.min(s+1,3));}}>{txt("التالي","Next")}</button>}</div></div>
   </div>;
 }

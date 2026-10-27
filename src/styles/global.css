@@ -1159,3 +1159,69 @@ body { background: transparent; }
 @media (max-width: 640px) {
   .specialized-request-form .flight-input-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* Welcome screen: app-like entry point on phones, minimal on desktop */
+.welcome-screen { position: relative; isolation: isolate; min-height: 100svh; overflow: hidden; display: grid; place-items: center; padding: 32px 24px 70px; background: var(--bg); color: var(--text); text-align: center; }
+.welcome-glow { position: absolute; z-index: -1; width: min(92vw, 680px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%); filter: blur(10px); }
+.welcome-content { width: min(100%, 480px); display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.welcome-logo { width: 94px; height: 94px; display: grid; place-items: center; padding: 12px; border: 1px solid var(--glass-border); border-radius: 28px; background: var(--glass); box-shadow: var(--shadow); }
+.welcome-logo .logo { flex-direction: column; gap: 0; }
+.welcome-logo .logo-tile { width: 66px !important; height: 66px !important; }
+.welcome-logo .logo-word { display: none; }
+.welcome-eyebrow { color: var(--accent-text); font-size: .82rem; font-weight: 700; letter-spacing: .12em; }
+.welcome-content h1 { font-size: clamp(2rem, 7vw, 3.3rem); }
+.welcome-content p { max-width: 34ch; color: var(--muted); font-size: 1.1rem; }
+.welcome-continue { min-height: 56px; padding-inline: 26px; margin-top: 12px; }
+.welcome-bottom { position: absolute; bottom: max(24px, env(safe-area-inset-bottom)); color: var(--muted); font-size: .88rem; }
+@media (min-width: 960px) { .welcome-screen { min-height: 100vh; } .welcome-content { gap: 22px; } }
+/* App-like service forms: focused layouts on narrow screens */
+@media (max-width: 640px) {
+  .flight-booking-form { border-top: 0; padding-top: 8px; }
+  .flight-group { padding: 16px; border-radius: 18px; }
+  .flight-route-grid { grid-template-columns: minmax(0, 1fr); }
+  .flight-swap { margin: 0 auto; }
+  .flight-choice-row { gap: 8px; }
+  .flight-choice { min-height: 54px; padding: 10px; }
+  .flight-summary-actions { flex-direction: column; }
+  .flight-summary-actions .btn { width: 100%; }
+}
+
+.flight-step-nav { display: grid; gap: 12px; margin-top: 12px; }
+.flight-step-count { color: var(--muted); font-size: .92rem; font-weight: 600; }
+.flight-step-actions { display: flex; gap: 10px; }
+.flight-step-actions .btn { flex: 1; }
+@media (max-width: 560px) { .flight-step-actions .btn { min-height: 54px; } .flight-booking-form .flight-group { margin-bottom: 4px; } }
+
+/* Mobile home is an app-like introduction; services live on their own screen */
+.home-intro > section { scroll-margin-top: 84px; }
+@media (max-width: 640px) {
+  .home-intro .hero { min-height: calc(76svh - 64px); display: flex; align-items: center; }
+  .home-intro .hero-inner, .home-intro .hero-content { width: 100%; }
+  .home-intro .hero h1 { font-size: clamp(2rem, 9vw, 3rem); line-height: 1.25; }
+  .home-intro .hero p { font-size: 1rem; line-height: 1.8; }
+  .home-intro .section { padding-block: 28px; }
+}
+
+
+/* Multi-step service enquiry forms */
+.hotel-booking-form.step-1 [data-step]:not([data-step="1"]),
+.hotel-booking-form.step-2 [data-step]:not([data-step="2"]),
+.hotel-booking-form.step-3 [data-step]:not([data-step="3"]),
+.hotel-booking-form.step-4 [data-step]:not([data-step="4"]),
+.hotel-booking-form.step-5 [data-step],
+.ground-transport-form.step-1 [data-step]:not([data-step="1"]),
+.ground-transport-form.step-2 [data-step]:not([data-step="2"]),
+.ground-transport-form.step-3 [data-step],
+.car-rental-form.step-1 [data-step]:not([data-step="1"]),
+.car-rental-form.step-2 [data-step]:not([data-step="2"]),
+.car-rental-form.step-3 [data-step]:not([data-step="3"]),
+.car-rental-form.step-4 [data-step]:not([data-step="4"]),
+.car-rental-form.step-5 [data-step] { display: none; }
+.flight-step-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
+.flight-step-buttons { display:flex; align-items:center; gap:10px; }
+.flight-step-count { color:var(--muted); font-size:.9rem; }
+@media (max-width:560px) {
+  .flight-step-nav { position:sticky; bottom:calc(78px + env(safe-area-inset-bottom)); z-index:4; padding:10px; border:1px solid var(--border); border-radius:16px; background:var(--surface, var(--background)); backdrop-filter:blur(16px); }
+  .flight-step-buttons .btn { min-height:46px; }
+}

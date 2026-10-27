@@ -3,11 +3,10 @@ import { CalendarDays, Car, Clock3, MapPin, MessageCircle, Users, X } from "luci
 import { siteConfig } from "../config/site";
 
 type Lang = "ar" | "en";
-type Country = "" | "YE" | "SA" | "EG";
+type Country = "" | "YE" | "EG";
 
 const countries: { code: Exclude<Country, "">; ar: string; en: string; cities: [string, string][] }[] = [
   { code: "YE", ar: "اليمن", en: "Yemen", cities: [["عدن", "Aden"], ["صنعاء", "Sana'a"], ["تعز", "Taiz"], ["المكلا", "Mukalla"], ["سيئون", "Seiyun"], ["الحديدة", "Al Hudaydah"], ["مأرب", "Marib"], ["إب", "Ibb"], ["ذمار", "Dhamar"], ["لحج", "Lahij"]] },
-  { code: "SA", ar: "السعودية", en: "Saudi Arabia", cities: [["جدة", "Jeddah"], ["الرياض", "Riyadh"], ["مكة المكرمة", "Makkah"], ["المدينة المنورة", "Madinah"], ["الدمام", "Dammam"], ["الطائف", "Taif"], ["أبها", "Abha"], ["تبوك", "Tabuk"]] },
   { code: "EG", ar: "مصر", en: "Egypt", cities: [["القاهرة", "Cairo"], ["الإسكندرية", "Alexandria"], ["شرم الشيخ", "Sharm El Sheikh"], ["الغردقة", "Hurghada"], ["الأقصر", "Luxor"], ["أسوان", "Aswan"], ["الجيزة", "Giza"]] },
 ];
 
@@ -29,6 +28,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
   const [cars, setCars] = useState("1");
   const [notes, setNotes] = useState("");
   const [summary, setSummary] = useState(false);
+  const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const selectedCountry = countries.find(item => item.code === country);
@@ -59,10 +59,10 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
     + request + "\n" + txt("يرجى تأكيد السعر والتوافر والشروط قبل تأكيد أي حجز.", "Please confirm price, availability and terms before any rental is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
 
-  return <div className="inquiry-form flight-booking-form car-rental-form">
+  return <div className={`inquiry-form flight-booking-form car-rental-form step-${step}`}>
     <h3>{txt("قدّم طلب تأجير سيارة", "Request a car rental")}</h3>
     <p>{txt("اختر ما تعرفه من التفاصيل واترك الباقي فارغًا. جميع الحقول اختيارية، والطلب لا يُعد حجزًا مؤكدًا.", "Fill in the details you know and leave the rest blank. All fields are optional; this is not a confirmed rental.")}</p>
-    <div className="flight-group">
+    <div className="flight-group" data-step="1">
       <h4><MapPin size={18} />{txt("١. مكان الاستلام والتسليم", "1. Pickup and return location")}</h4>
       <div className="flight-input-grid">
         <div className="inquiry-field flight-field">
@@ -91,9 +91,9 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
           <input value={dropoffArea} onChange={e => setDropoffArea(e.target.value)} placeholder={txt("المطار، الفندق، أو المنطقة", "Airport, hotel or area")} />
         </div>
       </div>
-      <p className="flight-disclaimer">{txt("الدول المتاحة في الطلب: اليمن والسعودية ومصر. يمكن كتابة أي مدينة أو منطقة يدويًا.", "Countries available in this request: Yemen, Saudi Arabia and Egypt. You can type any city or area manually.")}</p>
+      <p className="flight-disclaimer">{txt("الدول المتاحة حاليًا: مصر واليمن، مع تأكيد توفر السيارة قبل الحجز. يمكن كتابة أي مدينة أو منطقة يدويًا.", "Currently available countries: Egypt and Yemen. Vehicle availability is confirmed before booking. You can type any city or area manually.")}</p>
     </div>
-    <div className="flight-group">
+    <div className="flight-group" data-step="2">
       <h4><CalendarDays size={18} />{txt("٢. مدة التأجير", "2. Rental period")}</h4>
       <div className="flight-input-grid">
         <div className="inquiry-field flight-field"><label>{txt("تاريخ الاستلام (اختياري)", "Pickup date (optional)")}</label><input type="date" min={today} value={pickupDate} onChange={e => { setPickupDate(e.target.value); if (returnDate && e.target.value > returnDate) setReturnDate(""); }} /></div>
@@ -102,7 +102,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
         <div className="inquiry-field flight-field"><label><Clock3 size={16} />{txt("وقت التسليم (اختياري)", "Return time (optional)")}</label><input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)} /></div>
       </div>
     </div>
-    <div className="flight-group">
+    <div className="flight-group" data-step="3">
       <h4><Car size={18} />{txt("٣. السيارة المناسبة", "3. Vehicle preferences")}</h4>
       <div className="flight-input-grid">
         <div className="inquiry-field flight-field"><label>{txt("نوع السيارة (اختياري)", "Vehicle type (optional)")}</label><select value={vehicle} onChange={e => setVehicle(e.target.value)}>{Object.entries(vehicleName).map(([value, names]) => <option key={value} value={value}>{names[ar ? 0 : 1]}</option>)}</select></div>
@@ -111,16 +111,17 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
         <div className="inquiry-field flight-field"><label>{txt("عدد السيارات (اختياري)", "Number of cars (optional)")}</label><select value={cars} onChange={e => setCars(e.target.value)}>{Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
       </div>
     </div>
-    <div className="flight-group">
+    <div className="flight-group" data-step="4">
       <h4>{txt("٤. ملاحظات إضافية", "4. Additional notes")}</h4>
       <div className="inquiry-field flight-field"><label>{txt("متطلبات أو تفاصيل أخرى (اختياري)", "Other requirements (optional)")}</label><textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} placeholder={txt("مثل ناقل حركة أو مقعد طفل أو احتياج خاص", "E.g. transmission, child seat or special requirement")} /></div>
     </div>
-    <button type="button" className="btn btn-primary inquiry-submit" onClick={() => setSummary(true)}><MessageCircle size={20} />{txt("متابعة الطلب", "Continue request")}</button>
-    {summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
-      <div className="flight-summary-head"><h4>{txt("مراجعة ملخص الطلب", "Review request summary")}</h4><button type="button" onClick={() => setSummary(false)} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
+    
+    {step === 5 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
+      <div className="flight-summary-head"><h4>{txt("مراجعة ملخص الطلب", "Review request summary")}</h4><button type="button" onClick={() => {setSummary(false);setStep(4);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
       <p>{txt("هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل البيانات قبل فتح واتساب.", "This is an enquiry, not a confirmed rental. You can return to edit details before opening WhatsApp.")}</p>
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن تأجير السيارات", "General car rental enquiry")}</dd></div>}</dl>
-      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => setSummary(false)}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
+      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(4);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
     </section>}
+    <div className="flight-step-nav"><span className="flight-step-count">{txt(`الخطوة ${Math.min(step,5)} من 5`,`Step ${Math.min(step,5)} of 5`)}</span><div className="flight-step-buttons">{step>1 && <button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(s=>s-1);}}>{txt("السابق","Back")}</button>}{step<5 && <button type="button" className="btn btn-primary" onClick={()=>{if(step===4)setSummary(true);setStep(s=>Math.min(s+1,5));}}>{txt("التالي","Next")}</button>}</div></div>
   </div>;
 }

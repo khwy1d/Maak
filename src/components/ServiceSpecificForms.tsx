@@ -1,4 +1,4 @@
-import { cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
 import { CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
@@ -40,7 +40,10 @@ function RequestCard({
   children: ReactNode;
   note: string;
 }) {
-  const [reviewing, setReviewing] = useState(false);
+  const [step, setStep] = useState(0);
+  const groups = Children.toArray(children);
+  const totalSteps = groups.length + 1;
+  const reviewing = step === groups.length;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const details = rows.length
     ? rows.map(([name, value]) => `${name}: ${value}`).join("\n")
@@ -55,20 +58,24 @@ function RequestCard({
   return <div className="inquiry-form flight-booking-form specialized-request-form">
     <h3>{title}</h3>
     <p>{intro}</p>
-    {children}
-    <button type="button" className="btn btn-primary inquiry-submit" onClick={() => setReviewing(true)}>
-      <MessageCircle size={19} />{label(lang, "مراجعة تفاصيل الطلب", "Review request details")}
-    </button>
+    {!reviewing && <>{groups[step]}</>}
+    <div className="flight-step-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
+      <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
+      <div className="flight-step-buttons">
+        {step > 0 && <button type="button" className="btn btn-ghost" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
+        {!reviewing && <button type="button" className="btn btn-primary" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}</button>}
+      </div>
+    </div>
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع التفاصيل قبل المتابعة", "Review details before continuing")}</h4>
-        <button type="button" onClick={() => setReviewing(false)} aria-label={label(lang, "إغلاق", "Close")}><X size={20} /></button>
+        <button type="button" onClick={() => setStep(0)} aria-label={label(lang, "العودة للتعديل", "Back to edit")}><X size={20} /></button>
       </div>
       <p>{label(lang, "هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل التفاصيل قبل فتح واتساب.", "This is an enquiry, not a confirmed booking. You can return to edit details before opening WhatsApp.")}</p>
       <dl>{rows.length ? rows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
-        <button type="button" className="btn btn-ghost" onClick={() => setReviewing(false)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
+        <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
         <a className="btn btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "فتح واتساب بالطلب", "Open WhatsApp with request")}</a>
       </div>
     </section>}
@@ -172,7 +179,6 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
 }
 
 export function UmrahForm({ lang }: ServiceFormProps) {
-  const [journeyType, setJourneyType] = useState("");
   const [departureCity, setDepartureCity] = useState("");
   const [date, setDate] = useState("");
   const [travellers, setTravellers] = useState("");
@@ -181,27 +187,25 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [transport, setTransport] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
   const rows: Row[] = [
-    ...(journeyType ? [[txt("نوع الرحلة", "Journey type"), journeyType === "hajj" ? txt("حج", "Hajj") : txt("عمرة", "Umrah")] as Row] : []),
-    ...(departureCity.trim() ? [[txt("مدينة الانطلاق", "Departure city"), departureCity.trim()] as Row] : []),
+        ...(departureCity.trim() ? [[txt("مدينة الانطلاق", "Departure city"), departureCity.trim()] as Row] : []),
     ...(date ? [[txt("موعد السفر المفضل", "Preferred travel date"), date] as Row] : []),
     ...(travellers ? [[txt("عدد المسافرين", "Travellers"), travellers] as Row] : []),
     ...(rooms ? [[txt("عدد الغرف", "Rooms"), rooms] as Row] : []),
-    ...(stay ? [[txt("تفضيل السكن", "Accommodation preference"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
-    ...(transport ? [[txt("ترتيب النقل", "Transport arrangements"), ({ airport: txt("النقل من وإلى المطار", "Airport transfers"), between: txt("التنقل بين المدن", "Intercity transport"), both: txt("كلاهما", "Both"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
+    ...(stay ? [[txt("السكن والغرف (اختياري)", "Accommodation and rooms (optional)"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
+    ...(transport ? [[txt("التنقلات (اختياري)", "Transport (optional)"), ({ airport: txt("التنقل بين المزارات", "Transport between visit sites"), between: txt("تنقلات أخرى", "Other transport"), both: txt("تنقلات متعددة", "Multiple transfers"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("خطّط لرحلة الحج أو العمرة", "Plan your Hajj or Umrah trip")}
-    intro={txt("حدّد نوع الرحلة ومكان الانطلاق واحتياجات المجموعة من السكن والنقل.", "Tell us your journey type, departure city, and your group’s accommodation and transport needs.")}
-    serviceName={txt("رحلة الحج والعمرة", "a Hajj or Umrah trip")} rows={rows}
-    note={txt("تخضع المواعيد والتأشيرات والأسعار والتوافر للتأكيد عند التواصل.", "Dates, visas, prices and availability are confirmed during follow-up.")}>
-    <div className="flight-group"><h4>{txt("الرحلة ومكان الانطلاق", "Journey and departure")}</h4>
+  return <RequestCard lang={lang} title={txt("نسّق رحلة العمرة", "Coordinate your Umrah trip")}
+    intro={txt("حدّد تفاصيل رحلة العمرة، ويمكنك إضافة طلب اختياري للسكن والغرف أو التنقل بين المزارات.", "Share your Umrah trip details, with optional requests for accommodation or transport between visit sites.")}
+    serviceName={txt("رحلة العمرة", "an Umrah trip")} rows={rows}
+    note={txt("تُراجع المواعيد والأسعار والتوافر عند التواصل، وهذا الطلب لا يمثل حجزًا مؤكدًا.", "Dates, prices and availability are confirmed during follow-up; this request is not a confirmed booking.")}>
+    <div className="flight-group"><h4>{txt("تفاصيل رحلة العمرة", "Umrah trip details")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("نوع الرحلة", "Journey type")}><Select value={journeyType} onChange={setJourneyType} placeholder={txt("اختر نوع الرحلة", "Choose a journey")} options={[["umrah", txt("عمرة", "Umrah")], ["hajj", txt("حج", "Hajj")]]} /></Field>
         <Field title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: صنعاء", "e.g. Sana'a")} /></Field>
         <Field title={<><CalendarDays size={16} />{txt("موعد السفر المفضل", "Preferred travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
         <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 40)} /></Field>
       </div>
     </div>
-    <div className="flight-group"><h4>{txt("السكن والنقل", "Accommodation and transport")}</h4>
+    <div className="flight-group"><h4>{txt("خدمات إضافية اختيارية", "Optional additional services")}</h4>
       <div className="flight-input-grid">
         <Field title={txt("عدد الغرف", "Number of rooms")}><Select value={rooms} onChange={setRooms} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 16)} /></Field>
         <Field title={txt("تفضيل السكن", "Accommodation preference")}><Select value={stay} onChange={setStay} placeholder={txt("اختر ما يناسبكم", "Choose a preference")} options={[["near", txt("قريب من الحرم", "Near the Haram")], ["hotel", txt("فندق مناسب للعائلة", "Family-friendly hotel")], ["flexible", txt("مرن", "Flexible")]]} /></Field>
