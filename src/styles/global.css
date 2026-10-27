@@ -1209,12 +1209,15 @@ body { background: transparent; }
 .hotel-booking-form.step-2 [data-step]:not([data-step="2"]),
 .hotel-booking-form.step-3 [data-step]:not([data-step="3"]),
 .hotel-booking-form.step-4 [data-step]:not([data-step="4"]),
+.hotel-booking-form.step-5 [data-step],
 .ground-transport-form.step-1 [data-step]:not([data-step="1"]),
 .ground-transport-form.step-2 [data-step]:not([data-step="2"]),
+.ground-transport-form.step-3 [data-step],
 .car-rental-form.step-1 [data-step]:not([data-step="1"]),
 .car-rental-form.step-2 [data-step]:not([data-step="2"]),
 .car-rental-form.step-3 [data-step]:not([data-step="3"]),
-.car-rental-form.step-4 [data-step]:not([data-step="4"]) { display: none; }
+.car-rental-form.step-4 [data-step]:not([data-step="4"]),
+.car-rental-form.step-5 [data-step] { display: none; }
 .flight-step-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
 .flight-step-buttons { display:flex; align-items:center; gap:10px; }
 .flight-step-count { color:var(--muted); font-size:.9rem; }
