@@ -1344,3 +1344,9 @@ body:has(.maak-service-flow) nav[aria-label="Mobile navigation"] { display:none!
  .maak-service-flow .flight-summary-actions { flex-direction:column; }
  .maak-service-flow .flight-summary-actions .btn { width:100%; }
 }
+
+body:has(.maak-service-flow) .header,
+body:has(.maak-service-flow) .mobile-dock,
+body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
+.maak-service-flow:has(.flight-summary) .maak-service-intro { display:none!important; }
+.maak-service-flow .flight-step-nav .flight-step-count { max-width:40%; }
