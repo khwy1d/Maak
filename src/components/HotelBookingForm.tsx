@@ -46,6 +46,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
     + "\n" + txt("يرجى تزويدي بالخيارات والأسعار والتوافر قبل تأكيد أي حجز.", "Please share available options, prices and availability before any booking is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
   return <div className={`inquiry-form flight-booking-form hotel-booking-form maak-service-flow step-${step}`}>
+    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب حجز إقامة", "Accommodation request")}</h2></div></header><div className="maak-progress"><span style={{width: `${Math.min(step,5)/5*100}%`}}/></div>
     <div className="maak-progress"><span style={{width: `${Math.min(step,5)/5*100}%`}}/></div>
     <div className="flight-group" data-step="1">
       <h4>{txt("١. وجهة الإقامة", "1. Accommodation destination")}</h4>
