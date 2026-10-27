@@ -45,7 +45,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
     + (body || txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن خيارات الإقامة المتاحة.", "No details specified yet; I'd like to enquire about available accommodation options."))
     + "\n" + txt("يرجى تزويدي بالخيارات والأسعار والتوافر قبل تأكيد أي حجز.", "Please share available options, prices and availability before any booking is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
-  return <div className="inquiry-form flight-booking-form hotel-booking-form step-${step}">
+  return <div className={`inquiry-form flight-booking-form hotel-booking-form step-${step}`}>
     <h3>{txt("قدّم طلب حجز إقامة", "Request accommodation")}</h3>
     <p>{txt("حدد الوجهة ونوع الإقامة وما تعرفه من التفاصيل. جميع الحقول اختيارية.", "Choose your destination and accommodation preferences. All fields are optional.")}</p>
     <div className="flight-group" data-step="1">
