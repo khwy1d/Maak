@@ -1,4 +1,4 @@
-import { cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
 import { CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
@@ -40,7 +40,10 @@ function RequestCard({
   children: ReactNode;
   note: string;
 }) {
-  const [reviewing, setReviewing] = useState(false);
+  const [step, setStep] = useState(0);
+  const groups = Children.toArray(children);
+  const totalSteps = groups.length + 1;
+  const reviewing = step === groups.length;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const details = rows.length
     ? rows.map(([name, value]) => `${name}: ${value}`).join("\n")
@@ -55,20 +58,24 @@ function RequestCard({
   return <div className="inquiry-form flight-booking-form specialized-request-form">
     <h3>{title}</h3>
     <p>{intro}</p>
-    {children}
-    <button type="button" className="btn btn-primary inquiry-submit" onClick={() => setReviewing(true)}>
-      <MessageCircle size={19} />{label(lang, "مراجعة تفاصيل الطلب", "Review request details")}
-    </button>
+    {!reviewing && <>{groups[step]}</>}
+    <div className="flight-step-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
+      <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
+      <div className="flight-step-buttons">
+        {step > 0 && <button type="button" className="btn btn-ghost" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
+        {!reviewing && <button type="button" className="btn btn-primary" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}</button>}
+      </div>
+    </div>
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع التفاصيل قبل المتابعة", "Review details before continuing")}</h4>
-        <button type="button" onClick={() => setReviewing(false)} aria-label={label(lang, "إغلاق", "Close")}><X size={20} /></button>
+        <button type="button" onClick={() => setStep(0)} aria-label={label(lang, "العودة للتعديل", "Back to edit")}><X size={20} /></button>
       </div>
       <p>{label(lang, "هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل التفاصيل قبل فتح واتساب.", "This is an enquiry, not a confirmed booking. You can return to edit details before opening WhatsApp.")}</p>
       <dl>{rows.length ? rows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
-        <button type="button" className="btn btn-ghost" onClick={() => setReviewing(false)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
+        <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
         <a className="btn btn-primary" href={whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "فتح واتساب بالطلب", "Open WhatsApp with request")}</a>
       </div>
     </section>}
