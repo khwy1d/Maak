@@ -73,7 +73,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     + message + "\n" + txt("يرجى تأكيد المسار والمواعيد والتكلفة والتوافر قبل تأكيد الحجز.", "Please confirm the route, schedule, price and availability before any booking is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(waMessage);
 
-  return <div className="inquiry-form flight-booking-form ground-transport-form step-${step}">
+  return <div className={`inquiry-form flight-booking-form ground-transport-form step-${step}`}>
     <h3>{txt("قدّم طلب النقل البري", "Request ground transport")}</h3>
     <p>{txt("اختر بلد المغادرة والوصول، وأضف ما تعرفه من التفاصيل. جميع الحقول اختيارية.", "Choose departure and destination countries, then add any details you know. All fields are optional.")}</p>
     <div className="flight-group" data-step="1">
