@@ -1304,3 +1304,404 @@ body { background: transparent; }
     grid-column: 1 / -1;
   }
 }
+
+/* Shared MAAK service-form shell: compact header, progress, and persistent actions. */
+.maak-service-flow { position:relative; padding:0 0 104px!important; border-top:0!important; }
+.maak-service-flow .maak-flight-head { display:flex; align-items:center; gap:12px; padding:10px 0 14px; margin:0; }
+.maak-service-flow .maak-flight-head>div:nth-child(2) { flex:1; min-width:0; }
+.maak-service-flow .maak-flight-head span { display:block; font-size:.72rem; letter-spacing:.08em; color:var(--muted); font-weight:700; }
+.maak-service-flow .maak-flight-head h2 { font-size:1.2rem!important; line-height:1.4; margin:3px 0 0!important; color:var(--text); }
+.maak-service-flow .maak-back { width:44px; height:44px; flex:0 0 44px; border:1px solid var(--border); background:var(--surface); color:var(--text); border-radius:14px; display:grid; place-items:center; cursor:pointer; }
+.maak-service-flow .maak-step-badge { flex:0 0 auto; font-size:.88rem; font-weight:750; color:var(--accent-text); background:color-mix(in srgb,var(--accent) 12%,transparent); border-radius:12px; padding:8px 11px; }
+.maak-service-flow .maak-progress { height:4px; border-radius:99px; background:var(--border); overflow:hidden; margin:0 0 22px; }
+.maak-service-flow .maak-progress span { display:block; height:100%; border-radius:inherit; background:var(--gradient); transition:width .2s ease; }
+.maak-service-flow > h3,.maak-service-flow > p:not(.maak-service-intro) { display:none!important; }
+.maak-service-flow .maak-service-intro { font-size:.84rem; line-height:1.65; color:var(--muted); margin:0 0 16px; }
+.maak-service-flow .flight-group { border:1px solid var(--border); border-radius:17px; padding:15px; margin:0 0 12px; background:var(--glass); }
+.maak-service-flow .flight-group h4 { margin:0 0 14px; color:var(--text); font-size:1rem; }
+.maak-service-flow .flight-input-grid { gap:14px; }
+.maak-service-flow .inquiry-field label { color:var(--text); font-weight:650; margin-bottom:7px; }
+.maak-service-flow input:not([type="checkbox"]),.maak-service-flow select,.maak-service-flow textarea { min-height:48px; border-radius:12px; font:inherit; }
+.maak-service-flow textarea { min-height:92px; }
+.maak-service-flow .flight-step-nav { position:fixed!important; z-index:40; bottom:0!important; left:0; right:0; display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0!important; padding:12px max(16px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important; border:0!important; border-top:1px solid var(--border)!important; border-radius:0!important; background:color-mix(in srgb,var(--bg) 90%,transparent)!important; backdrop-filter:blur(16px); }
+.maak-service-flow .flight-step-count { font-size:.82rem; font-weight:700; }
+.maak-service-flow .flight-step-buttons { gap:8px; }
+.maak-service-flow .flight-step-buttons .btn { min-height:48px; border-radius:13px; padding-inline:18px; }
+.maak-service-flow .flight-summary { margin-top:0; border:1px solid var(--border); border-radius:17px; padding:15px; background:var(--glass); }
+.maak-service-flow .flight-summary-head { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.maak-service-flow .flight-summary-head h4 { margin:0; color:var(--text); }
+.maak-service-flow .flight-summary dl { margin-top:14px; }
+.maak-service-flow .flight-summary dl>div { padding:10px 0; border-top:1px solid var(--border); }
+.maak-service-flow .flight-summary-actions { gap:10px; margin-top:16px; }
+body:has(.maak-service-flow) .site-header,
+body:has(.maak-service-flow) header.site-header,
+body:has(.maak-service-flow) .bottom-nav,
+body:has(.maak-service-flow) .mobile-bottom-nav,
+body:has(.maak-service-flow) nav[aria-label="Mobile navigation"] { display:none!important; }
+@media(max-width:1023px) {
+ .maak-service-flow { width:100%; max-width:none; min-width:0; }
+ .maak-service-flow .flight-step-nav { position:fixed!important; }
+ .maak-service-flow .flight-summary-actions { flex-direction:column; }
+ .maak-service-flow .flight-summary-actions .btn { width:100%; }
+}
+
+body:has(.maak-service-flow) .header,
+body:has(.maak-service-flow) .mobile-dock,
+body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
+.maak-service-flow:has(.flight-summary) .maak-service-intro { display:none!important; }
+.maak-service-flow .flight-step-nav .flight-step-count { max-width:40%; }
+
+/* Follow the flight form's simpler layout across the other service forms. */
+.maak-service-flow { padding-bottom: 24px!important; }
+.maak-service-flow .maak-flight-head,
+.maak-service-flow .maak-step-badge,
+.maak-service-flow .flight-step-count,
+.maak-service-flow > .maak-service-intro { display:none!important; }
+/* Keep the site-wide mobile navigation available during service requests. */
+body:has(.maak-service-flow) .mobile-dock { display:flex!important; }
+/* The primary next action sits at the end of the form, spans its full width, and uses MAAK gold. */
+.maak-service-flow .flight-step-nav {
+  position:static!important;
+  display:flex!important;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+  margin:20px 0 18px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+}
+.maak-service-flow .flight-step-buttons {
+  display:flex!important;
+  flex-direction:column-reverse;
+  width:100%;
+  gap:10px;
+}
+.maak-service-flow .flight-step-buttons .btn {
+  width:100%!important;
+  min-height:52px;
+  border-radius:14px;
+  font-weight:750;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary {
+  color:#142C4E!important;
+  background:#F5B52E!important;
+  border-color:#F5B52E!important;
+  box-shadow:none!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary:hover {
+  background:#edaa1c!important;
+  border-color:#edaa1c!important;
+}
+body:has(.maak-service-flow) .mobile-dock { z-index:45; }
+@media(max-width:1023px) {
+  .maak-service-flow { padding-bottom:120px!important; }
+  .maak-service-flow .flight-step-nav { position:static!important; }
+}
+
+/* Match the flight request page layout across every other service. */
+body:has(.maak-service-flow) .page-hero,
+body:has(.maak-service-flow) .page-hero-request,
+body:has(.maak-service-flow) .page-hero-hotel,
+body:has(.maak-service-flow) .page-hero-bus,
+body:has(.maak-service-flow) .page-hero-flight { display:none!important; }
+body:has(.maak-service-flow) .header { display:none!important; }
+body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:visible!important; }
+.maak-service-flow { padding-top:0!important; padding-bottom:20px!important; }
+.maak-service-flow .maak-flight-head {
+  display:flex!important;
+  align-items:center;
+  gap:12px;
+  padding:4px 0 14px;
+  margin:0!important;
+}
+.maak-service-flow .maak-flight-head>div { flex:1; min-width:0; }
+.maak-service-flow .maak-flight-head span { display:block; }
+.maak-service-flow .maak-flight-head h2 { margin:3px 0 0!important; }
+.maak-service-flow .maak-back { width:44px; height:44px; flex:0 0 44px; }
+.maak-service-flow .maak-step-badge,
+.maak-service-flow .flight-step-count { display:none!important; }
+.maak-service-flow .maak-progress { display:block!important; margin:0 0 22px!important; }
+.maak-service-flow .flight-step-nav {
+  position:sticky!important;
+  bottom:calc(92px + env(safe-area-inset-bottom))!important;
+  z-index:35!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:100%;
+  gap:10px!important;
+  margin:20px 0 18px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+}
+.maak-service-flow .flight-step-buttons {
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  width:100%;
+  gap:10px!important;
+}
+.maak-service-flow .flight-step-buttons .btn {
+  min-height:50px!important;
+  border-radius:14px!important;
+  margin:0!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary {
+  flex:1 1 auto!important;
+  width:auto!important;
+  color:#142C4E!important;
+  background:#F5B52E!important;
+  border:1px solid #F5B52E!important;
+  font-weight:750!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-ghost {
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:88px!important;
+  padding-inline:14px!important;
+  background:transparent!important;
+  border:1px solid var(--border)!important;
+}
+body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
+@media(max-width:1023px) {
+  .maak-service-flow { padding-bottom:20px!important; }
+  .maak-service-flow .flight-step-nav { position:sticky!important; }
+  .maak-service-flow .flight-step-buttons { flex-direction:row!important; }
+}
+
+/* Final mobile booking controls: keep the homepage dock layout and pin step actions in place. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .site-content { padding-bottom: 178px!important; }
+  body:has(.maak-service-flow) .mobile-dock {
+    position:fixed!important;
+    z-index:80!important;
+    inset:auto 10px max(8px, env(safe-area-inset-bottom)) 10px!important;
+    display:grid!important;
+    grid-template-columns:1fr 1fr 1.12fr 1fr 1fr!important;
+    align-items:center!important;
+    gap:2px!important;
+    padding:8px 7px!important;
+    border:1px solid var(--glass-border)!important;
+    border-radius:28px!important;
+    background:var(--glass)!important;
+    -webkit-backdrop-filter:blur(24px) saturate(160%)!important;
+    backdrop-filter:blur(24px) saturate(160%)!important;
+  }
+  body:has(.maak-service-flow) .mobile-dock a {
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:2px!important;
+    min-width:0!important;
+    min-height:48px!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:clamp(.58rem,2.5vw,.7rem)!important;
+    line-height:1.35!important;
+    white-space:nowrap!important;
+  }
+  body:has(.maak-service-flow) .mobile-dock a svg {
+    width:21px!important;
+    height:21px!important;
+    flex:0 0 auto!important;
+  }
+  body:has(.maak-service-flow) .mobile-dock .dock-primary {
+    width:48px!important;
+    height:48px!important;
+    min-height:48px!important;
+    justify-self:center!important;
+    border-radius:50%!important;
+    background:var(--c-gold)!important;
+  }
+  body:has(.maak-service-flow) .mobile-dock .dock-primary svg {
+    width:25px!important;
+    height:25px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-nav {
+    position:fixed!important;
+    z-index:75!important;
+    inset:auto 24px calc(94px + env(safe-area-inset-bottom)) 24px!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    display:block!important;
+    border:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons {
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    width:100%!important;
+    gap:10px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-primary {
+    flex:1 1 auto!important;
+    min-width:0!important;
+    width:auto!important;
+    order:2!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-ghost {
+    flex:0 0 88px!important;
+    width:88px!important;
+    min-width:88px!important;
+    order:1!important;
+  }
+}
+
+/* Keep action buttons out of the fields: sticky in the form's flow, above the homepage dock. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 150px!important;
+    overflow:visible!important;
+  }
+  body:has(.maak-service-flow) .flight-step-nav {
+    position:sticky!important;
+    inset:auto!important;
+    bottom:calc(150px + env(safe-area-inset-bottom))!important;
+    z-index:35!important;
+    width:100%!important;
+    margin:24px 0 0!important;
+    padding:10px 0!important;
+    display:block!important;
+    background:linear-gradient(to bottom, transparent, var(--bg) 24%)!important;
+    backdrop-filter:none!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons {
+    width:100%!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:10px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-ghost {
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-primary {
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+  }
+}
+
+/* Fixed action bar: stays in one viewport position while the form scrolls above it. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 210px!important;
+    overflow:visible!important;
+  }
+  body:has(.maak-service-flow) .flight-step-nav {
+    position:fixed!important;
+    inset:auto 24px calc(100px + env(safe-area-inset-bottom)) 24px!important;
+    bottom:calc(100px + env(safe-area-inset-bottom))!important;
+    z-index:75!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    display:block!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    backdrop-filter:none!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons {
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    width:100%!important;
+    gap:10px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-ghost {
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-primary {
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+  }
+}
+
+/* Match the flight form's step counter badge on all other service forms. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow .maak-flight-head {
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:12px!important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-flight-head > div {
+    flex:1 1 auto!important;
+    min-width:0!important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-step-badge {
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    flex:0 0 76px!important;
+    min-width:76px!important;
+    min-height:64px!important;
+    padding:10px 12px!important;
+    border-radius:20px!important;
+    background:rgba(32,184,166,.14)!important;
+    color:#176b72!important;
+    font-size:1.25rem!important;
+    font-weight:800!important;
+    line-height:1!important;
+    direction:ltr!important;
+    order:0!important;
+  }
+}
+
+/* Keep the service step badge compact, matching the flight booking header. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow .maak-step-badge {
+    flex:0 0 auto!important;
+    min-width:0!important;
+    min-height:0!important;
+    width:auto!important;
+    padding:8px 11px!important;
+    border-radius:12px!important;
+    font-size:.88rem!important;
+    font-weight:750!important;
+    line-height:1.4!important;
+    background:color-mix(in srgb,var(--accent) 12%,transparent)!important;
+  }
+}
+
+/* Match the flight form badge width exactly: do not let the generic header div rule stretch it. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow .maak-flight-head > .maak-step-badge {
+    display:inline-flex!important;
+    flex:0 0 auto!important;
+    width:max-content!important;
+    min-width:0!important;
+    max-width:max-content!important;
+    min-height:0!important;
+    align-self:center!important;
+    padding:8px 11px!important;
+    margin-inline-start:0!important;
+    white-space:nowrap!important;
+    box-sizing:border-box!important;
+    font-size:.88rem!important;
+    line-height:1.4!important;
+    border-radius:12px!important;
+  }
+}
