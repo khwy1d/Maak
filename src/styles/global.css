@@ -1350,3 +1350,53 @@ body:has(.maak-service-flow) .mobile-dock,
 body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
 .maak-service-flow:has(.flight-summary) .maak-service-intro { display:none!important; }
 .maak-service-flow .flight-step-nav .flight-step-count { max-width:40%; }
+
+/* Follow the flight form's simpler layout across the other service forms. */
+.maak-service-flow { padding-bottom: 24px!important; }
+.maak-service-flow .maak-flight-head,
+.maak-service-flow .maak-step-badge,
+.maak-service-flow .flight-step-count,
+.maak-service-flow > .maak-service-intro { display:none!important; }
+/* Keep the site-wide mobile navigation available during service requests. */
+body:has(.maak-service-flow) .mobile-dock { display:flex!important; }
+/* The primary next action sits at the end of the form, spans its full width, and uses MAAK gold. */
+.maak-service-flow .flight-step-nav {
+  position:static!important;
+  display:flex!important;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+  margin:20px 0 18px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+}
+.maak-service-flow .flight-step-buttons {
+  display:flex!important;
+  flex-direction:column-reverse;
+  width:100%;
+  gap:10px;
+}
+.maak-service-flow .flight-step-buttons .btn {
+  width:100%!important;
+  min-height:52px;
+  border-radius:14px;
+  font-weight:750;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary {
+  color:#142C4E!important;
+  background:#F5B52E!important;
+  border-color:#F5B52E!important;
+  box-shadow:none!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary:hover {
+  background:#edaa1c!important;
+  border-color:#edaa1c!important;
+}
+body:has(.maak-service-flow) .mobile-dock { z-index:45; }
+@media(max-width:1023px) {
+  .maak-service-flow { padding-bottom:120px!important; }
+  .maak-service-flow .flight-step-nav { position:static!important; }
+}
