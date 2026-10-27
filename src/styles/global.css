@@ -897,6 +897,11 @@ body { background: transparent; }
 
 
 /* ===== Homepage mobile review: balanced welcome + immediate service discovery ===== */
+.home-desktop-only { display: none; }
+@media (min-width: 768px) {
+  .home-desktop-only { display: block; }
+}
+
 @media (max-width: 767px) {
   /* Keep the app-like mobile experience, but let visitors see the actual services. */
   .home-services-section {
