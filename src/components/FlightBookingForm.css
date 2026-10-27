@@ -17,3 +17,12 @@
 /* Focus the flight request page while the form is active; do not affect other routes. */
 body:has(.maak-flight-flow) header.site-header,body:has(.maak-flight-flow) .site-header,body:has(.maak-flight-flow) .bottom-nav,body:has(.maak-flight-flow) nav.mobile-bottom-nav{display:none!important}
 body:has(.maak-flight-flow) .page-detail{padding-top:12px!important}
+
+/* On the flight request route, remove the duplicate large page introduction and mobile navigation. */
+body:has(.maak-flight-flow) .page-hero-flight { display:none!important; }
+body:has(.maak-flight-flow) .inner-page > .section { padding-top:12px!important; }
+body:has(.maak-flight-flow) .page-detail-card { padding-top:10px!important; }
+body:has(.maak-flight-flow) .site-header,
+body:has(.maak-flight-flow) .bottom-nav,
+body:has(.maak-flight-flow) .mobile-bottom-nav,
+body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!important; }
