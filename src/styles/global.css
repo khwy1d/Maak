@@ -1192,3 +1192,13 @@ body { background: transparent; }
 .flight-step-actions { display: flex; gap: 10px; }
 .flight-step-actions .btn { flex: 1; }
 @media (max-width: 560px) { .flight-step-actions .btn { min-height: 54px; } .flight-booking-form .flight-group { margin-bottom: 4px; } }
+
+/* Mobile home is an app-like introduction; services live on their own screen */
+.home-intro > section { scroll-margin-top: 84px; }
+@media (max-width: 640px) {
+  .home-intro .hero { min-height: calc(76svh - 64px); display: flex; align-items: center; }
+  .home-intro .hero-inner, .home-intro .hero-content { width: 100%; }
+  .home-intro .hero h1 { font-size: clamp(2rem, 9vw, 3rem); line-height: 1.25; }
+  .home-intro .hero p { font-size: 1rem; line-height: 1.8; }
+  .home-intro .section { padding-block: 28px; }
+}
