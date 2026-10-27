@@ -1202,3 +1202,23 @@ body { background: transparent; }
   .home-intro .hero p { font-size: 1rem; line-height: 1.8; }
   .home-intro .section { padding-block: 28px; }
 }
+
+
+/* Multi-step service enquiry forms */
+.hotel-booking-form.step-1 [data-step]:not([data-step="1"]),
+.hotel-booking-form.step-2 [data-step]:not([data-step="2"]),
+.hotel-booking-form.step-3 [data-step]:not([data-step="3"]),
+.hotel-booking-form.step-4 [data-step]:not([data-step="4"]),
+.ground-transport-form.step-1 [data-step]:not([data-step="1"]),
+.ground-transport-form.step-2 [data-step]:not([data-step="2"]),
+.car-rental-form.step-1 [data-step]:not([data-step="1"]),
+.car-rental-form.step-2 [data-step]:not([data-step="2"]),
+.car-rental-form.step-3 [data-step]:not([data-step="3"]),
+.car-rental-form.step-4 [data-step]:not([data-step="4"]) { display: none; }
+.flight-step-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
+.flight-step-buttons { display:flex; align-items:center; gap:10px; }
+.flight-step-count { color:var(--muted); font-size:.9rem; }
+@media (max-width:560px) {
+  .flight-step-nav { position:sticky; bottom:calc(78px + env(safe-area-inset-bottom)); z-index:4; padding:10px; border:1px solid var(--border); border-radius:16px; background:var(--surface, var(--background)); backdrop-filter:blur(16px); }
+  .flight-step-buttons .btn { min-height:46px; }
+}
