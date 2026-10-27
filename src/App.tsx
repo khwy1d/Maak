@@ -73,7 +73,12 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {isHome ? <main className="home-intro"><Hero /><About /></main> : <Pages path={path} />}
+      {isHome ? <main className="home-intro">
+        <Hero />
+        <div className="home-desktop-only"><Services /></div>
+        <About />
+        <div className="home-desktop-only"><How /><SocialFollow /><Why /></div>
+      </main> : <Pages path={path} />}
       <Footer />
       <nav className="mobile-dock" aria-label={t.a11y.nav}>
         <a href="/" aria-label={t.nav.home} aria-current={isHome ? "page" : undefined}><House aria-hidden="true" /><span>{t.nav.home}</span></a>
