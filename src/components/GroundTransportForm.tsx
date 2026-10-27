@@ -75,7 +75,6 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
 
   return <div className={`inquiry-form flight-booking-form ground-transport-form maak-service-flow step-${step}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب نقل بري", "Ground transport request")}</h2></div></header><div className="maak-progress"><span style={{width: `${Math.min(step,3)/3*100}%`}}/></div>
-    <div className="maak-progress"><span style={{width: `${Math.min(step,3)/3*100}%`}}/></div>
     <div className="flight-group" data-step="1">
       <h4>{txt("١. مسار الرحلة", "1. Travel route")}</h4>
       <div className="flight-route-grid ground-route-grid">
