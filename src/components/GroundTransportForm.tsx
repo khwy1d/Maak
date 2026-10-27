@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Bus, CalendarDays, MessageCircle, Users, X } from "lucide-react";
+import { ArrowLeft, ArrowLeftRight, Bus, CalendarDays, MessageCircle, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
 type Lang = "ar" | "en";
@@ -73,9 +73,8 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     + message + "\n" + txt("يرجى تأكيد المسار والمواعيد والتكلفة والتوافر قبل تأكيد الحجز.", "Please confirm the route, schedule, price and availability before any booking is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(waMessage);
 
-  return <div className={`inquiry-form flight-booking-form ground-transport-form step-${step}`}>
-    <h3>{txt("قدّم طلب النقل البري", "Request ground transport")}</h3>
-    <p>{txt("اختر بلد المغادرة والوصول، وأضف ما تعرفه من التفاصيل. جميع الحقول اختيارية.", "Choose departure and destination countries, then add any details you know. All fields are optional.")}</p>
+  return <div className={`inquiry-form flight-booking-form ground-transport-form maak-service-flow step-${step}`}>
+    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب نقل بري", "Ground transport request")}</h2></div><div className="maak-step-badge">{Math.min(step,3)}/3</div></header><div className="maak-progress"><span style={{width: `${Math.min(step,3)/3*100}%`}}/></div>
     <div className="flight-group" data-step="1">
       <h4>{txt("١. مسار الرحلة", "1. Travel route")}</h4>
       <div className="flight-route-grid ground-route-grid">
