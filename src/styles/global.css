@@ -1597,3 +1597,44 @@ body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
     min-width:0!important;
   }
 }
+
+/* Fixed action bar: stays in one viewport position while the form scrolls above it. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 210px!important;
+    overflow:visible!important;
+  }
+  body:has(.maak-service-flow) .flight-step-nav {
+    position:fixed!important;
+    inset:auto 24px calc(100px + env(safe-area-inset-bottom)) 24px!important;
+    bottom:calc(100px + env(safe-area-inset-bottom))!important;
+    z-index:75!important;
+    width:auto!important;
+    margin:0!important;
+    padding:0!important;
+    display:block!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    backdrop-filter:none!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons {
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    width:100%!important;
+    gap:10px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-ghost {
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-primary {
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+  }
+}
