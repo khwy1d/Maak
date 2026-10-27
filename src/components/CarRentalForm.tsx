@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { ArrowLeft, CalendarDays, Car, Clock3, MapPin, MessageCircle, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
@@ -121,6 +122,6 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن تأجير السيارات", "General car rental enquiry")}</dd></div>}</dl>
       <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(4);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
     </section>}
-    <div className="flight-step-nav"><span className="flight-step-count">{txt(`الخطوة ${Math.min(step,5)} من 5`,`Step ${Math.min(step,5)} of 5`)}</span><div className="flight-step-buttons">{step>1 && <button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(s=>s-1);}}>{txt("السابق","Back")}</button>}{step<5 && <button type="button" className="btn btn-primary" onClick={()=>{if(step===4)setSummary(true);setStep(s=>Math.min(s+1,5));}}>{txt("التالي","Next")}</button>}</div></div>
+    {!summary && createPortal(<div className="flight-step-nav maak-service-flow-nav"><span className="flight-step-count">{txt(`الخطوة ${Math.min(step,5)} من 5`,`Step ${Math.min(step,5)} of 5`)}</span><div className="flight-step-buttons">{step>1 && <button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(s=>s-1);}}>{txt("السابق","Back")}</button>}{step<5 && <button type="button" className="btn btn-primary" onClick={()=>{if(step===4)setSummary(true);setStep(s=>Math.min(s+1,5));}}>{txt("التالي","Next")}</button>}</div></div>, document.body)}
   </div>;
 }
