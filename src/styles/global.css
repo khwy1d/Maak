@@ -1225,3 +1225,24 @@ body { background: transparent; }
   .flight-step-nav { position:sticky; bottom:calc(78px + env(safe-area-inset-bottom)); z-index:4; padding:10px; border:1px solid var(--border); border-radius:16px; background:var(--surface, var(--background)); backdrop-filter:blur(16px); }
   .flight-step-buttons .btn { min-height:46px; }
 }
+
+
+/* Keep service request pages single-column on all phone widths, including wide phones. */
+@media (max-width: 899px) {
+  .page-detail {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+  }
+  .page-detail > *,
+  .page-detail-card,
+  .page-side-card,
+  .flight-booking-form,
+  .hotel-booking-form,
+  .ground-transport-form,
+  .car-rental-form,
+  .specialized-request-form {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+}
