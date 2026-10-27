@@ -77,7 +77,8 @@ export default function App() {
         <Hero />
         <div className="home-desktop-only"><Services /></div>
         <About />
-        <div className="home-desktop-only"><How /><SocialFollow /><Why /></div>
+        <div className="home-desktop-only"><Why /></div>
+        <div className="home-desktop-only"><How /><SocialFollow /></div>
       </main> : <Pages path={path} />}
       <Footer />
       <nav className="mobile-dock" aria-label={t.a11y.nav}>
