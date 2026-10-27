@@ -58,7 +58,6 @@ function RequestCard({
   return <div className="inquiry-form flight-booking-form specialized-request-form maak-service-flow">
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
     <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
-    <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
     {!reviewing && <>{groups[step]}</>}
     <div className="flight-step-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
       <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
