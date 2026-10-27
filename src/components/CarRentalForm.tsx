@@ -3,11 +3,10 @@ import { CalendarDays, Car, Clock3, MapPin, MessageCircle, Users, X } from "luci
 import { siteConfig } from "../config/site";
 
 type Lang = "ar" | "en";
-type Country = "" | "YE" | "SA" | "EG";
+type Country = "" | "YE" | "EG";
 
 const countries: { code: Exclude<Country, "">; ar: string; en: string; cities: [string, string][] }[] = [
   { code: "YE", ar: "اليمن", en: "Yemen", cities: [["عدن", "Aden"], ["صنعاء", "Sana'a"], ["تعز", "Taiz"], ["المكلا", "Mukalla"], ["سيئون", "Seiyun"], ["الحديدة", "Al Hudaydah"], ["مأرب", "Marib"], ["إب", "Ibb"], ["ذمار", "Dhamar"], ["لحج", "Lahij"]] },
-  { code: "SA", ar: "السعودية", en: "Saudi Arabia", cities: [["جدة", "Jeddah"], ["الرياض", "Riyadh"], ["مكة المكرمة", "Makkah"], ["المدينة المنورة", "Madinah"], ["الدمام", "Dammam"], ["الطائف", "Taif"], ["أبها", "Abha"], ["تبوك", "Tabuk"]] },
   { code: "EG", ar: "مصر", en: "Egypt", cities: [["القاهرة", "Cairo"], ["الإسكندرية", "Alexandria"], ["شرم الشيخ", "Sharm El Sheikh"], ["الغردقة", "Hurghada"], ["الأقصر", "Luxor"], ["أسوان", "Aswan"], ["الجيزة", "Giza"]] },
 ];
 
@@ -91,7 +90,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
           <input value={dropoffArea} onChange={e => setDropoffArea(e.target.value)} placeholder={txt("المطار، الفندق، أو المنطقة", "Airport, hotel or area")} />
         </div>
       </div>
-      <p className="flight-disclaimer">{txt("الدول المتاحة في الطلب: اليمن والسعودية ومصر. يمكن كتابة أي مدينة أو منطقة يدويًا.", "Countries available in this request: Yemen, Saudi Arabia and Egypt. You can type any city or area manually.")}</p>
+      <p className="flight-disclaimer">{txt("الدول المتاحة حاليًا: مصر واليمن، مع تأكيد توفر السيارة قبل الحجز. يمكن كتابة أي مدينة أو منطقة يدويًا.", "Currently available countries: Egypt and Yemen. Vehicle availability is confirmed before booking. You can type any city or area manually.")}</p>
     </div>
     <div className="flight-group">
       <h4><CalendarDays size={18} />{txt("٢. مدة التأجير", "2. Rental period")}</h4>
