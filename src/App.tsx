@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Download, House, LayoutGrid, MessageCircle, Plane, Users, X, ArrowLeft } from "lucide-react";
-import Logo from "./components/Logo";
+import { Download, House, LayoutGrid, MessageCircle, Plane, Users, X } from "lucide-react";
 import { useApp } from "./context/AppContext";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
@@ -17,7 +16,6 @@ function currentPath() {
 
 export default function App() {
   const [path, setPath] = useState(currentPath);
-  const [welcomeComplete, setWelcomeComplete] = useState(() => { try { return sessionStorage.getItem("maak-welcome-complete") === "1"; } catch { return false; } });
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installDismissed, setInstallDismissed] = useState(false);
   const { t, lang } = useApp();
@@ -58,21 +56,6 @@ export default function App() {
   };
 
   const isHome = path === "/";
-  if (isHome && !welcomeComplete) return (
-    <main className="welcome-screen" dir={lang === "ar" ? "rtl" : "ltr"}>
-      <div className="welcome-glow" aria-hidden="true" />
-      <div className="welcome-content">
-        <div className="welcome-logo"><Logo /></div>
-        <span className="welcome-eyebrow">{lang === "ar" ? "دائمًا معك" : "ALWAYS WITH YOU"}</span>
-        <h1>{lang === "ar" ? "أهلًا بك في معك" : "Welcome to MAAK"}</h1>
-        <p>{lang === "ar" ? "رحلتك تبدأ بخطوة، ونحن معك في تفاصيلها." : "Your journey starts with one step. We’re with you in every detail."}</p>
-        <button className="btn btn-primary welcome-continue" onClick={() => { try { sessionStorage.setItem("maak-welcome-complete", "1"); } catch { /* storage may be unavailable */ } setWelcomeComplete(true); }}>
-          {lang === "ar" ? "ابدأ واستعرض الخدمات" : "Continue to services"} <ArrowLeft size={19} />
-        </button>
-      </div>
-      <div className="welcome-bottom">{lang === "ar" ? "خدمات سفر بسيطة وواضحة" : "Simple, clear travel services"}</div>
-    </main>
-  );
   return (
     <>
       <GlassBackground />
@@ -90,7 +73,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {isHome ? <><main><Hero /><Services /><About /><Why /><How /><Contact /><SocialFollow /></main></> : <Pages path={path} />}
+      {isHome ? <><main className="home-intro"><Hero /><About /><Why /><How /><Contact /><SocialFollow /></main></> : <Pages path={path} />}
       <Footer />
       <nav className="mobile-dock" aria-label={t.a11y.nav}>
         <a href="/" aria-label={t.nav.home} aria-current={isHome ? "page" : undefined}><House aria-hidden="true" /><span>{t.nav.home}</span></a>
