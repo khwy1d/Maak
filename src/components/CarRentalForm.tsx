@@ -59,7 +59,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
     + request + "\n" + txt("يرجى تأكيد السعر والتوافر والشروط قبل تأكيد أي حجز.", "Please confirm price, availability and terms before any rental is confirmed.");
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
 
-  return <div className="inquiry-form flight-booking-form car-rental-form step-${step}">
+  return <div className={`inquiry-form flight-booking-form car-rental-form step-${step}`}>
     <h3>{txt("قدّم طلب تأجير سيارة", "Request a car rental")}</h3>
     <p>{txt("اختر ما تعرفه من التفاصيل واترك الباقي فارغًا. جميع الحقول اختيارية، والطلب لا يُعد حجزًا مؤكدًا.", "Fill in the details you know and leave the rest blank. All fields are optional; this is not a confirmed rental.")}</p>
     <div className="flight-group" data-step="1">
