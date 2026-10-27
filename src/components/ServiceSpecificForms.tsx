@@ -172,7 +172,6 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
 }
 
 export function UmrahForm({ lang }: ServiceFormProps) {
-  const [journeyType, setJourneyType] = useState("");
   const [departureCity, setDepartureCity] = useState("");
   const [date, setDate] = useState("");
   const [travellers, setTravellers] = useState("");
@@ -181,27 +180,25 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [transport, setTransport] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
   const rows: Row[] = [
-    ...(journeyType ? [[txt("نوع الرحلة", "Journey type"), journeyType === "hajj" ? txt("حج", "Hajj") : txt("عمرة", "Umrah")] as Row] : []),
-    ...(departureCity.trim() ? [[txt("مدينة الانطلاق", "Departure city"), departureCity.trim()] as Row] : []),
+        ...(departureCity.trim() ? [[txt("مدينة الانطلاق", "Departure city"), departureCity.trim()] as Row] : []),
     ...(date ? [[txt("موعد السفر المفضل", "Preferred travel date"), date] as Row] : []),
     ...(travellers ? [[txt("عدد المسافرين", "Travellers"), travellers] as Row] : []),
     ...(rooms ? [[txt("عدد الغرف", "Rooms"), rooms] as Row] : []),
-    ...(stay ? [[txt("تفضيل السكن", "Accommodation preference"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
-    ...(transport ? [[txt("ترتيب النقل", "Transport arrangements"), ({ airport: txt("النقل من وإلى المطار", "Airport transfers"), between: txt("التنقل بين المدن", "Intercity transport"), both: txt("كلاهما", "Both"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
+    ...(stay ? [[txt("السكن والغرف (اختياري)", "Accommodation and rooms (optional)"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
+    ...(transport ? [[txt("التنقلات (اختياري)", "Transport (optional)"), ({ airport: txt("التنقل بين المزارات", "Transport between visit sites"), between: txt("تنقلات أخرى", "Other transport"), both: txt("تنقلات متعددة", "Multiple transfers"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("خطّط لرحلة الحج أو العمرة", "Plan your Hajj or Umrah trip")}
-    intro={txt("حدّد نوع الرحلة ومكان الانطلاق واحتياجات المجموعة من السكن والنقل.", "Tell us your journey type, departure city, and your group’s accommodation and transport needs.")}
-    serviceName={txt("رحلة الحج والعمرة", "a Hajj or Umrah trip")} rows={rows}
-    note={txt("تخضع المواعيد والتأشيرات والأسعار والتوافر للتأكيد عند التواصل.", "Dates, visas, prices and availability are confirmed during follow-up.")}>
-    <div className="flight-group"><h4>{txt("الرحلة ومكان الانطلاق", "Journey and departure")}</h4>
+  return <RequestCard lang={lang} title={txt("نسّق رحلة العمرة", "Coordinate your Umrah trip")}
+    intro={txt("حدّد تفاصيل رحلة العمرة، ويمكنك إضافة طلب اختياري للسكن والغرف أو التنقل بين المزارات.", "Share your Umrah trip details, with optional requests for accommodation or transport between visit sites.")}
+    serviceName={txt("رحلة العمرة", "an Umrah trip")} rows={rows}
+    note={txt("تُراجع المواعيد والأسعار والتوافر عند التواصل، وهذا الطلب لا يمثل حجزًا مؤكدًا.", "Dates, prices and availability are confirmed during follow-up; this request is not a confirmed booking.")}>
+    <div className="flight-group"><h4>{txt("تفاصيل رحلة العمرة", "Umrah trip details")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("نوع الرحلة", "Journey type")}><Select value={journeyType} onChange={setJourneyType} placeholder={txt("اختر نوع الرحلة", "Choose a journey")} options={[["umrah", txt("عمرة", "Umrah")], ["hajj", txt("حج", "Hajj")]]} /></Field>
         <Field title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: صنعاء", "e.g. Sana'a")} /></Field>
         <Field title={<><CalendarDays size={16} />{txt("موعد السفر المفضل", "Preferred travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
         <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 40)} /></Field>
       </div>
     </div>
-    <div className="flight-group"><h4>{txt("السكن والنقل", "Accommodation and transport")}</h4>
+    <div className="flight-group"><h4>{txt("خدمات إضافية اختيارية", "Optional additional services")}</h4>
       <div className="flight-input-grid">
         <Field title={txt("عدد الغرف", "Number of rooms")}><Select value={rooms} onChange={setRooms} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 16)} /></Field>
         <Field title={txt("تفضيل السكن", "Accommodation preference")}><Select value={stay} onChange={setStay} placeholder={txt("اختر ما يناسبكم", "Choose a preference")} options={[["near", txt("قريب من الحرم", "Near the Haram")], ["hotel", txt("فندق مناسب للعائلة", "Family-friendly hotel")], ["flexible", txt("مرن", "Flexible")]]} /></Field>
