@@ -1558,3 +1558,42 @@ body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
     order:1!important;
   }
 }
+
+/* Keep action buttons out of the fields: sticky in the form's flow, above the homepage dock. */
+@media (max-width: 767px) {
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 150px!important;
+    overflow:visible!important;
+  }
+  body:has(.maak-service-flow) .flight-step-nav {
+    position:sticky!important;
+    inset:auto!important;
+    bottom:calc(150px + env(safe-area-inset-bottom))!important;
+    z-index:35!important;
+    width:100%!important;
+    margin:24px 0 0!important;
+    padding:10px 0!important;
+    display:block!important;
+    background:linear-gradient(to bottom, transparent, var(--bg) 24%)!important;
+    backdrop-filter:none!important;
+    box-shadow:none!important;
+    transform:none!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons {
+    width:100%!important;
+    display:flex!important;
+    flex-direction:row!important;
+    align-items:center!important;
+    gap:10px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-ghost {
+    flex:0 0 92px!important;
+    width:92px!important;
+    min-width:92px!important;
+  }
+  body:has(.maak-service-flow) .flight-step-buttons .btn.btn-primary {
+    flex:1 1 0!important;
+    width:auto!important;
+    min-width:0!important;
+  }
+}
