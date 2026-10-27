@@ -1246,3 +1246,61 @@ body { background: transparent; }
     max-width: none;
   }
 }
+
+
+/* Wide phones and small tablets: keep every service request form in one column.
+   Use a wider breakpoint because some phones report a large CSS viewport in landscape
+   or with browser display scaling, even though they are still phone-sized devices. */
+@media (max-width: 1023px) {
+  .page-detail {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .page-detail > *,
+  .page-detail-card,
+  .page-side-card,
+  .inquiry-form,
+  .inquiry-hotel-options,
+  .inquiry-row,
+  .flight-booking-form,
+  .hotel-booking-form,
+  .ground-transport-form,
+  .car-rental-form,
+  .specialized-request-form {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .inquiry-form,
+  .inquiry-hotel-options,
+  .inquiry-row,
+  .flight-input-grid,
+  .flight-passengers,
+  .flight-choice-row,
+  .flight-route-grid,
+  .hotel-booking-form .flight-input-grid,
+  .hotel-booking-form .flight-group:first-of-type .flight-input-grid,
+  .specialized-request-form .flight-input-grid,
+  .ground-transport-form .ground-route-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .flight-route-grid,
+  .ground-transport-form .ground-route-grid {
+    gap: 12px;
+  }
+
+  .flight-swap {
+    min-height: 24px;
+    transform: rotate(90deg);
+  }
+
+  .inquiry-form > h3,
+  .inquiry-form > p,
+  .inquiry-form > .inquiry-hotel-options,
+  .inquiry-form > .inquiry-field-wide,
+  .inquiry-form > .inquiry-submit {
+    grid-column: 1 / -1;
+  }
+}
