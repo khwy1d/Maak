@@ -1,5 +1,5 @@
 import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
-import { CalendarDays, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
 type Lang = "ar" | "en";
@@ -55,9 +55,10 @@ function RequestCard({
   ].join("\n\n");
   const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 
-  return <div className="inquiry-form flight-booking-form specialized-request-form">
-    <h3>{title}</h3>
-    <p>{intro}</p>
+  return <div className="inquiry-form flight-booking-form specialized-request-form maak-service-flow">
+    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div><div className="maak-step-badge">{Math.min(step+1,totalSteps)}/{totalSteps}</div></header>
+    <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
+    <p className="maak-service-intro">{intro}</p>
     {!reviewing && <>{groups[step]}</>}
     <div className="flight-step-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
       <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
