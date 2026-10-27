@@ -1400,3 +1400,78 @@ body:has(.maak-service-flow) .mobile-dock { z-index:45; }
   .maak-service-flow { padding-bottom:120px!important; }
   .maak-service-flow .flight-step-nav { position:static!important; }
 }
+
+/* Match the flight request page layout across every other service. */
+body:has(.maak-service-flow) .page-hero,
+body:has(.maak-service-flow) .page-hero-request,
+body:has(.maak-service-flow) .page-hero-hotel,
+body:has(.maak-service-flow) .page-hero-bus,
+body:has(.maak-service-flow) .page-hero-flight { display:none!important; }
+body:has(.maak-service-flow) .header { display:none!important; }
+body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:visible!important; }
+.maak-service-flow { padding-top:0!important; padding-bottom:20px!important; }
+.maak-service-flow .maak-flight-head {
+  display:flex!important;
+  align-items:center;
+  gap:12px;
+  padding:4px 0 14px;
+  margin:0!important;
+}
+.maak-service-flow .maak-flight-head>div { flex:1; min-width:0; }
+.maak-service-flow .maak-flight-head span { display:block; }
+.maak-service-flow .maak-flight-head h2 { margin:3px 0 0!important; }
+.maak-service-flow .maak-back { width:44px; height:44px; flex:0 0 44px; }
+.maak-service-flow .maak-step-badge,
+.maak-service-flow .flight-step-count { display:none!important; }
+.maak-service-flow .maak-progress { display:block!important; margin:0 0 22px!important; }
+.maak-service-flow .flight-step-nav {
+  position:sticky!important;
+  bottom:calc(92px + env(safe-area-inset-bottom))!important;
+  z-index:35!important;
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  justify-content:flex-end!important;
+  width:100%;
+  gap:10px!important;
+  margin:20px 0 18px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+}
+.maak-service-flow .flight-step-buttons {
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:center!important;
+  width:100%;
+  gap:10px!important;
+}
+.maak-service-flow .flight-step-buttons .btn {
+  min-height:50px!important;
+  border-radius:14px!important;
+  margin:0!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-primary {
+  flex:1 1 auto!important;
+  width:auto!important;
+  color:#142C4E!important;
+  background:#F5B52E!important;
+  border:1px solid #F5B52E!important;
+  font-weight:750!important;
+}
+.maak-service-flow .flight-step-buttons .btn.btn-ghost {
+  flex:0 0 auto!important;
+  width:auto!important;
+  min-width:88px!important;
+  padding-inline:14px!important;
+  background:transparent!important;
+  border:1px solid var(--border)!important;
+}
+body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
+@media(max-width:1023px) {
+  .maak-service-flow { padding-bottom:20px!important; }
+  .maak-service-flow .flight-step-nav { position:sticky!important; }
+  .maak-service-flow .flight-step-buttons { flex-direction:row!important; }
+}
