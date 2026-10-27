@@ -60,7 +60,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
   const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
 
   return <div className={`inquiry-form flight-booking-form car-rental-form maak-service-flow step-${step}`}>
-    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب تأجير سيارة", "Car rental request")}</h2></div><div className="maak-step-badge">{Math.min(step,5)}/5</div></header><div className="maak-progress"><span style={{width: `${Math.min(step,5)/5*100}%`}}/></div>
+    <div className="maak-progress"><span style={{width: `${Math.min(step,5)/5*100}%`}}/></div>
     <div className="flight-group" data-step="1">
       <h4><MapPin size={18} />{txt("١. مكان الاستلام والتسليم", "1. Pickup and return location")}</h4>
       <div className="flight-input-grid">
