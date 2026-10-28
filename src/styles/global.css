@@ -1723,6 +1723,7 @@ body:has(.maak-service-flow) .maak-service-flow-nav {
   align-items: center !important;
   justify-content: center !important;
   width: 100% !important;
+  grid-column: 1 / -1 !important;
   min-height: 0;
   margin: 20px 0 0 !important;
   padding: 0 !important;
