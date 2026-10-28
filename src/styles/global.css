@@ -1760,7 +1760,7 @@ body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
 body:has(.maak-service-flow.maak-flight-flow) .page-detail { padding-top: 12px !important; }
 body:has(.maak-service-flow.maak-flight-flow) .inner-page > .section { padding-top: 12px !important; }
 body:has(.maak-service-flow.maak-flight-flow) .page-detail-card { padding-top: 10px !important; }
-body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { display: flex !important; visibility: visible !important; }
+body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { display: grid !important; visibility: visible !important; }
 body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions {
   position: fixed !important;
   z-index: 20 !important;
@@ -1795,7 +1795,7 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-previ
   border-radius: 14px !important;
 }
 body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-next { flex: 1 1 auto !important; }
-body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { z-index: 45 !important; }
+body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { z-index: 80 !important; }
 @media (min-width: 601px) {
   body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions {
     inset: auto auto 0 50% !important;
