@@ -1,5 +1,4 @@
 import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
-import { createPortal } from "react-dom";
 import { ArrowLeft, CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 
@@ -60,13 +59,13 @@ function RequestCard({
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div><span className="maak-step-badge">{Math.min(step + 1, totalSteps)}/{totalSteps}</span></header>
     <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
     {!reviewing && <>{groups[step]}</>}
-    {!reviewing && createPortal(<div className="flight-step-nav maak-service-flow-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
+    {!reviewing && <div className="flight-step-nav maak-service-flow-nav" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
       <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
       <div className="flight-step-buttons">
         {step > 0 && <button type="button" className="btn btn-ghost" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
         {!reviewing && <button type="button" className="btn btn-primary" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}</button>}
       </div>
-    </div>, document.body)}
+    </div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع التفاصيل قبل المتابعة", "Review details before continuing")}</h4>
