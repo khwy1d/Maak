@@ -45,7 +45,7 @@ export function About() {
       <div className="container about reveal" ref={ref}>
         <div>
           <h2>{t.about.title}</h2>
-          <p>{t.about.p1}</p><p>{t.about.p2}</p>
+          <p>{t.about.p1}</p>
           <p className="about-slogan">{t.slogan}</p>
         </div>
       </div>
