@@ -1210,19 +1210,21 @@ body { background: transparent; }
 
 
 /* Multi-step service enquiry forms */
-.hotel-booking-form.step-1 [data-step]:not([data-step="1"]),
-.hotel-booking-form.step-2 [data-step]:not([data-step="2"]),
-.hotel-booking-form.step-3 [data-step]:not([data-step="3"]),
-.hotel-booking-form.step-4 [data-step]:not([data-step="4"]),
-.hotel-booking-form.step-5 [data-step],
-.ground-transport-form.step-1 [data-step]:not([data-step="1"]),
-.ground-transport-form.step-2 [data-step]:not([data-step="2"]),
-.ground-transport-form.step-3 [data-step],
-.car-rental-form.step-1 [data-step]:not([data-step="1"]),
-.car-rental-form.step-2 [data-step]:not([data-step="2"]),
-.car-rental-form.step-3 [data-step]:not([data-step="3"]),
-.car-rental-form.step-4 [data-step]:not([data-step="4"]),
-.car-rental-form.step-5 [data-step] { display: none; }
+@media (max-width: 1023px) {
+  .hotel-booking-form.step-1 [data-step]:not([data-step="1"]),
+  .hotel-booking-form.step-2 [data-step]:not([data-step="2"]),
+  .hotel-booking-form.step-3 [data-step]:not([data-step="3"]),
+  .hotel-booking-form.step-4 [data-step]:not([data-step="4"]),
+  .hotel-booking-form.step-5 [data-step],
+  .ground-transport-form.step-1 [data-step]:not([data-step="1"]),
+  .ground-transport-form.step-2 [data-step]:not([data-step="2"]),
+  .ground-transport-form.step-3 [data-step],
+  .car-rental-form.step-1 [data-step]:not([data-step="1"]),
+  .car-rental-form.step-2 [data-step]:not([data-step="2"]),
+  .car-rental-form.step-3 [data-step]:not([data-step="3"]),
+  .car-rental-form.step-4 [data-step]:not([data-step="4"]),
+  .car-rental-form.step-5 [data-step] { display: none; }
+}
 .flight-step-nav { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; }
 .flight-step-buttons { display:flex; align-items:center; gap:10px; }
 .flight-step-count { color:var(--muted); font-size:.9rem; }
@@ -1820,3 +1822,56 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow .maak-flight-he
 :root[data-theme="dark"] .nav-logo .logo-tile img {
   filter: drop-shadow(0 0 6px rgba(245, 181, 46, .28));
 }
+
+/* Desktop requests use the full form canvas at once; mobile keeps the guided steps. */
+@media (min-width: 1024px) {
+  body:has(.desktop-flow) .page-detail-service .desktop-flow,
+  body:has(.maak-flight-flow.desktop-flow) .maak-flight-flow.desktop-flow {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    align-content: start;
+    gap: 18px !important;
+    width: min(100%, 1040px) !important;
+    max-width: 1040px !important;
+    margin: 8px auto 0 !important;
+    padding: 0 0 24px !important;
+  }
+
+  .desktop-flow > *,
+  .desktop-flow .maak-desktop-step,
+  .desktop-flow .flight-group,
+  .desktop-flow .maak-flight-step { grid-column: 1 / -1; }
+
+  .desktop-flow .maak-flight-head { display: flex !important; }
+  .desktop-flow .maak-back,
+  .desktop-flow .maak-step-badge,
+  .desktop-flow > .maak-progress { display: none !important; }
+  .desktop-flow .maak-service-flow-nav,
+  .desktop-flow .maak-bottom-actions { display: none !important; }
+  .desktop-flow .flight-group,
+  .desktop-flow .maak-flight-step,
+  .desktop-flow .maak-desktop-step { min-width: 0; }
+  .desktop-flow .maak-flight-step {
+    padding: 18px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 18px !important;
+    background: var(--glass) !important;
+  }
+  .desktop-flow .maak-flight-step h3 { margin-bottom: 16px; }
+  .desktop-flow .maak-desktop-step > .flight-group { margin-bottom: 0 !important; }
+  .desktop-flow .maak-desktop-actions {
+    display: block;
+    width: min(100%, 640px);
+    margin: 4px auto 0;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--glass);
+  }
+  .desktop-flow .maak-desktop-actions .maak-next { width: 100%; min-height: 54px; }
+  .desktop-flow.desktop-reviewing .maak-desktop-step,
+  .desktop-flow.desktop-reviewing > .flight-group,
+  .desktop-flow.desktop-reviewing > .maak-flight-step:not(.maak-review) { display: none !important; }
+}
+
+.maak-desktop-actions { display: none; }
