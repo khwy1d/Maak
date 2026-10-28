@@ -1,6 +1,7 @@
 import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
+import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -41,6 +42,7 @@ function RequestCard({
   note: string;
 }) {
   const [step, setStep] = useState(0);
+  const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const totalSteps = groups.length + 1;
   const reviewing = step === groups.length;
@@ -55,17 +57,19 @@ function RequestCard({
   ].join("\n\n");
   const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 
-  return <div className="inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow">
+  return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div><span className="maak-step-badge">{Math.min(step + 1, totalSteps)}/{totalSteps}</span></header>
     <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
-    {!reviewing && <>{groups[step]}</>}
-    {!reviewing && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
+    {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
+    {!reviewing && !desktopForm && <>{groups[step]}</>}
+    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
       <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
       <div className="flight-step-buttons">
         {step > 0 && <button type="button" className="btn btn-ghost maak-previous" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
         {!reviewing && <button type="button" className="btn btn-primary maak-next" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}<ArrowLeft size={19}/></button>}
       </div>
     </div>}
+    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={() => setStep(groups.length)}>{label(lang, "مراجعة الطلب", "Review request")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع التفاصيل قبل المتابعة", "Review details before continuing")}</h4>
