@@ -1426,7 +1426,6 @@ body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:v
 .maak-service-flow .maak-flight-head span { display:block; }
 .maak-service-flow .maak-flight-head h2 { margin:3px 0 0!important; }
 .maak-service-flow .maak-back { width:44px; height:44px; flex:0 0 44px; }
-.maak-service-flow .maak-step-badge,
 .maak-service-flow .flight-step-count { display:none!important; }
 .maak-service-flow .maak-progress { display:block!important; margin:0 0 22px!important; }
 .maak-service-flow .flight-step-nav {
@@ -1796,6 +1795,7 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-previ
 }
 body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-next { flex: 1 1 auto !important; }
 body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { z-index: 80 !important; }
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow .maak-flight-head > .maak-step-badge { display: inline-flex !important; }
 @media (min-width: 768px) {
   body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { display: none !important; }
 }
