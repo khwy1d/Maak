@@ -1846,6 +1846,8 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow .maak-flight-he
   .desktop-flow .maak-back,
   .desktop-flow .maak-step-badge,
   .desktop-flow > .maak-progress { display: none !important; }
+  body:has(.maak-service-flow.maak-flight-flow.desktop-flow) .maak-service-flow.maak-flight-flow.desktop-flow .maak-flight-head > .maak-step-badge,
+  body:has(.maak-flight-flow.desktop-flow) .maak-flight-flow.desktop-flow .maak-flight-head > .maak-step-badge { display: none !important; }
   .desktop-flow .maak-service-flow-nav,
   .desktop-flow .maak-bottom-actions { display: none !important; }
   .desktop-flow .flight-group,
