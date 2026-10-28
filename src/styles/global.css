@@ -1767,11 +1767,14 @@ body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-buttons .btn.bt
 @media (max-width: 767px) {
   .page-detail-service .maak-service-flow { padding-bottom: 190px !important; }
   body:has(.maak-service-flow) .maak-service-flow-nav {
-    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
-    width: calc(100% - 32px) !important;
+    inset: auto 0 0 0 !important;
+    transform: none !important;
+    width: auto !important;
     padding: 10px !important;
-    border-bottom: 1px solid var(--border) !important;
-    border-radius: 16px !important;
+    border-right: 0 !important;
+    border-left: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: 0 !important;
   }
 }
 
