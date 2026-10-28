@@ -27,12 +27,6 @@ body:has(.maak-flight-flow) .bottom-nav,
 body:has(.maak-flight-flow) .mobile-bottom-nav,
 body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!important; }
 
-/* Keep the global sticky header from overlapping the dedicated booking flow. */
-body:has(.maak-flight-flow) .header,
-body:has(.maak-flight-flow) header.header,
-body:has(.maak-flight-flow) .header .nav {
-  display: none !important;
-}
 /* Give the review title and its explanatory text a clear, consistent gap. */
 .maak-flight-flow .maak-review > h3 {
   margin-bottom: 10px !important;
