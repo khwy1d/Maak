@@ -1796,6 +1796,9 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-previ
 }
 body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-next { flex: 1 1 auto !important; }
 body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { z-index: 80 !important; }
+@media (min-width: 768px) {
+  body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { display: none !important; }
+}
 @media (min-width: 601px) {
   body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions {
     inset: auto auto 0 50% !important;
