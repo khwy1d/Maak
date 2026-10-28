@@ -1711,71 +1711,107 @@ body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
   }
 }
 
-/* Keep service forms and their step controls consistent with the flight flow. */
-.page-detail-service .maak-service-flow { width: 100%; max-width: 760px !important; margin-inline: auto; padding-bottom: 24px !important; }
-body:has(.maak-service-flow) .maak-service-flow-nav {
-  position: sticky !important;
-  inset: auto !important;
-  bottom: 0 !important;
-  transform: none !important;
-  z-index: 75 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  grid-column: 1 / -1 !important;
-  min-height: 0;
-  margin: 20px 0 0 !important;
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  backdrop-filter: none;
-  box-shadow: none;
+/* Service flows use the flight form's shell, field rhythm, and fixed action bar. */
+.page-detail-service .maak-service-flow.maak-flight-flow {
+  gap: 0 !important;
+  width: 100%;
+  max-width: 760px !important;
+  margin: 8px auto 0 !important;
+  padding: 0 0 96px !important;
+  position: relative;
+  border-top: 0 !important;
 }
-body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-count { display: none !important; }
-body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-buttons {
+.maak-service-flow.maak-flight-flow .maak-flight-head {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0 14px;
+  margin: 0 !important;
+}
+.maak-service-flow.maak-flight-flow .maak-flight-head > div { flex: 1; min-width: 0; }
+.maak-service-flow.maak-flight-flow .maak-flight-head span { font-size: .72rem; letter-spacing: .08em; color: var(--muted); font-weight: 700; }
+.maak-service-flow.maak-flight-flow .maak-flight-head h2 { font-size: 1.2rem !important; line-height: 1.4; margin: 3px 0 0 !important; }
+.maak-service-flow.maak-flight-flow .maak-progress { height: 4px; border-radius: 99px; margin: 0 0 22px !important; }
+.maak-service-flow.maak-flight-flow .maak-progress span { height: 100%; border-radius: inherit; }
+.maak-service-flow.maak-flight-flow .flight-group {
+  min-width: 0;
+  margin: 0 0 4px !important;
+  padding: 15px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 17px !important;
+  background: var(--glass) !important;
+  display: grid;
+  gap: 14px;
+}
+.maak-service-flow.maak-flight-flow .flight-group > h4 { margin: 0 0 0 !important; font-size: 1rem; }
+.maak-service-flow.maak-flight-flow .flight-input-grid { gap: 14px; }
+.maak-service-flow.maak-flight-flow .flight-field { gap: 8px; }
+.maak-service-flow.maak-flight-flow .flight-field > label { font-size: .86rem; font-weight: 700; margin: 0; }
+.maak-service-flow.maak-flight-flow input:not([type="checkbox"]),
+.maak-service-flow.maak-flight-flow select,
+.maak-service-flow.maak-flight-flow textarea {
+  min-height: 50px;
+  padding: 12px;
+  border-radius: 13px;
+  background: var(--surface);
+  font: inherit;
+}
+.maak-service-flow.maak-flight-flow textarea { min-height: 88px; }
+body:has(.maak-service-flow.maak-flight-flow) .page-detail { padding-top: 12px !important; }
+body:has(.maak-service-flow.maak-flight-flow) .inner-page > .section { padding-top: 12px !important; }
+body:has(.maak-service-flow.maak-flight-flow) .page-detail-card { padding-top: 10px !important; }
+body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { display: flex !important; visibility: visible !important; }
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions {
+  position: fixed !important;
+  z-index: 20 !important;
+  inset: auto 0 0 !important;
+  transform: none !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  width: 100% !important;
   gap: 10px !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+  border: 0 !important;
+  border-top: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  background: color-mix(in srgb, var(--bg) 90%, transparent) !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: none !important;
 }
-body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-buttons .btn {
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .flight-step-count { display: none !important; }
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .flight-step-buttons {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-next,
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-previous {
   min-height: 52px !important;
   margin: 0 !important;
   border-radius: 14px !important;
-  font-weight: 750 !important;
 }
-body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-buttons .btn.btn-primary {
-  flex: 1 1 auto !important;
-  width: auto !important;
-  min-width: 0 !important;
-  color: var(--c-navy) !important;
-  background: var(--c-gold) !important;
-  border: 1px solid var(--c-gold) !important;
-}
-body:has(.maak-service-flow) .maak-service-flow-nav .flight-step-buttons .btn.btn-ghost {
-  flex: 0 0 auto !important;
-  min-width: 88px !important;
-  background: var(--surface) !important;
-}
-
-@media (min-width: 768px) {
-  body:has(.maak-service-flow) .mobile-dock { display: none !important; }
-}
-
-@media (max-width: 767px) {
-  .page-detail-service .maak-service-flow { padding-bottom: 24px !important; }
-  body:has(.maak-service-flow) .maak-service-flow-nav {
-    inset: auto !important;
-    bottom: calc(100px + env(safe-area-inset-bottom)) !important;
-    transform: none !important;
-    width: 100% !important;
-    padding: 0 !important;
-    margin-top: 20px !important;
-    border-radius: 0 !important;
+body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav .maak-next { flex: 1 1 auto !important; }
+body:has(.maak-service-flow.maak-flight-flow) .mobile-dock { z-index: 45 !important; }
+@media (min-width: 601px) {
+  body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions {
+    inset: auto auto 0 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(760px, calc(100% - 32px)) !important;
+    border: 1px solid var(--border) !important;
+    border-bottom: 0 !important;
+    border-radius: 18px 18px 0 0 !important;
   }
+}
+@media (max-width: 600px) {
+  .page-detail-service .maak-service-flow.maak-flight-flow { padding-bottom: 110px !important; }
+  .maak-service-flow.maak-flight-flow .maak-flight-head h2 { font-size: 1.05rem !important; }
+  .maak-service-flow.maak-flight-flow .flight-group { padding: 13px !important; border-radius: 15px !important; }
+  .maak-service-flow.maak-flight-flow .flight-input-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow-nav.maak-bottom-actions { gap: 8px !important; }
 }
 
 :root[data-theme="dark"] .nav-logo .logo-tile img {
