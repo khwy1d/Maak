@@ -15,7 +15,7 @@
   }
 }
 
-/* Restore the previous homepage card composition on desktop; keep mobile unchanged. */
+/* Keep the homepage's four featured services in one balanced desktop row. */
 @media (min-width: 768px) {
   .home-services-section > .container > .services {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -25,10 +25,11 @@
 
 @media (min-width: 1000px) {
   .home-services-section > .container > .services {
-    grid-template-columns: 1.4fr 1fr 1fr;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
   }
 
   .home-services-section > .container > .services > .service:last-child {
-    grid-column: 2 / -1;
+    grid-column: auto;
   }
 }
