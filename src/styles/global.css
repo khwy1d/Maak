@@ -1352,7 +1352,6 @@ body:has(.maak-service-flow) nav[aria-label="Mobile navigation"] { display:none!
  .maak-service-flow .flight-summary-actions .btn { width:100%; }
 }
 
-body:has(.maak-service-flow) .header,
 body:has(.maak-service-flow) .mobile-dock,
 body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
 .maak-service-flow:has(.flight-summary) .maak-service-intro { display:none!important; }
@@ -1414,7 +1413,6 @@ body:has(.maak-service-flow) .page-hero-request,
 body:has(.maak-service-flow) .page-hero-hotel,
 body:has(.maak-service-flow) .page-hero-bus,
 body:has(.maak-service-flow) .page-hero-flight { display:none!important; }
-body:has(.maak-service-flow) .header { display:none!important; }
 body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:visible!important; }
 .maak-service-flow { padding-top:0!important; padding-bottom:20px!important; }
 .maak-service-flow .maak-flight-head {
@@ -1877,3 +1875,15 @@ body:has(.maak-service-flow.maak-flight-flow) .maak-service-flow .maak-flight-he
 }
 
 .maak-desktop-actions { display: none; }
+
+
+/* Service pages keep the global header in document flow so it never covers the form. */
+body:has(.maak-flight-flow) .header {
+  display: block !important;
+  position: relative !important;
+  inset: auto !important;
+  margin: 12px 0 0 !important;
+}
+@media (max-width: 767px) {
+  body:has(.maak-flight-flow) .header { margin-top: 8px !important; }
+}
