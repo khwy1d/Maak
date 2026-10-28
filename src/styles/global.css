@@ -1887,3 +1887,45 @@ body:has(.maak-flight-flow) .header {
 @media (max-width: 767px) {
   body:has(.maak-flight-flow) .header { margin-top: 8px !important; }
 }
+
+
+/* Touch-first devices: do not switch request forms into desktop columns on wide phones. */
+@media (hover: none) and (pointer: coarse) {
+  .page-detail,
+  .page-detail-service,
+  .page-detail-request,
+  .page-detail-card .inquiry-form,
+  .inquiry-form,
+  .inquiry-hotel-options,
+  .inquiry-row,
+  .flight-input-grid,
+  .flight-passengers,
+  .flight-choice-row,
+  .flight-route-grid,
+  .hotel-booking-form .flight-input-grid,
+  .hotel-booking-form .flight-group:first-of-type .flight-input-grid,
+  .specialized-request-form .flight-input-grid,
+  .ground-transport-form .ground-route-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .page-detail > *,
+  .page-detail-card,
+  .page-side-card,
+  .inquiry-form,
+  .inquiry-hotel-options,
+  .inquiry-row,
+  .flight-booking-form,
+  .hotel-booking-form,
+  .ground-transport-form,
+  .car-rental-form,
+  .specialized-request-form {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  .flight-route-grid,
+  .ground-transport-form .ground-route-grid { gap: 12px !important; }
+  .flight-swap { margin-inline: auto; transform: rotate(90deg); }
+}
