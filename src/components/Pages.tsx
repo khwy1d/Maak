@@ -21,7 +21,6 @@ const routes = [
   { path: "/umrah", key: "umrah", icon: Moon },
   { path: "/medical-tourism", key: "medical", icon: HeartPulse },
   { path: "/car-rental", key: "car", topic: "car" as WaTopic, icon: Car },
-  { path: "/real-estate", key: "realEstate", icon: Building2 },
   { path: "/tourism", key: "tourism", icon: MapPinned },
 ];
 
