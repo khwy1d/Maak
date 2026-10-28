@@ -27,7 +27,7 @@ const ar = {
       { key: "medical", ar: "السفر العلاجي", en: "Medical Travel", desc: "ننسق استفسارات السفر العلاجي والمواعيد والإقامة والنقل المرتبط بالرحلة الطبية." },
       { key: "security", ar: "الموافقات الأمنية لمصر", en: "Egypt Security Clearance", desc: "مساعدة في الاستفسار عن إجراءات ومتطلبات الموافقات الأمنية لمصر، دون ضمان الموافقة." },
       { key: "umrah", ar: "الحج والعمرة", en: "Hajj & Umrah", desc: "التنسيق للاستفسار عن رحلات الحج والعمرة ومتطلبات التأشيرات والسكن والنقل." },
-      { key: "bus", ar: "حجز الباصات والنقل البري", en: "Bus Tickets & Ground Transport", desc: "استفسر عن خيارات النقل البري وحجوزات الباصات المحلية والدولية." },
+      { key: "bus", ar: "حجز الباصات", en: "Bus Bookings", desc: "استفسر عن خيارات النقل البري وحجوزات الباصات المحلية والدولية." },
       { key: "realEstate", ar: "الخدمات العقارية", en: "Real Estate Services", desc: "استفسر عن تنسيق خدمات العقارات مثل الإيجار والبيع والشراء وإدارة الأملاك." },
     ],
   },
@@ -53,7 +53,6 @@ const ar = {
   about: {
     title: "عن معك",
     p1: "معك علامة خدمات سفر تهدف إلى جعل ترتيبات السفر أسهل، وأن تكون نقطة تواصل قريبة ومساعدة في كل خطوة.",
-    p2: "اسمنا وعدنا: حين تسافر، تجد من يرافقك ويجيب عن أسئلتك.",
   },
   contact: {
     title: "هل لديك سؤال عن رحلتك؟",
@@ -82,7 +81,7 @@ const ar = {
     medical: "مرحبًا، أرغب في الاستفسار عن السفر العلاجي.",
     security: "مرحبًا، أرغب في الاستفسار عن الموافقات الأمنية لمصر.",
     umrah: "مرحبًا، أرغب في الاستفسار عن خدمات الحج والعمرة.",
-    bus: "مرحبًا، أرغب في الاستفسار عن حجز الباصات والنقل البري.",
+    bus: "مرحبًا، أرغب في الاستفسار عن حجز الباصات.",
     realEstate: "مرحبًا، أرغب في الاستفسار عن الخدمات العقارية.",
   },
 };
@@ -140,7 +139,6 @@ const en: typeof ar = {
   about: {
     title: "About MAAK",
     p1: "MAAK is a travel services brand built to make travel arrangements easier, and to be a helpful, approachable point of contact at every step.",
-    p2: "Our name is our promise: when you travel, someone is with you to answer your questions.",
   },
   contact: {
     title: "Have a question about your trip?",
@@ -169,7 +167,7 @@ const en: typeof ar = {
     medical: "Hello, I'd like to inquire about medical travel.",
     security: "Hello, I'd like to inquire about Egypt security clearance.",
     umrah: "Hello, I'd like to inquire about Hajj and Umrah services.",
-    bus: "Hello, I'd like to inquire about bus tickets and ground transport.",
+    bus: "Hello, I'd like to inquire about bus bookings.",
     realEstate: "Hello, I'd like to inquire about real-estate services.",
   },
 };

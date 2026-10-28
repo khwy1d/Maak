@@ -17,7 +17,7 @@ const routes: Record<string, string> = {
 export default function Services() {
   const { t, lang } = useApp();
   const ref = useReveal<HTMLDivElement>();
-  const featuredKeys = ["flight", "security", "hotel", "car"];
+  const featuredKeys = ["flight", "bus", "hotel", "security"];
   const featuredServices = featuredKeys.map((key) => t.services.items.find((item) => item.key === key)).filter((item) => item !== undefined);
   return (
     <section id="services" className="section home-services-section">
