@@ -148,10 +148,9 @@ begin
       on conflict do nothing;
     end if;
   end if;
-  update public.referrals set referred_user_id = new.id
-  where referred_phone = normalized_phone and referred_user_id is null;
-  update public.orders set customer_id = new.id, updated_at = now()
-  where customer_id is null and customer_phone = normalized_phone;
+  -- Guest orders are intentionally not auto-linked by phone: the phone entered
+  -- in a guest form is unverified and must not grant access to another user's data.
+  -- Referrals are attached only during verified phone sign-up via auth metadata.
   return new;
 end;
 $$;
@@ -175,10 +174,8 @@ language plpgsql security definer set search_path = '' as $$
 declare
   created public.orders;
   created_new boolean;
-  owner_id uuid;
   actor uuid := auth.uid();
   phone_value text := regexp_replace(trim(p_customer_phone), '[^0-9+]', '', 'g');
-  code_value text := nullif(upper(trim(p_referral_code)), '');
 begin
   if p_idempotency_key is null or char_length(trim(p_customer_name)) not between 1 and 120
     or char_length(phone_value) not between 7 and 18 or char_length(trim(p_service)) not between 1 and 80
@@ -201,16 +198,8 @@ begin
     if not found then raise exception 'Idempotency key belongs to a different customer' using errcode = '42501'; end if;
   end if;
 
-  if created_new and code_value is not null then
-    select id into owner_id from public.profiles where referral_code = code_value and id is distinct from actor;
-    if owner_id is not null and not exists (
-      select 1 from public.orders where customer_phone = phone_value and id <> created.id
-    ) then
-      insert into public.referrals(referrer_id, referred_user_id, referred_phone, referral_code)
-      values (owner_id, actor, phone_value, code_value)
-      on conflict do nothing;
-    end if;
-  end if;
+  -- Referral attribution is created by handle_new_user() only after phone
+  -- verification. A guest-entered phone number is not proof of ownership.
   return created;
 end;
 $$;
