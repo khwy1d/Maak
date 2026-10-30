@@ -5,10 +5,10 @@ import Logo from "./Logo";
 import WhatsAppButton from "./WhatsAppButton";
 
 export default function Header() {
-  const { t, theme, toggleLang, toggleTheme } = useApp();
+  const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
-  const links = [["/", t.nav.home], ["/services", t.nav.services], ["/about", t.nav.about], ["/contact", t.nav.contact]];
+  const links = [["/", t.nav.home], ["/services", t.nav.services], ["/about", t.nav.about], ["/contact", t.nav.contact], ["/account", lang === "ar" ? "حسابي" : "My account"]];
 
   useEffect(() => {
     const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
