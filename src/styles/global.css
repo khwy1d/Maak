@@ -1929,3 +1929,47 @@ body:has(.maak-flight-flow) .header {
   .ground-transport-form .ground-route-grid { gap: 12px !important; }
   .flight-swap { margin-inline: auto; transform: rotate(90deg); }
 }
+
+.account-page { min-height: 65vh; padding: 42px 20px 80px; color: var(--text); }
+.account-card, .account-dashboard { width: min(100%, 980px); margin: 0 auto; padding: clamp(22px, 4vw, 42px); border: 1px solid var(--border); border-radius: 24px; background: var(--glass); box-shadow: var(--shadow); }
+.account-card { max-width: 560px; }
+.account-card h1, .account-dashboard h1 { margin: 8px 0; color: var(--text); }
+.account-form { display: grid; gap: 16px; margin-top: 22px; }
+.account-form label { display: grid; gap: 7px; font-weight: 650; }
+.account-form input { width: 100%; min-height: 48px; padding: 10px 13px; color: var(--text); border: 1px solid var(--border); border-radius: 12px; background: var(--surface); font: inherit; }
+.account-form .btn { min-height: 48px; }
+.account-note, .account-message { margin-top: 18px; padding: 12px 14px; border-radius: 12px; background: var(--surface); }
+.account-message { color: var(--text); border: 1px solid var(--border); overflow-wrap: anywhere; }
+.account-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+.account-top p, .account-top span { color: var(--muted); }
+.account-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.account-top-actions .btn { display: inline-flex; align-items: center; gap: 7px; }
+.account-overview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }
+.account-overview article { display: grid; justify-items: start; gap: 10px; padding: 20px; border: 1px solid var(--border); border-radius: 17px; background: var(--surface); }
+.account-overview strong { font-size: 1.4rem; }
+.account-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 6px 0 14px; border-bottom: 1px solid var(--border); }
+.account-tabs button { flex: 0 0 auto; padding: 10px 14px; color: var(--text); border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: inherit; cursor: pointer; }
+.account-tabs button.active { color: var(--c-navy); border-color: var(--c-gold); background: var(--c-gold); }
+.account-list { padding-top: 20px; }
+.account-list h2 { font-size: 1.25rem; }
+.account-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border); }
+.account-row > div { min-width: 0; }
+.account-row strong, .account-row small { display: block; }
+.account-row small { margin-top: 5px; color: var(--muted); }
+.account-row p { overflow-wrap: anywhere; }
+.account-row .btn { flex: 0 0 auto; }
+.account-row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.credit { color: #16834a; }
+.debit { color: #be3f3f; }
+.account-inline-form { grid-template-columns: 1fr auto; align-items: end; padding: 16px; border-radius: 14px; background: var(--surface); }
+.account-modal-backdrop { position: fixed; z-index: 9999; inset: 0; display: grid; place-items: center; padding: 20px; background: rgb(0 0 0 / 62%); }
+.inquiry-contact-modal { position: relative; width: min(100%, 520px); max-height: min(90vh, 800px); overflow: auto; }
+.account-modal-close { position: absolute; top: 12px; inset-inline-end: 14px; width: 38px; height: 38px; color: var(--text); border: 1px solid var(--border); border-radius: 50%; background: var(--surface); font-size: 24px; cursor: pointer; }
+button.maak-submit, button.inquiry-submit { font: inherit; cursor: pointer; }
+@media (max-width: 650px) {
+  .account-page { padding: 24px 14px 62px; }
+  .account-overview { grid-template-columns: 1fr; }
+  .account-row { align-items: flex-start; flex-direction: column; }
+  .account-row .btn { width: 100%; }
+  .account-inline-form { grid-template-columns: 1fr; }
+}
