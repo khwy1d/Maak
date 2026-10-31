@@ -9,6 +9,7 @@ import { About, Contact, Footer, How, Why } from "./components/Sections";
 import SocialFollow from "./components/SocialFollow";
 import GlassBackground from "./components/GlassBackground";
 import Account from "./components/Account";
+import InitialSetup from "./components/InitialSetup";
 import InquiryCapture from "./components/InquiryCapture";
 import { getReferralCode } from "./lib/supabase";
 
@@ -81,7 +82,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {path === "/account" ? <Account /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      {path === "/initial-setup" ? <InitialSetup /> : path === "/account" ? <Account /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <div className="home-desktop-only"><Services /></div>
         <About />
