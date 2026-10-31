@@ -91,10 +91,10 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
   const normalizePhone = (value: string) => {
     const cleaned = value.trim().replace(/[\s()-]/g, "");
     if (cleaned.startsWith("+")) return cleaned;
-    if (cleaned.startsWith("00")) return \`+\${cleaned.slice(2)}\`;
-    if (cleaned.startsWith("967")) return \`+\${cleaned}\`;
-    if (cleaned.startsWith("0") && cleaned.length === 10) return \`+967\${cleaned.slice(1)}\`;
-    if (/^7\d{8}$/.test(cleaned)) return \`+967\${cleaned}\`;
+    if (cleaned.startsWith("00")) return `+${cleaned.slice(2)}`;
+    if (cleaned.startsWith("967")) return `+${cleaned}`;
+    if (cleaned.startsWith("0") && cleaned.length === 10) return `+967${cleaned.slice(1)}`;
+    if (/^7\d{8}$/.test(cleaned)) return `+967${cleaned}`;
     return cleaned;
   };
 
@@ -243,7 +243,7 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
       <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
       <label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name" /></label>
       <label>{t("كلمة المرور", "Password")}<input required minLength={6} type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
-      <label>{t("تأكيد كلمة المرور", "Confirm password")}<input required minLength={8} type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" /></label>
+      <label>{t("تأكيد كلمة المرور", "Confirm password")}<input required minLength={6} type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" /></label>
       <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ إنشاء الحساب…", "Creating account…") : t("إنشاء الحساب وإرسال الرمز", "Create account and send code")}</button>
       <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("login"); setMessage(""); }}>{t("لديك حساب بالفعل؟ تسجيل الدخول", "Already have an account? Sign in")}</button>
     </form>}
