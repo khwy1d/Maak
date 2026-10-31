@@ -5,9 +5,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  throw new Error(
-    'Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your local terminal environment. Never put the service-role key in frontend code or commit it.'
-  );
+  throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your local terminal environment. Never commit the service-role key.');
 }
 if (!stdin.isTTY || typeof stdin.setRawMode !== 'function') {
   throw new Error('Run this script in an interactive terminal so passwords can be entered without being displayed.');
@@ -23,18 +21,18 @@ function askHidden(label) {
     let value = '';
     const onData = (chunk) => {
       for (const char of chunk.toString('utf8')) {
-        if (char === '\\u0003') {
+        if (char === '\u0003') {
           cleanup();
           reject(new Error('Cancelled.'));
           return;
         }
-        if (char === '\\r' || char === '\\n') {
+        if (char === '\r' || char === '\n') {
           cleanup();
-          stdout.write('\\n');
+          stdout.write('\n');
           resolve(value);
           return;
         }
-        if (char === '\\u007f' || char === '\\b') {
+        if (char === '\u007f' || char === '\b') {
           value = value.slice(0, -1);
         } else if (char >= ' ') {
           value += char;
@@ -67,7 +65,7 @@ async function findUserByPhone(phone) {
 async function ensureUser({ phone, fullName, password }) {
   let user = await findUserByPhone(phone);
   if (user) {
-    console.log(`Already exists; keeping its current password: ${phone}`);
+    console.log('Already exists; keeping its current password: ' + phone);
   } else {
     const { data, error } = await supabase.auth.admin.createUser({
       phone,
@@ -77,7 +75,7 @@ async function ensureUser({ phone, fullName, password }) {
     });
     if (error) throw error;
     user = data.user;
-    console.log(`Created and phone-confirmed: ${phone}`);
+    console.log('Created and phone-confirmed: ' + phone);
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -89,7 +87,7 @@ async function ensureUser({ phone, fullName, password }) {
 
   if (profileError) throw profileError;
   if (!profile) {
-    throw new Error(`Profile row was not created for ${phone}. Check the on_auth_user_created trigger and migration status.`);
+    throw new Error('Profile row was not created for ' + phone + '. Check the on_auth_user_created trigger and migration status.');
   }
 
   return user;
@@ -97,7 +95,7 @@ async function ensureUser({ phone, fullName, password }) {
 
 async function main() {
   console.log('MAAK temporary account setup');
-  console.log('Passwords are entered invisibly and are never written to files or logs.\\n');
+  console.log('Passwords are entered invisibly and are never written to files or logs.\n');
 
   const adminPassword = await askHidden('Admin password: ');
   const customerPassword = await askHidden('Customer password: ');
@@ -123,9 +121,9 @@ async function main() {
     .upsert({ user_id: admin.id, role: 'admin' }, { onConflict: 'user_id' });
   if (roleError) throw roleError;
 
-  console.log('\\nCompleted successfully:');
-  console.log(`- Admin: ${admin.phone} (admin role)`);
-  console.log(`- Customer: ${customer.phone} (customer role)`);
+  console.log('\nCompleted successfully:');
+  console.log('- Admin: ' + admin.phone + ' (admin role)');
+  console.log('- Customer: ' + customer.phone + ' (customer role)');
   console.log('Both phone numbers were marked confirmed without sending SMS.');
   console.log('Because phone ownership was not verified by SMS, use these as controlled test accounts only.');
 }
