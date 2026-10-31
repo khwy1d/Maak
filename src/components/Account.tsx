@@ -114,7 +114,7 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
   const signUp = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase) return;
-    if (password.length < 8) { setMessage(t("كلمة المرور يجب ألا تقل عن 8 أحرف.", "Password must be at least 8 characters.")); return; }
+    if (password.length < 6) { setMessage(t("كلمة المرور يجب ألا تقل عن 6 أحرف.", "Password must be at least 6 characters.")); return; }
     if (password !== confirmPassword) { setMessage(t("كلمتا المرور غير متطابقتين.", "Passwords do not match.")); return; }
     setBusy(true); setMessage("");
     const normalizedPhone = normalizePhone(phone);
@@ -242,7 +242,7 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
     </form> : <form onSubmit={signUp} className="account-form">
       <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
       <label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name" /></label>
-      <label>{t("كلمة المرور", "Password")}<input required minLength={8} type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
+      <label>{t("كلمة المرور", "Password")}<input required minLength={6} type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
       <label>{t("تأكيد كلمة المرور", "Confirm password")}<input required minLength={8} type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" /></label>
       <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ إنشاء الحساب…", "Creating account…") : t("إنشاء الحساب وإرسال الرمز", "Create account and send code")}</button>
       <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("login"); setMessage(""); }}>{t("لديك حساب بالفعل؟ تسجيل الدخول", "Already have an account? Sign in")}</button>
