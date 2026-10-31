@@ -13,6 +13,9 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
   const [isAdmin, setIsAdmin] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
   const [otp, setOtp] = useState("");
   const [pendingPhone, setPendingPhone] = useState("");
   const [balance, setBalance] = useState(0);
@@ -85,19 +88,47 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
 
   useEffect(() => { if (session) void refresh(); }, [session?.user.id]);
 
-  const sendCode = async (event: FormEvent) => {
+  const normalizePhone = (value: string) => {
+    const cleaned = value.trim().replace(/[\s()-]/g, "");
+    if (cleaned.startsWith("+")) return cleaned;
+    if (cleaned.startsWith("00")) return \`+\${cleaned.slice(2)}\`;
+    if (cleaned.startsWith("967")) return \`+\${cleaned}\`;
+    if (cleaned.startsWith("0") && cleaned.length === 10) return \`+967\${cleaned.slice(1)}\`;
+    if (/^7\d{8}$/.test(cleaned)) return \`+967\${cleaned}\`;
+    return cleaned;
+  };
+
+  const signIn = async (event: FormEvent) => {
     event.preventDefault();
     if (!supabase) return;
     setBusy(true); setMessage("");
-    const normalizedPhone = phone.replace(/[^+\d]/g, "");
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { data, error } = await supabase.auth.signInWithPassword({ phone: normalizePhone(phone), password });
+      if (error) throw error;
+      setSession(data.session);
+      setPassword("");
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setBusy(false); }
+  };
+
+  const signUp = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!supabase) return;
+    if (password.length < 8) { setMessage(t("كلمة المرور يجب ألا تقل عن 8 أحرف.", "Password must be at least 8 characters.")); return; }
+    if (password !== confirmPassword) { setMessage(t("كلمتا المرور غير متطابقتين.", "Passwords do not match.")); return; }
+    setBusy(true); setMessage("");
+    const normalizedPhone = normalizePhone(phone);
+    try {
+      const { data, error } = await supabase.auth.signUp({
         phone: normalizedPhone,
-        options: { shouldCreateUser: true, data: { full_name: name.trim(), referral_code: getReferralCode() } },
+        password,
+        options: { data: { full_name: name.trim(), referral_code: getReferralCode() } },
       });
       if (error) throw error;
+      if (!data.user) throw new Error(t("تعذر إنشاء الحساب. حاول مرة أخرى.", "Could not create the account. Please try again."));
       setPendingPhone(normalizedPhone);
-      setMessage(t("أرسلنا رمز التحقق إلى هاتفك.", "We sent a verification code to your phone."));
+      setOtp("");
+      setMessage(t("أُنشئ الحساب. أدخل رمز SMS لتأكيد رقم هاتفك.", "Your account is created. Enter the SMS code to verify your phone."));
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -109,12 +140,11 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
     try {
       const { data, error } = await supabase.auth.verifyOtp({ phone: pendingPhone, token: otp.trim(), type: "sms" });
       if (error) throw error;
-      if (data.user && name.trim()) {
-        const { error: profileError } = await supabase.from("profiles").update({ full_name: name.trim() }).eq("id", data.user.id);
-        if (profileError) throw profileError;
-      }
+      if (!data.session) throw new Error(t("تم تأكيد الرقم. سجّل الدخول الآن بكلمة المرور.", "Phone verified. Please sign in with your password."));
       setSession(data.session);
       setOtp("");
+      setPassword("");
+      setConfirmPassword("");
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -198,9 +228,28 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
 
   if (!supabase) return <main className="account-page"><section className="account-card"><h1>{t("الحسابات غير مفعّلة بعد", "Accounts are not configured yet")}</h1><p>{t("أضف إعدادات Supabase إلى بيئة النشر لتفعيل الحسابات والتحقق عبر SMS.", "Add Supabase environment settings to the deployment to enable accounts and SMS verification.")}</p></section></main>;
 
-  if (!session) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><ShieldCheck size={32}/><h1>{t("حسابك في معك", "Your MAAK account")}</h1><p>{t("سجّل أو ادخل برقم هاتفك؛ سنرسل رمز تحقق عبر SMS.", "Sign up or sign in with your phone. We will send an SMS verification code.")}</p>
-    {!pendingPhone ? <form onSubmit={sendCode} className="account-form"><label>{t("الاسم", "Name")}<input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name"/></label><label>{t("رقم الهاتف بصيغة دولية", "Phone number in international format")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel"/></label><button className="btn btn-primary" disabled={busy}>{t("إرسال رمز التحقق", "Send verification code")}</button></form> : <form onSubmit={verifyCode} className="account-form"><label>{t("رمز التحقق", "Verification code")}<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value)}/></label><button className="btn btn-primary" disabled={busy}>{t("تأكيد والدخول", "Verify and continue")}</button><button type="button" className="btn btn-ghost" onClick={() => setPendingPhone("")}>{t("تغيير الرقم", "Change number")}</button></form>}
-    {message && <p className="account-message" role="status">{message}</p>}<p className="account-note">{t("يمكنك متابعة الطلبات كضيف من خلال نماذج الخدمات.", "You can continue as a guest through the service request forms.")}</p></section></main>;
+  if (!session) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><ShieldCheck size={32}/><h1>{pendingPhone ? t("تأكيد رقم الهاتف", "Verify your phone") : authMode === "login" ? t("تسجيل الدخول", "Sign in") : t("إنشاء حساب جديد", "Create an account")}</h1>
+    <p>{pendingPhone ? t("أدخل رمز التأكيد الذي أرسلناه برسالة SMS إلى رقمك.", "Enter the verification code sent to your phone by SMS.") : authMode === "login" ? t("أدخل رقم هاتفك وكلمة المرور للدخول إلى حسابك.", "Enter your phone number and password to access your account.") : t("أنشئ حسابك، ثم أكّد رقم هاتفك باستخدام رمز SMS.", "Create your account, then verify your phone with an SMS code.")}</p>
+    {pendingPhone ? <form onSubmit={verifyCode} className="account-form">
+      <label>{t("رمز التأكيد", "Verification code")}<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value)} /></label>
+      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ التأكيد…", "Verifying…") : t("تأكيد رقم الهاتف", "Verify phone number")}</button>
+      <button type="button" className="btn btn-ghost" onClick={() => { setPendingPhone(""); setOtp(""); }}>{t("العودة", "Back")}</button>
+    </form> : authMode === "login" ? <form onSubmit={signIn} className="account-form">
+      <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
+      <label>{t("كلمة المرور", "Password")}<input required type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>
+      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ الدخول…", "Signing in…") : t("تسجيل الدخول", "Sign in")}</button>
+      <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("signup"); setMessage(""); }}>{t("ليس لديك حساب؟ إنشاء حساب", "New to MAAK? Create an account")}</button>
+    </form> : <form onSubmit={signUp} className="account-form">
+      <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
+      <label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name" /></label>
+      <label>{t("كلمة المرور", "Password")}<input required minLength={8} type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="new-password" /></label>
+      <label>{t("تأكيد كلمة المرور", "Confirm password")}<input required minLength={8} type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} autoComplete="new-password" /></label>
+      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ إنشاء الحساب…", "Creating account…") : t("إنشاء الحساب وإرسال الرمز", "Create account and send code")}</button>
+      <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("login"); setMessage(""); }}>{t("لديك حساب بالفعل؟ تسجيل الدخول", "Already have an account? Sign in")}</button>
+    </form>}
+    {message && <p className="account-message" role="status">{message}</p>}
+    {!pendingPhone && <p className="account-note">{t("يمكنك متابعة الطلبات كضيف من خلال نماذج الخدمات.", "You can continue as a guest through the service request forms.")}</p>}
+  </section></main>;
 
   if (adminOnly && !isAdmin) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><h1>{t("غير مصرح", "Access denied")}</h1><p>{t("هذه الصفحة مخصصة لفريق الإدارة.", "This page is for administrators only.")}</p><button className="btn btn-ghost" onClick={signOut}>{t("تسجيل الخروج", "Sign out")}</button></section></main>;
 
