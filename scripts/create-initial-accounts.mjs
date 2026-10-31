@@ -1,19 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { stdin, stdout } from 'node:process';
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL =
+  process.env.SUPABASE_URL || 'https://okbzhutzpjnkfdskuvyd.supabase.co';
 
-if (!SUPABASE_URL || !SERVICE_ROLE_KEY) {
-  throw new Error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your local terminal environment. Never commit the service-role key.');
-}
 if (!stdin.isTTY || typeof stdin.setRawMode !== 'function') {
-  throw new Error('Run this script in an interactive terminal so passwords can be entered without being displayed.');
+  throw new Error('Run this script in an interactive terminal so secrets can be entered without being displayed.');
 }
 
-const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+let supabase;
 
 function askHidden(label) {
   return new Promise((resolve, reject) => {
@@ -95,7 +90,14 @@ async function ensureUser({ phone, fullName, password }) {
 
 async function main() {
   console.log('MAAK temporary account setup');
-  console.log('Passwords are entered invisibly and are never written to files or logs.\n');
+  console.log('All secrets and passwords are entered invisibly and are never written to files or logs.\n');
+
+  const serviceRoleKey = await askHidden('Supabase service_role key: ');
+  if (!serviceRoleKey) throw new Error('The service_role key is required.');
+
+  supabase = createClient(SUPABASE_URL, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
   const adminPassword = await askHidden('Admin password: ');
   const customerPassword = await askHidden('Customer password: ');
