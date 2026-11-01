@@ -8,6 +8,9 @@ import Pages from "./components/Pages";
 import { About, Contact, Footer, How, Why } from "./components/Sections";
 import SocialFollow from "./components/SocialFollow";
 import GlassBackground from "./components/GlassBackground";
+import Account from "./components/Account";
+import InquiryCapture from "./components/InquiryCapture";
+import { getReferralCode } from "./lib/supabase";
 
 function currentPath() {
   const path = window.location.pathname.replace(/\/+$/, "");
@@ -19,6 +22,10 @@ export default function App() {
   const [installPrompt, setInstallPrompt] = useState<any>(null);
   const [installDismissed, setInstallDismissed] = useState(false);
   const { t, lang } = useApp();
+  useEffect(() => {
+    getReferralCode();
+  }, []);
+
   useEffect(() => {
     const sync = () => { setPath(currentPath()); window.scrollTo(0, 0); };
     window.addEventListener("popstate", sync);
@@ -62,6 +69,7 @@ export default function App() {
       <div className="site-content">
       <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
+      <InquiryCapture lang={lang} />
       {installPrompt && !installDismissed && (
         <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
           <div className="pwa-install-icon" aria-hidden="true"><Download size={22} /></div>
@@ -73,7 +81,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {isHome ? <main className="home-intro">
+      {path === "/account" ? <Account /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <div className="home-desktop-only"><Services /></div>
         <About />
