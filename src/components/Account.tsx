@@ -110,10 +110,19 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
     setBusy(true); setMessage("");
     try {
       const normalizedPhone = normalizePhone(phone);
-      if (!/^\\+[1-9]\\d{6,14}$/.test(normalizedPhone)) {
-        throw new Error(t("أدخل رقم هاتف دوليًا صحيحًا.", "Enter a valid international phone number."));
+      const internationalDigits = normalizedPhone.startsWith("+") ? normalizedPhone.slice(1) : "";
+      const isValidInternationalPhone =
+        internationalDigits.length >= 7 &&
+        internationalDigits.length <= 15 &&
+        internationalDigits[0] !== "0" &&
+        Array.from(internationalDigits).every(digit => digit >= "0" && digit <= "9");
+      if (!isValidInternationalPhone) {
+        throw new Error(t(
+          "أدخل رقمًا يمنيًا بصيغة 7… أو 07…، أو رقمًا دوليًا يبدأ برمز الدولة.",
+          "Enter a Yemeni number as 7… or 07…, or an international number with its country code."
+        ));
       }
-      const email = `${normalizedPhone.replace(/\\D/g, "")}@auth.maak.invalid`;
+      const email = `${internationalDigits}@auth.maak.invalid`;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       setSession(data.session);
