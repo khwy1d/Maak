@@ -89,13 +89,19 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
   useEffect(() => { if (session) void refresh(); }, [session?.user.id]);
 
   const normalizePhone = (value: string) => {
-    const cleaned = value.trim().replace(/[\s()-]/g, "");
-    if (cleaned.startsWith("+")) return cleaned;
-    if (cleaned.startsWith("00")) return `+${cleaned.slice(2)}`;
-    if (cleaned.startsWith("967")) return `+${cleaned}`;
-    if (cleaned.startsWith("0") && cleaned.length === 10) return `+967${cleaned.slice(1)}`;
-    if (/^7\d{8}$/.test(cleaned)) return `+967${cleaned}`;
-    return cleaned;
+    const localized = value.trim().replace(/[٠-٩۰-۹]/g, digit => {
+      const code = digit.charCodeAt(0);
+      return String(code >= 0x06f0 ? code - 0x06f0 : code - 0x0660);
+    });
+    const hasPlusPrefix = localized.startsWith("+");
+    const digits = localized.replace(/\D/g, "");
+    if (!digits) return "";
+    if (hasPlusPrefix) return `+${digits}`;
+    if (digits.startsWith("00")) return `+${digits.slice(2)}`;
+    if (digits.startsWith("967")) return `+${digits}`;
+    if (/^07\d{8}$/.test(digits)) return `+967${digits.slice(1)}`;
+    if (/^7\d{8}$/.test(digits)) return `+967${digits}`;
+    return digits;
   };
 
   const signIn = async (event: FormEvent) => {
