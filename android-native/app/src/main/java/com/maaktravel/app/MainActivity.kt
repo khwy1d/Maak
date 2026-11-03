@@ -86,7 +86,7 @@ class MainActivity:ComponentActivity(){
    Icon(Icons.Default.Flight,null,tint=Color.White.copy(alpha=.16f),modifier=Modifier.align(Alignment.CenterEnd).size(90.dp))
   }}
   item{Row(Modifier.fillMaxWidth().padding(horizontal=20.dp),verticalAlignment=Alignment.CenterVertically){Text("خدماتنا",fontSize=20.sp,fontWeight=FontWeight.Bold,color=ink);Spacer(Modifier.width(7.dp));Box(Modifier.width(28.dp).height(3.dp).background(Gold,CircleShape))}}
-  items(services){s->ServiceRow(s,ink,muted,surface){onService(s)}}
+  items(services.chunked(3)){row->Row(Modifier.fillMaxWidth().padding(horizontal=18.dp),horizontalArrangement=Arrangement.spacedBy(9.dp)){row.forEach{s->ServiceTile(s,ink,surface){onService(s)}};repeat(3-row.size){Spacer(Modifier.weight(1f))}}}
   item{Column(Modifier.fillMaxWidth().padding(horizontal=18.dp).clip(RoundedCornerShape(20.dp)).background(surface).border(1.dp,Line,RoundedCornerShape(20.dp)).padding(15.dp),verticalArrangement=Arrangement.spacedBy(9.dp)){
    Row(verticalAlignment=Alignment.CenterVertically){Icon(Icons.Default.TrackChanges,null,tint=Teal);Spacer(Modifier.width(8.dp));Text("متابعة طلب سابق",fontWeight=FontWeight.Bold,color=ink,fontSize=17.sp)}
    Text("أدخل بيانات طلبك لمتابعة آخر التحديثات",color=muted,fontSize=12.sp)
@@ -103,6 +103,14 @@ class MainActivity:ComponentActivity(){
   Icon(Icons.Default.ChevronLeft,null,tint=Gold)
  }
 }
+
+@Composable private fun ServiceTile(s:Service,ink:Color,surface:Color,onClick:()->Unit){
+ Column(Modifier.weight(1f).height(100.dp).clip(RoundedCornerShape(15.dp)).background(surface).border(1.dp,Line,RoundedCornerShape(15.dp)).clickable(onClick=onClick).padding(8.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
+  Box(Modifier.size(43.dp).clip(RoundedCornerShape(12.dp)).background(Teal.copy(alpha=.12f)),contentAlignment=Alignment.Center){Icon(s.icon,null,tint=Teal,modifier=Modifier.size(24.dp))}
+  Spacer(Modifier.height(6.dp));Text(s.title,color=ink,fontSize=11.sp,fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center,maxLines=2,lineHeight=13.sp)
+ }
+}
+
 @Composable private fun Orders(ink:Color,muted:Color,surface:Color,modifier:Modifier){
  var filter by remember{mutableStateOf("الكل")}
  val filters=listOf("الكل","النشطة","المكتملة","الملغاة")
