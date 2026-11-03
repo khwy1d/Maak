@@ -90,8 +90,8 @@ class MainActivity:ComponentActivity(){
   item{Column(Modifier.fillMaxWidth().padding(horizontal=18.dp).clip(RoundedCornerShape(20.dp)).background(surface).border(1.dp,Line,RoundedCornerShape(20.dp)).padding(15.dp),verticalArrangement=Arrangement.spacedBy(9.dp)){
    Row(verticalAlignment=Alignment.CenterVertically){Icon(Icons.Default.TrackChanges,null,tint=Teal);Spacer(Modifier.width(8.dp));Text("متابعة طلب سابق",fontWeight=FontWeight.Bold,color=ink,fontSize=17.sp)}
    Text("أدخل بيانات طلبك لمتابعة آخر التحديثات",color=muted,fontSize=12.sp)
-   OutlinedTextField("","",{},modifier=Modifier.fillMaxWidth(),placeholder={Text("الرقم المرجعي")},singleLine=true)
-   OutlinedTextField("","",{},modifier=Modifier.fillMaxWidth(),placeholder={Text("رقم الهاتف")},singleLine=true)
+   OutlinedTextField(value="",onValueChange={},modifier=Modifier.fillMaxWidth(),placeholder={Text("الرقم المرجعي")},singleLine=true)
+   OutlinedTextField(value="",onValueChange={},modifier=Modifier.fillMaxWidth(),placeholder={Text("رقم الهاتف")},singleLine=true)
    Button(onClick={},modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=Teal)){Text("تحقق ومتابعة",color=Color.White)}
   }}
  }
@@ -141,7 +141,7 @@ class MainActivity:ComponentActivity(){
  }
 }
 @Composable private fun RewardMini(label:String,value:String,surface:Color){
- Row(Modifier.weight(1f).clip(RoundedCornerShape(11.dp)).background(surface).padding(11.dp)){Column{Text(label,fontSize=11.sp,color=Navy);Text(value,fontSize=16.sp,color=Teal,fontWeight=FontWeight.Bold)}}
+ Row(Modifier.fillMaxWidth(.49f).clip(RoundedCornerShape(11.dp)).background(surface).padding(11.dp)){Column{Text(label,fontSize=11.sp,color=Navy);Text(value,fontSize=16.sp,color=Teal,fontWeight=FontWeight.Bold)}}
 }
 @Composable private fun Account(ink:Color,muted:Color,surface:Color,dark:Boolean,modifier:Modifier,onTheme:()->Unit){
  LazyColumn(modifier.fillMaxSize(),contentPadding=PaddingValues(bottom=18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)){
@@ -176,9 +176,9 @@ class MainActivity:ComponentActivity(){
   LinearProgressIndicator(progress={.35f},modifier=Modifier.fillMaxWidth(),color=Teal)
   Column(Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(surface).padding(17.dp),verticalArrangement=Arrangement.spacedBy(13.dp)){
    Text("طلب "+service.title,fontSize=18.sp,fontWeight=FontWeight.Bold,color=ink);Text("سنساعدك في تنسيق طلبك. أكمل بياناتك للمتابعة.",fontSize=12.sp,color=muted)
-   OutlinedTextField("","",{},{label={Text("الاسم الكامل")}},modifier=Modifier.fillMaxWidth())
-   OutlinedTextField("","",{},{label={Text("رقم الهاتف")}},modifier=Modifier.fillMaxWidth())
-   OutlinedTextField("","",{},{label={Text("تفاصيل الطلب")}},modifier=Modifier.fillMaxWidth(),minLines=4)
+   OutlinedTextField(value="",onValueChange={},label={Text("الاسم الكامل")},modifier=Modifier.fillMaxWidth())
+   OutlinedTextField(value="",onValueChange={},label={Text("رقم الهاتف")},modifier=Modifier.fillMaxWidth())
+   OutlinedTextField(value="",onValueChange={},label={Text("تفاصيل الطلب")},modifier=Modifier.fillMaxWidth(),minLines=4)
    Text("سيتم إرسال الطلب للمراجعة، ولا يُعد حجزاً مؤكداً.",fontSize=11.sp,color=muted)
   }
   Button(onClick={},modifier=Modifier.fillMaxWidth().height(50.dp),colors=ButtonDefaults.buttonColors(containerColor=Teal)){Text("مراجعة الطلب",color=Color.White)}
