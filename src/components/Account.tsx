@@ -104,10 +104,10 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
     setBusy(true); setMessage("");
     try {
       const normalizedPhone = normalizePhone(phone);
-      if (!/^\\+[1-9]\\d{6,14}$/.test(normalizedPhone)) {
+      if (!/^\+[1-9]\d{6,14}$/.test(normalizedPhone)) {
         throw new Error(t("أدخل رقم هاتف دوليًا صحيحًا.", "Enter a valid international phone number."));
       }
-      const email = `${normalizedPhone.replace(/\\D/g, "")}@auth.maak.invalid`;
+      const email = `${normalizedPhone.replace(/\D/g, "")}@auth.maak.invalid`;
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       setSession(data.session);
