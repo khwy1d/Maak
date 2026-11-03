@@ -105,7 +105,7 @@ class MainActivity:ComponentActivity(){
 }
 
 @Composable private fun ServiceTile(s:Service,ink:Color,surface:Color,onClick:()->Unit){
- Column(Modifier.weight(1f).height(100.dp).clip(RoundedCornerShape(15.dp)).background(surface).border(1.dp,Line,RoundedCornerShape(15.dp)).clickable(onClick=onClick).padding(8.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
+ Column(Modifier.fillMaxWidth(.32f).height(100.dp).clip(RoundedCornerShape(15.dp)).background(surface).border(1.dp,Line,RoundedCornerShape(15.dp)).clickable(onClick=onClick).padding(8.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center){
   Box(Modifier.size(43.dp).clip(RoundedCornerShape(12.dp)).background(Teal.copy(alpha=.12f)),contentAlignment=Alignment.Center){Icon(s.icon,null,tint=Teal,modifier=Modifier.size(24.dp))}
   Spacer(Modifier.height(6.dp));Text(s.title,color=ink,fontSize=11.sp,fontWeight=FontWeight.SemiBold,textAlign=TextAlign.Center,maxLines=2,lineHeight=13.sp)
  }
