@@ -44,12 +44,12 @@ private val Pale = Color(0xFFF5F7FA)
 
 private data class Service(val key: String, val ar: String, val en: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 private val services = listOf(
-    Service("flight", "حجز تذاكر الطيران", "Flight bookings", Icons.Default.Flight),
+    Service("flight", "تذاكر الطيران", "Flight tickets", Icons.Default.Flight),
     Service("hotel", "حجوزات الفنادق", "Hotel reservations", Icons.Default.Hotel),
     Service("bus", "النقل البري", "Ground transport", Icons.Default.DirectionsBus),
     Service("car", "تأجير السيارات", "Car rental", Icons.Default.DirectionsCar),
-    Service("security", "الموافقات الأمنية لمصر", "Egypt security clearance", Icons.Default.VerifiedUser),
-    Service("umrah", "العمرة", "Umrah", Icons.Default.Place),
+    Service("security", "موافقات مصر", "Egypt approvals", Icons.Default.VerifiedUser),
+    Service("umrah", "العمرة", "Umrah", Icons.Default.Mosque),
     Service("medical", "السفر العلاجي", "Medical travel", Icons.Default.LocalHospital),
 )
 private data class FieldSpec(val key:String,val ar:String,val en:String,val options:List<String> = emptyList(),val multi:Boolean=false)
@@ -58,9 +58,9 @@ private fun fieldGroups(key:String): List<Pair<String,List<FieldSpec>>> {
     fun o(vararg s:String)=s.toList()
     return when(key) {
         "flight" -> listOf(
-            "مسار الرحلة" to listOf(f("trip","نوع الرحلة","Trip type",o("داخل اليمن / Within Yemen","دولية / International")),f("fromCountry","دولة المغادرة","Departure country"),f("fromCity","مدينة المغادرة","Departure city"),f("toCountry","دولة الوصول","Arrival country"),f("toCity","مدينة الوصول","Arrival city")),
-            "تفاصيل السفر" to listOf(f("ticket","نوع التذكرة","Ticket type",o("ذهاب فقط / One way","ذهاب وعودة / Return")),f("date","تاريخ الذهاب","Departure date"),f("returnDate","تاريخ العودة","Return date"),f("passengers","عدد المسافرين","Passengers",o("1","2","3","4","5+"))),
-            "التفضيلات" to listOf(f("airline","شركة الطيران المفضلة","Preferred airline",o("اليمنية / Yemenia","طيران عدن / FlyAden","أي شركة مناسبة / Any suitable airline")),f("notes","تفاصيل إضافية","Additional details",m=true))
+            "تفاصيل الرحلة" to listOf(f("trip","نوع الرحلة","Trip type",o("ذهاب فقط / One way","ذهاب وعودة / Round trip")),f("fromCity","مدينة المغادرة","Departure city",o("عدن / Aden","سيئون / Seiyun","المكلا / Mukalla","سقطرى / Socotra","جدة / Jeddah","الرياض / Riyadh","القاهرة / Cairo","عمّان / Amman","دبي / Dubai","إسطنبول / Istanbul","أخرى / Other")),f("toCity","مدينة الوصول","Arrival city",o("عدن / Aden","سيئون / Seiyun","المكلا / Mukalla","سقطرى / Socotra","جدة / Jeddah","الرياض / Riyadh","القاهرة / Cairo","عمّان / Amman","دبي / Dubai","إسطنبول / Istanbul","أخرى / Other")),f("date","تاريخ الذهاب","Departure date"),f("returnDate","تاريخ العودة","Return date")),
+            "المسافرون" to listOf(f("adults","بالغون (12 سنة فأكثر)","Adults (12 years and over)",o("1","2","3","4","5","6","7","8","9")),f("children","أطفال (2–11 سنة)","Children (2–11 years)",o("0","1","2","3","4","5")),f("infants","رضّع (أقل من سنتين)","Infants (under 2 years)",o("0","1","2","3"))),
+            "التفضيلات والتواصل" to listOf(f("airline","شركة الطيران المفضلة","Airline preference",o("بدون تفضيل / No preference","اليمنية / Yemenia","عدن فلاي / Aden Fly")),f("name","الاسم","Name"),f("phone","رقم واتساب","WhatsApp number"),f("notes","ملاحظات إضافية","Additional notes",m=true))
         )
         "hotel" -> listOf(
             "مكان الإقامة" to listOf(f("country","الدولة","Country"),f("city","المدينة","City"),f("area","الحي أو المنطقة","Area")),
@@ -97,6 +97,7 @@ private fun MAAKApp(onWhatsApp:(String)->Unit) {
     var tab by remember { mutableStateOf("home") }
     var selected by remember { mutableStateOf<Service?>(null) }
     var pendingInquiry by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var pendingRequestData by remember { mutableStateOf("{}") }
     var pendingOrderId by remember { mutableStateOf<UUID?>(null) }
     var contactName by remember { mutableStateOf("") }
     var contactPhone by remember { mutableStateOf("") }
@@ -112,15 +113,16 @@ private fun MAAKApp(onWhatsApp:(String)->Unit) {
         MaterialTheme(colorScheme=if(dark) darkColorScheme(primary=Teal,secondary=Gold,background=bg,surface=surface,onSurface=text) else lightColorScheme(primary=Teal,secondary=Gold,background=bg,surface=surface,onSurface=text)) {
             Scaffold(containerColor=bg,bottomBar={
                 if(selected==null && pendingInquiry==null) NavigationBar(containerColor=surface) {
-                    NavigationBarItem(selected=tab=="home",onClick={tab="home"},icon={Icon(Icons.Default.Home,null)},label={Text(if(ar) "الرئيسية" else "Home")})
-                    NavigationBarItem(selected=tab=="orders",onClick={tab="orders"},icon={Icon(Icons.Default.CalendarMonth,null)},label={Text(if(ar) "حجوزاتي" else "My bookings")})
-                    NavigationBarItem(selected=tab=="rewards",onClick={tab="rewards"},icon={Icon(Icons.Default.CardGiftcard,null)},label={Text(if(ar) "المكافآت" else "Rewards")})
-                    NavigationBarItem(selected=tab=="account",onClick={tab="account"},icon={Icon(Icons.Default.Person,null)},label={Text(if(ar) "حسابي" else "My account")})
+                    NavigationBarItem(selected=tab=="home",onClick={tab="home"},icon={Icon(Icons.Default.Home,null,tint=if(tab=="home") Gold else muted)},label={Text(if(ar) "الرئيسية" else "Home",color=if(tab=="home") Gold else muted)},colors=NavigationBarItemDefaults.colors(indicatorColor=Gold.copy(alpha=.16f)))
+                    NavigationBarItem(selected=tab=="orders",onClick={tab="orders"},icon={Icon(Icons.Default.CalendarMonth,null,tint=if(tab=="orders") Gold else muted)},label={Text(if(ar) "حجوزاتي" else "My bookings",color=if(tab=="orders") Gold else muted)},colors=NavigationBarItemDefaults.colors(indicatorColor=Gold.copy(alpha=.16f)))
+                    NavigationBarItem(selected=tab=="rewards",onClick={tab="rewards"},icon={Icon(Icons.Default.CardGiftcard,null,tint=if(tab=="rewards") Gold else muted)},label={Text(if(ar) "المكافآت" else "Rewards",color=if(tab=="rewards") Gold else muted)},colors=NavigationBarItemDefaults.colors(indicatorColor=Gold.copy(alpha=.16f)))
+                    NavigationBarItem(selected=tab=="account",onClick={tab="account"},icon={Icon(Icons.Default.Person,null,tint=if(tab=="account") Gold else muted)},label={Text(if(ar) "حسابي" else "My account",color=if(tab=="account") Gold else muted)},colors=NavigationBarItemDefaults.colors(indicatorColor=Gold.copy(alpha=.16f)))
                 }
             }) { padding ->
                 when {
-                    selected!=null -> ServiceFormScreen(selected!!,ar,text,muted,surface,Modifier.padding(padding),{selected=null}) { message ->
+                    selected!=null -> ServiceFormScreen(selected!!,ar,text,muted,surface,Modifier.padding(padding),{selected=null}) { message, requestData ->
                         pendingInquiry = selected!!.key to message
+                        pendingRequestData = requestData
                         pendingOrderId = UUID.randomUUID()
                         inquiryError = ""
                     }
@@ -171,7 +173,7 @@ private fun MAAKApp(onWhatsApp:(String)->Unit) {
                                             customerName = contactName,
                                             customerPhone = contactPhone,
                                             service = service,
-                                            requestData = JSONObject().put("message", message).put("source", "android_native"),
+                                            requestData = JSONObject(pendingRequestData).put("message", message),
                                             idempotencyKey = pendingOrderId ?: UUID.randomUUID(),
                                         )
                                         pendingReceipt = extractOrderId(response)
@@ -237,13 +239,6 @@ private fun HomeScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:
             Text(if(ar) "اختر الخدمة المناسبة لرحلتك" else "Choose the service you need",fontSize=12.sp,color=muted)
         } }
         gridItems(services){ service -> ServiceCard(service,ar,text,muted,surface){onChoose(service)} }
-        item(span={GridItemSpan(maxLineSpan)}) { Card(Modifier.fillMaxWidth().clickable(onClick=onTrackGuest),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(18.dp)) {
-            Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                Icon(Icons.Default.Search,null,tint=Teal)
-                Column(Modifier.weight(1f)){Text(if(ar) "متابعة طلب سابق" else "Track an existing request",fontWeight=FontWeight.SemiBold,color=text);Text(if(ar) "أدخل رقمك المرجعي ورقم الهاتف" else "Use your reference and phone number",color=muted,fontSize=12.sp)}
-                Icon(Icons.Default.ChevronLeft,null,tint=Gold)
-            }
-        } }
         item(span={GridItemSpan(maxLineSpan)}) { Text(if(ar) "طلباتك استفسارات قيد المراجعة وليست حجوزات مؤكدة." else "Requests are enquiries under review, not confirmed bookings.",color=muted,fontSize=12.sp,lineHeight=19.sp) }
     }
 }
@@ -265,11 +260,12 @@ private fun SectionPlaceholder(title:String,message:String,ar:Boolean,text:Color
 
 @Composable
 private fun OrdersScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier) {
+    var selectedFilter by remember { mutableIntStateOf(0) }
     Column(modifier.fillMaxSize().padding(18.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
         Text(if(ar) "حجوزاتي" else "My bookings",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
         Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
             listOf(if(ar) "الكل" else "All",if(ar) "النشطة" else "Active",if(ar) "المكتملة" else "Completed",if(ar) "الملغاة" else "Cancelled").forEachIndexed { index,label ->
-                Surface(shape=RoundedCornerShape(50),color=if(index==0) Teal else surface) { Text(label,Modifier.padding(horizontal=12.dp,vertical=9.dp),color=if(index==0) Color.White else muted,fontSize=12.sp,fontWeight=FontWeight.SemiBold) }
+                Surface(modifier=Modifier.clickable { selectedFilter=index },shape=RoundedCornerShape(50),color=if(index==selectedFilter) Gold else surface) { Text(label,Modifier.padding(horizontal=12.dp,vertical=9.dp),color=if(index==selectedFilter) Navy else muted,fontSize=12.sp,fontWeight=FontWeight.SemiBold) }
             }
         }
         Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(22.dp)) {
@@ -287,9 +283,9 @@ private fun RewardsScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifi
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
         Text(if(ar) "المكافآت" else "Rewards",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
         Card(Modifier.fillMaxWidth(),shape=RoundedCornerShape(24.dp),colors=CardDefaults.cardColors(containerColor=Teal)) {
-            Column(Modifier.fillMaxWidth().padding(20.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+            Column(Modifier.fillMaxWidth().padding(22.dp),verticalArrangement=Arrangement.spacedBy(14.dp),horizontalAlignment=Alignment.End) {
                 Text(if(ar) "رصيد المكافآت" else "Rewards balance",color=Color.White.copy(alpha=.9f),fontSize=13.sp)
-                Text("—",fontSize=32.sp,fontWeight=FontWeight.Bold,color=Color.White)
+                Text("—",fontSize=38.sp,fontWeight=FontWeight.Bold,color=Color.White)
                 Text(if(ar) "يظهر الرصيد بعد تسجيل الدخول" else "Sign in to view your balance",color=Color.White,fontSize=12.sp)
             }
         }
@@ -302,6 +298,24 @@ private fun RewardsScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifi
                 }
             }
         }
+        if (SupabaseBackend.isConfigured) {
+            Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(20.dp)) {
+                Row(Modifier.fillMaxWidth().padding(18.dp),horizontalArrangement=Arrangement.spacedBy(14.dp),verticalAlignment=Alignment.CenterVertically) {
+                    Icon(Icons.Default.CardGiftcard,null,tint=Gold,modifier=Modifier.size(32.dp))
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                        Text(if(ar) "كود الإحالة" else "Referral code",fontWeight=FontWeight.Bold,color=text)
+                        Text(if(ar) "سجّل الدخول لعرض كودك ومشاركته." else "Sign in to view and share your code.",color=muted,fontSize=13.sp,lineHeight=20.sp)
+                    }
+                }
+            }
+            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+                listOf(if(ar) "الإحالات" else "Referrals",if(ar) "المكتسبة" else "Earned").forEach { label ->
+                    Card(Modifier.weight(1f),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(18.dp)) {
+                        Column(Modifier.padding(14.dp),verticalArrangement=Arrangement.spacedBy(6.dp)) { Text(label,color=muted,fontSize=12.sp);Text("—",color=text,fontSize=20.sp,fontWeight=FontWeight.Bold) }
+                    }
+                }
+            }
+        }
         Text(if(ar) "سجل الحركات" else "Activity",fontSize=18.sp,fontWeight=FontWeight.Bold,color=text)
         Text(if(ar) "ستظهر الحركات هنا عند توفرها في حسابك." else "Your activity will appear here when available.",fontSize=13.sp,color=muted)
     }
@@ -311,9 +325,9 @@ private fun RewardsScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifi
 private fun AccountScreen(ar:Boolean,dark:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onToggleLanguage:()->Unit,onToggleTheme:()->Unit) {
     Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
         Text(if(ar) "حسابي" else "My account",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
-        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(22.dp)) {
-            Row(Modifier.fillMaxWidth().padding(18.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
-                Box(Modifier.size(64.dp).background(Teal.copy(alpha=.12f),RoundedCornerShape(50)),contentAlignment=Alignment.Center) { Icon(Icons.Default.Person,null,tint=Teal,modifier=Modifier.size(34.dp)) }
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(18.dp)) {
+            Row(Modifier.fillMaxWidth().padding(12.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.size(48.dp).background(Teal.copy(alpha=.12f),RoundedCornerShape(50)),contentAlignment=Alignment.Center) { Icon(Icons.Default.Person,null,tint=Teal,modifier=Modifier.size(27.dp)) }
                 Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
                     Text(if(ar) "زائر معك" else "MAAK guest",fontWeight=FontWeight.Bold,color=text,fontSize=17.sp)
                     Text(if(ar) "سجّل الدخول لإدارة ملفك وطلباتك" else "Sign in to manage your profile and requests",color=muted,fontSize=12.sp,lineHeight=18.sp)
@@ -323,8 +337,12 @@ private fun AccountScreen(ar:Boolean,dark:Boolean,text:Color,muted:Color,surface
         Text(if(ar) "التطبيق" else "App",fontSize=17.sp,fontWeight=FontWeight.Bold,color=text)
         SettingsRow(if(ar) "اللغة" else "Language",if(ar) "العربية / English" else "English / العربية",Icons.Default.Language,onToggleLanguage,text,muted,surface)
         SettingsRow(if(ar) "المظهر" else "Appearance",if(dark) (if(ar) "داكن" else "Dark") else (if(ar) "فاتح" else "Light"),Icons.Default.DarkMode,onToggleTheme,text,muted,surface)
+        SettingsRow(if(ar) "الملف الشخصي" else "Profile",if(ar) "البيانات الشخصية والوثائق" else "Personal details and documents",Icons.Default.Badge,null,text,muted,surface)
+        SettingsRow(if(ar) "إعدادات الحساب" else "Account settings",if(ar) "تغيير الهاتف وكلمة المرور" else "Change phone and password",Icons.Default.ManageAccounts,null,text,muted,surface)
         SettingsRow(if(ar) "الإشعارات" else "Notifications",if(ar) "إعدادات الإشعارات" else "Notification settings",Icons.Default.Notifications,null,text,muted,surface)
+        SettingsRow(if(ar) "الخصوصية والشروط" else "Privacy and terms",if(ar) "سياسة الخصوصية وشروط الاستخدام" else "Privacy policy and terms of use",Icons.Default.Policy,null,text,muted,surface)
         SettingsRow(if(ar) "عن معك" else "About MAAK",if(ar) "خدمات السفر، دائمًا معك" else "Travel services, always with you",Icons.Default.Info,null,text,muted,surface)
+        SettingsRow(if(ar) "تسجيل الخروج" else "Sign out",if(ar) "الخروج من حسابك" else "Sign out of your account",Icons.Default.Logout,null,text,muted,surface)
     }
 }
 
@@ -341,17 +359,17 @@ private fun SettingsRow(title:String,subtitle:String,icon:androidx.compose.ui.gr
 
 @Composable
 private fun ServiceCard(service:Service,ar:Boolean,text:Color,muted:Color,surface:Color,onClick:()->Unit) {
-    Card(Modifier.fillMaxWidth().heightIn(min=116.dp).clickable(onClick=onClick),shape=RoundedCornerShape(18.dp),colors=CardDefaults.cardColors(containerColor=surface)) {
+    Card(Modifier.fillMaxWidth().aspectRatio(1f).clickable(onClick=onClick),shape=RoundedCornerShape(18.dp),colors=CardDefaults.cardColors(containerColor=surface)) {
         Column(Modifier.fillMaxWidth().padding(horizontal=8.dp,vertical=12.dp),verticalArrangement=Arrangement.spacedBy(8.dp),horizontalAlignment=Alignment.CenterHorizontally) {
             Box(Modifier.size(46.dp).background(Teal.copy(alpha=.14f),RoundedCornerShape(14.dp)),contentAlignment=Alignment.Center){Icon(service.icon,null,tint=Gold)}
-            Text(if(ar) service.ar else service.en,fontWeight=FontWeight.SemiBold,color=text,fontSize=13.sp,lineHeight=17.sp,maxLines=2)
+            Text(if(ar) service.ar else service.en,fontWeight=FontWeight.SemiBold,color=text,fontSize=if(ar) 11.sp else 12.sp,lineHeight=14.sp,maxLines=1,softWrap=false)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ServiceFormScreen(service:Service,ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onBack:()->Unit,onSend:(String)->Unit) {
+private fun ServiceFormScreen(service:Service,ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onBack:()->Unit,onSend:(String,String)->Unit) {
     val groups=remember(service.key){fieldGroups(service.key)}
     var step by remember(service.key){mutableIntStateOf(0)}
     val values=remember(service.key){mutableStateMapOf<String,String>()}
@@ -362,11 +380,19 @@ private fun ServiceFormScreen(service:Service,ar:Boolean,text:Color,muted:Color,
             Column(Modifier.weight(1f)){Text(if(ar) service.ar else service.en,fontSize=19.sp,fontWeight=FontWeight.Bold,color=text);Text(if(ar) "الخطوة ${step+1} من ${groups.size}" else "Step ${step+1} of ${groups.size}",color=muted,fontSize=12.sp)}
         }
         LinearProgressIndicator(progress={(step+1).toFloat()/groups.size},modifier=Modifier.fillMaxWidth(),color=Teal,trackColor=Gold.copy(alpha=.2f))
-        Text(if(ar) "كل التفاصيل اختيارية ويمكنك المتابعة دون تعبئة الحقول." else "All details are optional. You can continue without filling any field.",color=muted,fontSize=13.sp)
+        Text(if(ar) "أكمل بيانات الرحلة وراجعها قبل الإرسال." else "Add your trip details and review them before sending.",color=muted,fontSize=13.sp)
         if(current!=null) Card(Modifier.weight(1f).fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(24.dp)) {
             Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
                 Text(if(ar) current.first else groupTitleEnglish(service.key,step),fontSize=19.sp,fontWeight=FontWeight.Bold,color=text)
+                if (service.key == "flight" && step == 0) {
+                    Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                        listOf("ذهاب فقط" to "One way", "ذهاب وعودة" to "Round trip").forEach { (arabic,english) ->
+                            FilterChip(selected=values["trip"] == (if(ar) arabic else english),onClick={values["trip"]=if(ar) arabic else english},label={Text(if(ar) arabic else english)})
+                        }
+                    }
+                }
                 current.second.forEach { spec ->
+                    if(service.key == "flight" && spec.key == "trip") return@forEach
                     if(spec.options.isNotEmpty()) {
                         var expanded by remember(spec.key){mutableStateOf(false)}
                         ExposedDropdownMenuBox(expanded=expanded,onExpandedChange={expanded=!expanded}) {
@@ -387,7 +413,9 @@ private fun ServiceFormScreen(service:Service,ar:Boolean,text:Color,muted:Color,
                 val intro=if(ar) "مرحبًا فريق معك، أود الاستفسار عن ${service.ar}.\n" else "Hello MAAK team, I would like to enquire about ${service.en}.\n"
                 val details=if(rows.isEmpty()) if(ar) "لا توجد تفاصيل محددة حتى الآن." else "No details specified yet." else rows.joinToString("\n"){"${it.first}: ${it.second}"}
                 val note=if(ar) "\nهذا استفسار وليس حجزًا مؤكدًا. يرجى تأكيد الأسعار والتوافر." else "\nThis is an enquiry, not a confirmed booking. Please confirm prices and availability."
-                onSend(intro+details+note)
+                val requestData=JSONObject().put("source","android_native")
+                groups.flatMap{it.second}.forEach { field -> values[field.key]?.takeIf(String::isNotBlank)?.let { requestData.put(field.key,it) } }
+                onSend(intro+details+note,requestData.toString())
             },modifier=Modifier.weight(1f),colors=ButtonDefaults.buttonColors(containerColor=Teal)){Icon(Icons.Default.Chat,null);Spacer(Modifier.width(6.dp));Text(if(ar) "إرسال عبر واتساب" else "Send via WhatsApp")}
         }
     }
