@@ -4,3 +4,7 @@ dist/
 .env.*
 !.env.example
 *.local
+local.properties
+android-native/.gradle/
+android-native/.kotlin/
+android-native/**/build/

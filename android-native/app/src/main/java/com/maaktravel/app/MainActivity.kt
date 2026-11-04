@@ -7,26 +7,35 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.net.URLEncoder
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+import org.json.JSONArray
+import java.util.UUID
 
 private val Teal = Color(0xFF20B8A6)
 private val Navy = Color(0xFF142C4E)
@@ -36,14 +45,12 @@ private val Pale = Color(0xFFF5F7FA)
 private data class Service(val key: String, val ar: String, val en: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
 private val services = listOf(
     Service("flight", "حجز تذاكر الطيران", "Flight bookings", Icons.Default.Flight),
-    Service("security", "الموافقات الأمنية لمصر", "Egypt security clearance", Icons.Default.VerifiedUser),
     Service("hotel", "حجوزات الفنادق", "Hotel reservations", Icons.Default.Hotel),
+    Service("bus", "النقل البري", "Ground transport", Icons.Default.DirectionsBus),
     Service("car", "تأجير السيارات", "Car rental", Icons.Default.DirectionsCar),
-    Service("tourism", "السياحة والرحلات", "Tourism and trips", Icons.Default.Explore),
+    Service("security", "الموافقات الأمنية لمصر", "Egypt security clearance", Icons.Default.VerifiedUser),
+    Service("umrah", "العمرة", "Umrah", Icons.Default.Place),
     Service("medical", "السفر العلاجي", "Medical travel", Icons.Default.LocalHospital),
-    Service("umrah", "الحج والعمرة", "Hajj & Umrah", Icons.Default.Place),
-    Service("bus", "حجز الباصات والنقل البري", "Bus & ground transport", Icons.Default.DirectionsBus),
-    Service("realEstate", "الخدمات العقارية", "Real estate services", Icons.Default.Apartment)
 )
 private data class FieldSpec(val key:String,val ar:String,val en:String,val options:List<String> = emptyList(),val multi:Boolean=false)
 private fun fieldGroups(key:String): List<Pair<String,List<FieldSpec>>> {
@@ -89,6 +96,14 @@ private fun MAAKApp(onWhatsApp:(String)->Unit) {
     var dark by remember { mutableStateOf(false) }
     var tab by remember { mutableStateOf("home") }
     var selected by remember { mutableStateOf<Service?>(null) }
+    var pendingInquiry by remember { mutableStateOf<Pair<String, String>?>(null) }
+    var pendingOrderId by remember { mutableStateOf<UUID?>(null) }
+    var contactName by remember { mutableStateOf("") }
+    var contactPhone by remember { mutableStateOf("") }
+    var inquiryError by remember { mutableStateOf("") }
+    var savingInquiry by remember { mutableStateOf(false) }
+    var pendingReceipt by remember { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
     val ar=lang=="ar"; val bg=if(dark) Color(0xFF101B2A) else Pale
     val surface=if(dark) Color(0xFF1A2A3E) else Color.White
     val text=if(dark) Color(0xFFF2F5F9) else Navy
@@ -96,76 +111,241 @@ private fun MAAKApp(onWhatsApp:(String)->Unit) {
     CompositionLocalProvider(LocalLayoutDirection provides if(ar) LayoutDirection.Rtl else LayoutDirection.Ltr) {
         MaterialTheme(colorScheme=if(dark) darkColorScheme(primary=Teal,secondary=Gold,background=bg,surface=surface,onSurface=text) else lightColorScheme(primary=Teal,secondary=Gold,background=bg,surface=surface,onSurface=text)) {
             Scaffold(containerColor=bg,bottomBar={
-                if(selected==null) NavigationBar(containerColor=surface) {
+                if(selected==null && pendingInquiry==null) NavigationBar(containerColor=surface) {
                     NavigationBarItem(selected=tab=="home",onClick={tab="home"},icon={Icon(Icons.Default.Home,null)},label={Text(if(ar) "الرئيسية" else "Home")})
-                    NavigationBarItem(selected=tab=="services",onClick={tab="services"},icon={Icon(Icons.Default.GridView,null)},label={Text(if(ar) "خدماتنا" else "Services")})
-                    NavigationBarItem(selected=false,onClick={onWhatsApp(if(ar) "مرحبًا، أرغب في الاستفسار عن خدمات معك." else "Hello, I would like to enquire about MAAK services.")},icon={Icon(Icons.Default.Chat,null)},label={Text("WhatsApp")})
-                    NavigationBarItem(selected=tab=="about",onClick={tab="about"},icon={Icon(Icons.Default.Info,null)},label={Text(if(ar) "عن معك" else "About")})
+                    NavigationBarItem(selected=tab=="orders",onClick={tab="orders"},icon={Icon(Icons.Default.CalendarMonth,null)},label={Text(if(ar) "حجوزاتي" else "My bookings")})
+                    NavigationBarItem(selected=tab=="rewards",onClick={tab="rewards"},icon={Icon(Icons.Default.CardGiftcard,null)},label={Text(if(ar) "المكافآت" else "Rewards")})
+                    NavigationBarItem(selected=tab=="account",onClick={tab="account"},icon={Icon(Icons.Default.Person,null)},label={Text(if(ar) "حسابي" else "My account")})
                 }
             }) { padding ->
                 when {
-                    selected!=null -> ServiceFormScreen(selected!!,ar,text,muted,surface,Modifier.padding(padding),{selected=null},onWhatsApp)
-                    tab=="services" -> ServicesScreen(ar,text,muted,surface,Modifier.padding(padding)){selected=it}
-                    tab=="about" -> AboutScreen(ar,text,muted,surface,Modifier.padding(padding)){onWhatsApp(if(ar) "مرحبًا، أرغب في الاستفسار عن خدمات معك." else "Hello, I would like to enquire about MAAK services.")}
-                    else -> HomeScreen(ar,text,muted,surface,Modifier.padding(padding),{tab="services"},{selected=it},{onWhatsApp(if(ar) "مرحبًا، أرغب في الاستفسار عن خدمات معك." else "Hello, I would like to enquire about MAAK services.")}, {lang=if(ar) "en" else "ar"}, {dark=!dark})
+                    selected!=null -> ServiceFormScreen(selected!!,ar,text,muted,surface,Modifier.padding(padding),{selected=null}) { message ->
+                        pendingInquiry = selected!!.key to message
+                        pendingOrderId = UUID.randomUUID()
+                        inquiryError = ""
+                    }
+                    tab=="home" -> HomeScreen(ar,text,muted,surface,Modifier.padding(padding),{tab="orders"},{tab="account"},{selected=it},{tab="notifications"})
+                    tab=="orders" -> OrdersScreen(ar,text,muted,surface,Modifier.padding(padding))
+                    tab=="rewards" -> RewardsScreen(ar,text,muted,surface,Modifier.padding(padding))
+                    tab=="notifications" -> SectionPlaceholder(if(ar) "الإشعارات" else "Notifications",if(ar) "لا توجد إشعارات للعرض الآن." else "There are no notifications to show yet.",ar,text,muted,Modifier.padding(padding))
+                    else -> AccountScreen(ar,dark,text,muted,surface,Modifier.padding(padding),{lang=if(ar) "en" else "ar"},{dark=!dark})
                 }
+            }
+            pendingInquiry?.let { (serviceKey, message) ->
+                AlertDialog(
+                    onDismissRequest = { if (!savingInquiry) { pendingInquiry = null; pendingOrderId = null } },
+                    title = { Text(if (ar) "بيانات التواصل وحفظ الطلب" else "Contact details and save request") },
+                    text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text(if (ar) "سنحفظ استفسارك في نظام معك قبل فتح واتساب. هذا ليس تأكيدًا للحجز." else "We will save your enquiry to MAAK before opening WhatsApp. This does not confirm a booking.")
+                            if (SupabaseBackend.isConfigured) {
+                                OutlinedTextField(value = contactName, onValueChange = { contactName = it }, label = { Text(if (ar) "الاسم" else "Name") }, singleLine = true)
+                                OutlinedTextField(value = contactPhone, onValueChange = { contactPhone = it }, label = { Text(if (ar) "رقم الهاتف" else "Phone number") }, singleLine = true)
+                            } else {
+                                Text(if (ar) "حفظ الطلب غير مهيأ في هذا الإصدار. يمكنك المتابعة إلى واتساب دون حفظه." else "Order saving is not configured in this build. You can continue to WhatsApp without saving.")
+                            }
+                            if (inquiryError.isNotBlank()) Text(inquiryError, color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(enabled = !savingInquiry, onClick = {
+                            if (!SupabaseBackend.isConfigured) {
+                                pendingInquiry = null
+                                pendingOrderId = null
+                                onWhatsApp(message)
+                            } else if (!savingInquiry) {
+                                savingInquiry = true
+                                inquiryError = ""
+                                scope.launch {
+                                    try {
+                                        val service = when (serviceKey) {
+                                            "bus" -> "ground_transport"
+                                            "hotel" -> "accommodation"
+                                            "car" -> "car_rental"
+                                            "medical" -> "medical_travel"
+                                            "security" -> "security_clearance"
+                                            "realEstate" -> "real_estate"
+                                            else -> serviceKey
+                                        }
+                                        val response = SupabaseBackend.createGuestOrder(
+                                            customerName = contactName,
+                                            customerPhone = contactPhone,
+                                            service = service,
+                                            requestData = JSONObject().put("message", message).put("source", "android_native"),
+                                            idempotencyKey = pendingOrderId ?: UUID.randomUUID(),
+                                        )
+                                        pendingReceipt = extractOrderId(response)
+                                        pendingInquiry = null
+                                        pendingOrderId = null
+                                        contactName = ""
+                                        contactPhone = ""
+                                        onWhatsApp(message)
+                                    } catch (error: Exception) {
+                                        inquiryError = error.message ?: if (ar) "تعذر حفظ الطلب. تحقق من الاتصال وحاول مرة أخرى." else "Could not save the request. Check your connection and try again."
+                                    } finally {
+                                        savingInquiry = false
+                                    }
+                                }
+                            }
+                        }) { Text(if (savingInquiry) (if (ar) "جارٍ الحفظ…" else "Saving…") else if (SupabaseBackend.isConfigured) (if (ar) "حفظ والمتابعة" else "Save and continue") else (if (ar) "المتابعة إلى واتساب" else "Continue to WhatsApp")) }
+                    },
+                    dismissButton = { TextButton(enabled = !savingInquiry, onClick = { pendingInquiry = null; pendingOrderId = null }) { Text(if (ar) "إلغاء" else "Cancel") } },
+                )
+            }
+            pendingReceipt?.let { orderId ->
+                AlertDialog(
+                    onDismissRequest = { pendingReceipt = null },
+                    title = { Text(if (ar) "تم استلام طلبك" else "Request received") },
+                    text = { Text(if (ar) "رقم الطلب: $orderId\nالطلب قيد المراجعة، وليس حجزًا مؤكدًا." else "Request number: $orderId\nYour request is under review, not a confirmed booking.") },
+                    confirmButton = { TextButton(onClick = { pendingReceipt = null }) { Text(if (ar) "حسنًا" else "Done") } },
+                )
+            }
+        }
+    }
+}
+
+private fun extractOrderId(response: String): String? = try {
+    val trimmed = response.trim()
+    val row = if (trimmed.startsWith("[")) JSONArray(trimmed).optJSONObject(0) else JSONObject(trimmed)
+    row?.optString("id")?.takeIf { !it.isNullOrBlank() && it != "null" }
+} catch (_: Exception) {
+    null
+}
+
+@Composable
+private fun HomeScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onTrackGuest:()->Unit,onAccount:()->Unit,onChoose:(Service)->Unit,onNotifications:()->Unit) {
+    LazyVerticalGrid(columns=GridCells.Fixed(3),modifier=modifier.fillMaxSize(),contentPadding=PaddingValues(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp),horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+        item(span={GridItemSpan(maxLineSpan)}) { Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+            Surface(Modifier.size(44.dp).clickable(onClick=onAccount),shape=RoundedCornerShape(50),color=Teal.copy(alpha=.10f)) {
+                Box(contentAlignment=Alignment.Center) { Icon(Icons.Default.Person,null,tint=Teal,modifier=Modifier.size(25.dp)) }
+            }
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(2.dp)) {
+                Text(if(ar) "مرحبًا بك" else "Welcome",fontSize=17.sp,fontWeight=FontWeight.Bold,color=text)
+                Text(if(ar) "دائمًا معك" else "Always with you",color=muted,fontSize=12.sp)
+            }
+            IconButton(onClick=onNotifications){Icon(Icons.Default.Notifications,null,tint=Navy)}
+        } }
+        item(span={GridItemSpan(maxLineSpan)}) { Card(colors=CardDefaults.cardColors(containerColor=Color.Transparent),shape=RoundedCornerShape(24.dp)) {
+            Column(Modifier.fillMaxWidth().heightIn(min=142.dp).background(Brush.horizontalGradient(listOf(Teal,Color(0xFF143D80))),RoundedCornerShape(24.dp)).padding(vertical=16.dp,horizontal=20.dp),verticalArrangement=Arrangement.spacedBy(7.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+                Image(painterResource(R.drawable.maak_logo),contentDescription=if(ar) "شعار معك" else "MAAK logo",modifier=Modifier.size(55.dp))
+                Text(if(ar) "سفرك أسهل معنا" else "Travel made easier",fontSize=21.sp,lineHeight=27.sp,fontWeight=FontWeight.Bold,color=Color.White)
+                Text(if(ar) "معك في كل خطوة من رحلتك" else "With you at every step",color=Color.White.copy(alpha=.9f),fontSize=13.sp)
+            }
+        } }
+        item(span={GridItemSpan(maxLineSpan)}) { Column(verticalArrangement=Arrangement.spacedBy(3.dp)) {
+            Text(if(ar) "خدماتنا" else "Our services",fontSize=21.sp,fontWeight=FontWeight.Bold,color=text)
+            Text(if(ar) "اختر الخدمة المناسبة لرحلتك" else "Choose the service you need",fontSize=12.sp,color=muted)
+        } }
+        gridItems(services){ service -> ServiceCard(service,ar,text,muted,surface){onChoose(service)} }
+        item(span={GridItemSpan(maxLineSpan)}) { Card(Modifier.fillMaxWidth().clickable(onClick=onTrackGuest),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(18.dp)) {
+            Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Default.Search,null,tint=Teal)
+                Column(Modifier.weight(1f)){Text(if(ar) "متابعة طلب سابق" else "Track an existing request",fontWeight=FontWeight.SemiBold,color=text);Text(if(ar) "أدخل رقمك المرجعي ورقم الهاتف" else "Use your reference and phone number",color=muted,fontSize=12.sp)}
+                Icon(Icons.Default.ChevronLeft,null,tint=Gold)
+            }
+        } }
+        item(span={GridItemSpan(maxLineSpan)}) { Text(if(ar) "طلباتك استفسارات قيد المراجعة وليست حجوزات مؤكدة." else "Requests are enquiries under review, not confirmed bookings.",color=muted,fontSize=12.sp,lineHeight=19.sp) }
+    }
+}
+
+@Composable
+private fun SectionPlaceholder(title:String,message:String,ar:Boolean,text:Color,muted:Color,modifier:Modifier,onToggleLanguage:(()->Unit)?=null,onToggleTheme:(()->Unit)?=null) {
+    Column(modifier.fillMaxSize().padding(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        Text(title,fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=MaterialTheme.colorScheme.surface),shape=RoundedCornerShape(22.dp)) {
+            Column(Modifier.fillMaxWidth().padding(22.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Box(Modifier.size(68.dp).background(Teal.copy(alpha=.12f),RoundedCornerShape(22.dp)),contentAlignment=Alignment.Center) { Icon(Icons.Default.NotificationsNone,null,tint=Teal,modifier=Modifier.size(34.dp)) }
+                Text(message,color=muted,fontSize=14.sp,lineHeight=22.sp)
+            }
+        }
+        if(onToggleLanguage!=null) SettingsRow(if(ar) "اللغة" else "Language",if(ar) "العربية" else "English",Icons.Default.Language,onToggleLanguage,text,muted,MaterialTheme.colorScheme.surface)
+        if(onToggleTheme!=null) SettingsRow(if(ar) "المظهر" else "Appearance",if(ar) "فاتح / داكن" else "Light / dark",Icons.Default.DarkMode,onToggleTheme,text,muted,MaterialTheme.colorScheme.surface)
+    }
+}
+
+@Composable
+private fun OrdersScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier) {
+    Column(modifier.fillMaxSize().padding(18.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+        Text(if(ar) "حجوزاتي" else "My bookings",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
+        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+            listOf(if(ar) "الكل" else "All",if(ar) "النشطة" else "Active",if(ar) "المكتملة" else "Completed",if(ar) "الملغاة" else "Cancelled").forEachIndexed { index,label ->
+                Surface(shape=RoundedCornerShape(50),color=if(index==0) Teal else surface) { Text(label,Modifier.padding(horizontal=12.dp,vertical=9.dp),color=if(index==0) Color.White else muted,fontSize=12.sp,fontWeight=FontWeight.SemiBold) }
+            }
+        }
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(22.dp)) {
+            Column(Modifier.fillMaxWidth().padding(24.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Icon(Icons.Default.Luggage,null,tint=Teal,modifier=Modifier.size(48.dp))
+                Text(if(ar) "تظهر طلباتك هنا" else "Your requests will appear here",fontSize=17.sp,fontWeight=FontWeight.Bold,color=text)
+                Text(if(ar) "تصفّح كضيف متاح. سجّل الدخول لربط طلباتك بحسابك ومتابعتها هنا." else "Guest browsing is available. Sign in to link and follow your requests here.",color=muted,fontSize=13.sp,lineHeight=20.sp)
             }
         }
     }
 }
 
 @Composable
-private fun HomeScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onServices:()->Unit,onChoose:(Service)->Unit,onContact:()->Unit,onToggleLang:()->Unit,onToggleTheme:()->Unit) {
-    LazyColumn(modifier.fillMaxSize(),contentPadding=PaddingValues(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
-        item { Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-            Box(Modifier.size(50.dp).background(Teal,RoundedCornerShape(16.dp)),contentAlignment=Alignment.Center){Text("م",color=Color.White,fontSize=27.sp,fontWeight=FontWeight.Bold)}
-            Column { Text(if(ar) "معك" else "MAAK",fontSize=26.sp,fontWeight=FontWeight.Bold,color=text);Text(if(ar) "دائمًا معك" else "Always with you",color=muted) }
-            Spacer(Modifier.weight(1f))
-            TextButton(onClick=onToggleLang){Text(if(ar) "English" else "العربية")}
-            IconButton(onClick=onToggleTheme){Icon(if(ar) Icons.Default.DarkMode else Icons.Default.LightMode,null,tint=Gold)}
-        } }
-        item { Card(colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(28.dp)) {
-            Column(Modifier.padding(22.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
-                Text(if(ar) "رحلتك تبدأ بخطوة، ونحن معك في تفاصيلها." else "Your journey starts with one step, and we’re with you in every detail.",fontSize=25.sp,lineHeight=33.sp,fontWeight=FontWeight.Bold,color=text)
-                Text(if(ar) "نصمّم رحلتك بعناية، ونرافقك في كل تفصيلة — من التخطيط إلى الوصول." else "We design your journey with care — from planning to arrival.",color=muted,fontSize=16.sp,lineHeight=25.sp)
-                Button(onClick=onServices,modifier=Modifier.fillMaxWidth(),colors=ButtonDefaults.buttonColors(containerColor=Teal)){Text(if(ar) "عرض خدماتنا" else "Explore services",color=Color.White)}
-                OutlinedButton(onClick=onContact,modifier=Modifier.fillMaxWidth()){Icon(Icons.Default.Chat,null);Spacer(Modifier.width(8.dp));Text(if(ar) "تواصل عبر واتساب" else "Chat on WhatsApp")}
+private fun RewardsScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier) {
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+        Text(if(ar) "المكافآت" else "Rewards",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
+        Card(Modifier.fillMaxWidth(),shape=RoundedCornerShape(24.dp),colors=CardDefaults.cardColors(containerColor=Teal)) {
+            Column(Modifier.fillMaxWidth().padding(20.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                Text(if(ar) "رصيد المكافآت" else "Rewards balance",color=Color.White.copy(alpha=.9f),fontSize=13.sp)
+                Text("—",fontSize=32.sp,fontWeight=FontWeight.Bold,color=Color.White)
+                Text(if(ar) "يظهر الرصيد بعد تسجيل الدخول" else "Sign in to view your balance",color=Color.White,fontSize=12.sp)
             }
-        } }
-        item { Text(if(ar) "الخدمات الأكثر طلبًا" else "Popular services",fontSize=21.sp,fontWeight=FontWeight.Bold,color=text) }
-        items(services.take(4)){ service -> ServiceCard(service,ar,text,muted,surface){onChoose(service)} }
-        item { Text(if(ar) "جميع الطلبات استفسارات وليست حجوزات مؤكدة. تُراجع الأسعار والتوافر عبر التواصل المباشر." else "Requests are enquiries, not confirmed bookings. Prices and availability are confirmed directly.",color=muted,fontSize=13.sp,lineHeight=20.sp) }
+        }
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(20.dp)) {
+            Row(Modifier.padding(18.dp),horizontalArrangement=Arrangement.spacedBy(14.dp),verticalAlignment=Alignment.CenterVertically) {
+                Icon(Icons.Default.CardGiftcard,null,tint=Gold,modifier=Modifier.size(32.dp))
+                Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                    Text(if(ar) "ادعُ أصدقاءك" else "Invite your friends",fontWeight=FontWeight.Bold,color=text)
+                    Text(if(ar) "سجّل الدخول لعرض كود الإحالة ومكافآتك." else "Sign in to view your referral code and rewards.",color=muted,fontSize=13.sp,lineHeight=20.sp)
+                }
+            }
+        }
+        Text(if(ar) "سجل الحركات" else "Activity",fontSize=18.sp,fontWeight=FontWeight.Bold,color=text)
+        Text(if(ar) "ستظهر الحركات هنا عند توفرها في حسابك." else "Your activity will appear here when available.",fontSize=13.sp,color=muted)
     }
 }
 
 @Composable
-private fun ServicesScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onChoose:(Service)->Unit) {
-    LazyColumn(modifier.fillMaxSize(),contentPadding=PaddingValues(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-        item { Text(if(ar) "خدمات معك" else "MAAK services",fontSize=27.sp,fontWeight=FontWeight.Bold,color=text);Text(if(ar) "اختر الخدمة التي تحتاجها وابدأ الاستفسار." else "Choose a service to start an enquiry.",color=muted) }
-        items(services){service->ServiceCard(service,ar,text,muted,surface){onChoose(service)}}
+private fun AccountScreen(ar:Boolean,dark:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onToggleLanguage:()->Unit,onToggleTheme:()->Unit) {
+    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(18.dp),verticalArrangement=Arrangement.spacedBy(14.dp)) {
+        Text(if(ar) "حسابي" else "My account",fontSize=24.sp,fontWeight=FontWeight.Bold,color=text)
+        Card(Modifier.fillMaxWidth(),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(22.dp)) {
+            Row(Modifier.fillMaxWidth().padding(18.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(14.dp)) {
+                Box(Modifier.size(64.dp).background(Teal.copy(alpha=.12f),RoundedCornerShape(50)),contentAlignment=Alignment.Center) { Icon(Icons.Default.Person,null,tint=Teal,modifier=Modifier.size(34.dp)) }
+                Column(verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                    Text(if(ar) "زائر معك" else "MAAK guest",fontWeight=FontWeight.Bold,color=text,fontSize=17.sp)
+                    Text(if(ar) "سجّل الدخول لإدارة ملفك وطلباتك" else "Sign in to manage your profile and requests",color=muted,fontSize=12.sp,lineHeight=18.sp)
+                }
+            }
+        }
+        Text(if(ar) "التطبيق" else "App",fontSize=17.sp,fontWeight=FontWeight.Bold,color=text)
+        SettingsRow(if(ar) "اللغة" else "Language",if(ar) "العربية / English" else "English / العربية",Icons.Default.Language,onToggleLanguage,text,muted,surface)
+        SettingsRow(if(ar) "المظهر" else "Appearance",if(dark) (if(ar) "داكن" else "Dark") else (if(ar) "فاتح" else "Light"),Icons.Default.DarkMode,onToggleTheme,text,muted,surface)
+        SettingsRow(if(ar) "الإشعارات" else "Notifications",if(ar) "إعدادات الإشعارات" else "Notification settings",Icons.Default.Notifications,null,text,muted,surface)
+        SettingsRow(if(ar) "عن معك" else "About MAAK",if(ar) "خدمات السفر، دائمًا معك" else "Travel services, always with you",Icons.Default.Info,null,text,muted,surface)
+    }
+}
+
+@Composable
+private fun SettingsRow(title:String,subtitle:String,icon:androidx.compose.ui.graphics.vector.ImageVector,onClick:(()->Unit)?,text:Color,muted:Color,surface:Color) {
+    Card(Modifier.fillMaxWidth().then(if(onClick!=null) Modifier.clickable(onClick=onClick) else Modifier),colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(16.dp)) {
+        Row(Modifier.fillMaxWidth().padding(horizontal=16.dp,vertical=14.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
+            Icon(icon,null,tint=Gold)
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(3.dp)) { Text(title,color=text,fontWeight=FontWeight.SemiBold);Text(subtitle,color=muted,fontSize=12.sp) }
+            Icon(Icons.Default.ChevronLeft,null,tint=muted)
+        }
     }
 }
 
 @Composable
 private fun ServiceCard(service:Service,ar:Boolean,text:Color,muted:Color,surface:Color,onClick:()->Unit) {
-    Card(Modifier.fillMaxWidth().clickable(onClick=onClick),shape=RoundedCornerShape(22.dp),colors=CardDefaults.cardColors(containerColor=surface)) {
-        Row(Modifier.padding(16.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(13.dp)) {
-            Box(Modifier.size(46.dp).background(Teal.copy(alpha=.12f),CircleShape),contentAlignment=Alignment.Center){Icon(service.icon,null,tint=Teal)}
-            Column(Modifier.weight(1f)){Text(if(ar) service.ar else service.en,fontWeight=FontWeight.SemiBold,color=text,fontSize=16.sp);Text(if(ar) service.en else service.ar,color=muted,fontSize=12.sp)}
-            Icon(Icons.Default.ChevronLeft,null,tint=Gold)
+    Card(Modifier.fillMaxWidth().heightIn(min=116.dp).clickable(onClick=onClick),shape=RoundedCornerShape(18.dp),colors=CardDefaults.cardColors(containerColor=surface)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal=8.dp,vertical=12.dp),verticalArrangement=Arrangement.spacedBy(8.dp),horizontalAlignment=Alignment.CenterHorizontally) {
+            Box(Modifier.size(46.dp).background(Teal.copy(alpha=.14f),RoundedCornerShape(14.dp)),contentAlignment=Alignment.Center){Icon(service.icon,null,tint=Gold)}
+            Text(if(ar) service.ar else service.en,fontWeight=FontWeight.SemiBold,color=text,fontSize=13.sp,lineHeight=17.sp,maxLines=2)
         }
-    }
-}
-
-@Composable
-private fun AboutScreen(ar:Boolean,text:Color,muted:Color,surface:Color,modifier:Modifier,onContact:()->Unit) {
-    Column(modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
-        Text(if(ar) "عن معك" else "About MAAK",fontSize=27.sp,fontWeight=FontWeight.Bold,color=text)
-        Card(colors=CardDefaults.cardColors(containerColor=surface),shape=RoundedCornerShape(24.dp)){Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(10.dp)){
-            Text(if(ar) "دائمًا معك" else "Always with you",fontSize=22.sp,fontWeight=FontWeight.Bold,color=Gold)
-            Text(if(ar) "معك علامة لخدمات السفر تهدف إلى جعل ترتيبات السفر أوضح وأسهل، وأن تكون نقطة تواصل قريبة تساعدك في كل خطوة." else "MAAK is a travel services brand focused on making travel arrangements clearer and easier, with a helpful point of contact at every step.",color=text,lineHeight=25.sp)
-        }}
-        Button(onClick=onContact,modifier=Modifier.fillMaxWidth()){Text(if(ar) "تواصل معنا" else "Contact us")}
     }
 }
 
