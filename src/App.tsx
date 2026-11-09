@@ -83,8 +83,14 @@ export default function App() {
       )}
       {path === "/account" ? <Account /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
+        <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
+          <div className="mobile-home-banner-copy">
+            <span>MAAK</span>
+            <strong>{lang === "ar" ? "دائمًا معك في كل رحلة" : "With you on every journey"}</strong>
+          </div>
+        </section>
         <div className="home-desktop-only home-services-mobile"><Services /></div>
-        <About />
+        <div className="home-desktop-only"><About /></div>
         <div className="home-desktop-only"><Why /></div>
         <div className="home-desktop-only"><How /><SocialFollow /></div>
       </main> : <Pages path={path} />}
