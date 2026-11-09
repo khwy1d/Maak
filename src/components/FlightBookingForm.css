@@ -246,3 +246,6 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
     box-sizing:border-box!important;
   }
 }
+
+.maak-review-edit{width:100%;min-height:48px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--border);border-radius:13px;background:var(--surface);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+.maak-review-edit:active{background:var(--bg-alt)}
