@@ -83,7 +83,7 @@ export default function App() {
       )}
       {path === "/account" ? <Account /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
-        <div className="home-desktop-only"><Services /></div>
+        <div className="home-desktop-only home-services-mobile"><Services /></div>
         <About />
         <div className="home-desktop-only"><Why /></div>
         <div className="home-desktop-only"><How /><SocialFollow /></div>
