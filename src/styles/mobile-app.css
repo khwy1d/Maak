@@ -107,3 +107,48 @@
   .mobile-dock { display: none !important; }
   .home-desktop-only { display: block !important; }
 }
+
+
+/* Touch-first service pages: show every booking field together, like the flight reference. */
+@media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions {
+    display: block !important;
+    position: sticky !important;
+    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    z-index: 35 !important;
+    margin: 18px 0 0 !important;
+    padding: 10px 0 !important;
+    background: linear-gradient(to bottom, transparent, var(--bg) 24%) !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions .maak-next {
+    width: 100% !important;
+    min-height: 50px !important;
+    border-radius: 14px !important;
+  }
+  body:has(.maak-service-flow.desktop-flow) .maak-service-flow.desktop-flow.desktop-reviewing > :not(.maak-flight-head):not(.maak-progress):not(.flight-summary) {
+    display: none !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-group {
+    margin-bottom: 12px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-input-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-field,
+  body:has(.maak-service-flow) .maak-service-flow .inquiry-field {
+    min-width: 0 !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-flight-head {
+    padding: 8px 0 12px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-progress {
+    margin-bottom: 14px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav {
+    display: none !important;
+  }
+}
