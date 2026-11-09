@@ -274,3 +274,49 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
     font-size:1rem!important;
   }
 }
+
+/* Shared one-page layout for every service form: show all service fields before review. */
+@media(max-width:767px){
+  .maak-flight-flow .flight-group,
+  .maak-flight-flow .maak-desktop-step{
+    display:block!important;
+    visibility:visible!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+  }
+  .maak-flight-flow .flight-group[hidden],
+  .maak-flight-flow .maak-desktop-step[hidden]{display:block!important}
+  .maak-flight-flow .maak-bottom-actions{
+    position:static!important;
+    inset:auto!important;
+    transform:none!important;
+    width:100%!important;
+    margin:22px 0 18px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+  }
+  .maak-flight-flow .maak-bottom-actions .maak-next{
+    width:100%!important;
+    min-height:54px!important;
+    border-radius:14px!important;
+  }
+  .maak-flight-flow{padding-bottom:28px!important}
+}
+.maak-flight-flow .flight-summary{
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:16px;
+  background:var(--surface);
+  box-shadow:var(--shadow);
+}
+.maak-flight-flow .flight-summary h4{color:var(--text)}
+.maak-flight-flow .flight-summary>p{color:var(--muted);line-height:1.7}
+.maak-flight-flow .flight-summary dl{display:grid;gap:0;margin:14px 0}
+.maak-flight-flow .flight-summary dl>div{display:flex;justify-content:space-between;gap:16px;padding:11px 0;border-bottom:1px solid var(--border)}
+.maak-flight-flow .flight-summary dt{color:var(--muted);font-weight:600}
+.maak-flight-flow .flight-summary dd{margin:0;color:var(--text);font-weight:650;text-align:end}
