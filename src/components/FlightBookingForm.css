@@ -55,7 +55,7 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
     gap: 0 !important; border: 0 !important; border-radius: 0 !important;
     box-shadow: none !important; background: transparent !important;
   }
-  .maak-flight-head { display:flex; flex-direction:row-reverse; align-items:center; gap:12px; padding: 4px 0 18px !important; }
+  .maak-flight-head { display:flex; flex-direction:row; align-items:center; gap:12px; padding: 4px 0 18px !important; }
   .maak-flight-head > div { flex:1; }
   .maak-flight-head h2 { margin:0 !important; font-size:1.16rem !important; line-height:1.35; font-weight:750; }
   .maak-back { width:44px; height:44px; flex:0 0 44px; border:0 !important; border-radius:50% !important; background:var(--accent-soft, color-mix(in srgb,var(--accent) 14%,var(--surface))) !important; color:var(--accent-text) !important; }
