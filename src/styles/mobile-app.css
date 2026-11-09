@@ -15,7 +15,7 @@
   .hero .actions { display: none; }
   .hero .mobile-services-cta { display: none; }
   .home-desktop-only { display: block !important; }
-  .home-intro > .home-desktop-only:not(.home-services-section) { display: none !important; }
+  .home-intro > .home-desktop-only:not(.home-services-mobile) { display: none !important; }
   .home-services-section { padding: 12px 0 24px; }
   .home-services-section .section-head { margin: 0 0 14px; text-align: center; }
   .home-services-section .section-head h2 { font-size: 1.2rem; }
