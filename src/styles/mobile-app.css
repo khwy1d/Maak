@@ -1,0 +1,203 @@
+/* MAAK mobile app presentation — scoped to phone-sized viewports only. */
+.mobile-home-banner { display: none; }
+@media (max-width: 767px) {
+  body { background: var(--bg); }
+  .site-content { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .header { inset: 8px 0 auto; }
+  .header .nav { width: calc(100% - 28px); border-radius: 18px; padding: 7px 10px; }
+  .header .nav-logo .logo-tile { width: 34px !important; height: 34px !important; }
+  .header .nav-tools { gap: 5px; }
+  .header .icon-btn { min-width: 38px; height: 38px; padding: 0 9px; }
+  .hero { display: none !important; }
+  .mobile-home-banner {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 164px;
+    width: calc(100% - 28px);
+    margin: 88px auto 14px;
+    padding: 18px;
+    overflow: hidden;
+    border-radius: 22px;
+    color: #fff;
+    background-image: linear-gradient(90deg, rgba(10, 28, 52, .78), rgba(10, 28, 52, .18)), url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=85");
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow);
+  }
+  .mobile-home-banner-copy { display: grid; gap: 4px; position: relative; z-index: 1; }
+  .mobile-home-banner-copy span { color: var(--c-gold); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
+  .mobile-home-banner-copy strong { font-size: 1.18rem; line-height: 1.4; }
+  .hero-grid { gap: 18px; }
+  .hero-copy { text-align: center; }
+  .hero h1 { max-width: none; font-size: clamp(1.8rem, 7vw, 2.45rem); line-height: 1.35; }
+  .hero .lead { margin: 10px auto 0; font-size: .96rem; max-width: 38ch; }
+  .hero .actions { display: none; }
+  .hero .mobile-services-cta { display: none; }
+  .home-desktop-only { display: block !important; }
+  .home-intro > .home-desktop-only:not(.home-services-mobile) { display: none !important; }
+  .home-services-section { padding: 12px 0 24px; }
+  .home-services-section .section-head { display: none; }
+  .home-services-section > .container { width: calc(100% - 28px); }
+  .home-services-section .services { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 9px !important; }
+  .home-services-section .service,
+  .home-services-section .service.feature { grid-column: auto !important; grid-row: auto !important; min-width: 0; min-height: 104px !important; padding: 10px 5px !important; align-items: center; justify-content: center; text-align: center; border-radius: 17px; gap: 6px; box-shadow: var(--shadow); }
+  .home-services-section .service-icon { width: 38px; height: 38px; margin: 0; border-radius: 13px; color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
+  .home-services-section .service-icon svg { width: 22px; height: 22px; }
+  .home-services-section .service h3 { font-size: .76rem; line-height: 1.3; overflow-wrap: anywhere; }
+  .home-services-section .service-sub,
+  .home-services-section .service p:not(.service-sub),
+  .home-services-section .services-all-wrap { display: none; }
+  .home-services-section .service.feature { min-height: 122px; background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .home-services-section .service.feature .service-icon { color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
+  .mobile-dock {
+    position: fixed !important;
+    z-index: 100 !important;
+    inset: auto 16px calc(12px + env(safe-area-inset-bottom)) 16px !important;
+    width: auto !important;
+    min-height: 76px;
+    padding: 8px 5px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    gap: 2px !important;
+    border: 1px solid color-mix(in srgb, var(--c-gray) 78%, transparent) !important;
+    border-radius: 25px !important;
+    background: var(--surface) !important;
+    box-shadow: 0 8px 28px rgba(20, 44, 78, .16) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  .mobile-dock a {
+    min-width: 0;
+    min-height: 58px;
+    padding: 4px 2px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    color: var(--c-navy) !important;
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .mobile-dock a svg { width: 27px; height: 27px; stroke-width: 2; }
+  .mobile-dock a[aria-current="page"] { color: var(--c-gold) !important; }
+  .mobile-dock a span { white-space: nowrap; }
+  .mobile-dock a.dock-primary { display: none !important; }
+  body:has(.account-card) .mobile-dock { display: none !important; }
+  .account-page { padding: 26px 14px 28px; min-height: calc(100vh - 80px); }
+  .account-card, .account-dashboard { padding: 20px 16px; border-radius: 22px; }
+  .account-dashboard { width: 100%; }
+  .account-top { align-items: flex-start; }
+  .account-top-actions { width: 100%; }
+  .account-overview { grid-template-columns: 1fr; gap: 10px; }
+  .account-tabs { gap: 7px; }
+  .account-row { flex-direction: row; align-items: center; }
+  .account-row .btn { width: auto; }
+  .page-detail, .inner-page { padding-top: 10px !important; }
+  .section { padding: 26px 0; }
+  .footer { margin-bottom: 10px; }
+}
+@media (min-width: 768px) {
+  .mobile-dock { display: none !important; }
+  .home-desktop-only { display: block !important; }
+}
+
+
+/* Touch-first service pages: show every booking field together, like the flight reference. */
+@media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions {
+    display: block !important;
+    position: sticky !important;
+    bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+    z-index: 35 !important;
+    margin: 18px 0 0 !important;
+    padding: 10px 0 !important;
+    background: linear-gradient(to bottom, transparent, var(--bg) 24%) !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions .maak-next {
+    width: 100% !important;
+    min-height: 50px !important;
+    border-radius: 14px !important;
+  }
+  body:has(.maak-service-flow.desktop-reviewing) .maak-service-flow.desktop-reviewing > :not(.maak-flight-head):not(.maak-progress):not(.flight-summary) {
+    display: none !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-group {
+    margin-bottom: 12px !important;
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-input-grid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-field,
+  body:has(.maak-service-flow) .maak-service-flow .inquiry-field {
+    min-width: 0 !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-flight-head {
+    padding: 8px 0 12px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-progress {
+    margin-bottom: 14px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav {
+    display: none !important;
+  }
+}
+
+
+/* Passenger identity rows in the flight request form. */
+.maak-passenger-details { display: grid; gap: 12px; margin-top: 14px; }
+.maak-passenger-details > h4 { margin: 0; color: var(--text); font-size: .98rem; }
+.maak-passenger-details > p { margin: -6px 0 0; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.maak-passenger-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(130px, .72fr); gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.maak-passenger-row .maak-field { margin: 0; min-width: 0; }
+.maak-passenger-row .maak-field input { min-width: 0; }
+.maak-passport-upload { display: grid; gap: 6px; min-width: 0; padding: 10px; border: 1px dashed var(--border); border-radius: 12px; color: var(--text); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); cursor: pointer; }
+.maak-passport-upload span { font-size: .82rem; font-weight: 700; }
+.maak-passport-upload input { width: 100%; min-width: 0; font: inherit; font-size: .72rem; color: var(--muted); }
+.maak-passport-upload small { overflow-wrap: anywhere; color: var(--muted); font-size: .72rem; }
+@media (max-width: 767px) {
+  .maak-passenger-row { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* All service forms now use one continuous page and an in-flow action below it. */
+@media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav.maak-bottom-actions {
+    display: flex !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+    width: 100% !important;
+    margin: 20px 0 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav .maak-next {
+    width: 100% !important;
+    min-height: 54px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions {
+    position: static !important;
+    inset: auto !important;
+    margin: 20px 0 18px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 28px !important;
+  }
+}

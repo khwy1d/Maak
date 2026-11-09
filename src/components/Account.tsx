@@ -6,7 +6,7 @@ import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
 
 type Row = Record<string, any>;
 
-export default function Account({ adminOnly = false }: { adminOnly?: boolean }) {
+export default function Account({ adminOnly = false, initialTab = "orders" }: { adminOnly?: boolean; initialTab?: string }) {
   const { lang } = useApp();
   const ar = lang === "ar";
   const [session, setSession] = useState<Session | null>(null);
@@ -26,7 +26,7 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
   const [customers, setCustomers] = useState<Row[]>([]);
   const [auditRows, setAuditRows] = useState<Row[]>([]);
   const [commission, setCommission] = useState("0");
-  const [tab, setTab] = useState("orders");
+  const [tab, setTab] = useState(initialTab);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
@@ -38,7 +38,7 @@ export default function Account({ adminOnly = false }: { adminOnly?: boolean }) 
     const { data } = supabase.auth.onAuthStateChange((_event, value) => setSession(value));
     return () => data.subscription.unsubscribe();
   }, []);
-  useEffect(() => { if (adminOnly) setTab("admin-orders"); }, [adminOnly]);
+  useEffect(() => { if (adminOnly) setTab("admin-orders"); else setTab(initialTab); }, [adminOnly, initialTab]);
 
   const refresh = async () => {
     if (!supabase || !session) return;
