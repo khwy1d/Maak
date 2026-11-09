@@ -125,7 +125,7 @@
     min-height: 50px !important;
     border-radius: 14px !important;
   }
-  body:has(.maak-service-flow.desktop-flow) .maak-service-flow.desktop-flow.desktop-reviewing > :not(.maak-flight-head):not(.maak-progress):not(.flight-summary) {
+  body:has(.maak-service-flow.desktop-reviewing) .maak-service-flow.desktop-reviewing > :not(.maak-flight-head):not(.maak-progress):not(.flight-summary) {
     display: none !important;
   }
   body:has(.maak-service-flow) .maak-service-flow .flight-group {
