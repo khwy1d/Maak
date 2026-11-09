@@ -212,3 +212,37 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
 .maak-city-popover-results>p{margin:0;padding:14px;text-align:center;color:var(--muted);font-size:.82rem}
 .maak-contact-card h4{margin-bottom:12px}
 @media(max-width:767px){.maak-city-popover{right:0;left:auto;width:min(330px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:42dvh}.maak-city-popover-search{min-height:42px}}
+
+/* Narrow screens: keep each route field full-width so its picker stays anchored
+   within the visible form instead of overflowing from the RTL grid column. */
+@media(max-width:767px){
+  body:has(.maak-flight-flow) .maak-route-fields{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+    gap:9px!important;
+    width:100%!important;
+    min-width:0!important;
+    overflow:visible!important;
+  }
+  body:has(.maak-flight-flow) .maak-city-field{
+    width:100%!important;
+    min-width:0!important;
+    grid-column:1!important;
+  }
+  body:has(.maak-flight-flow) .maak-city-input{width:100%!important;box-sizing:border-box!important}
+  body:has(.maak-flight-flow) .maak-swap{
+    justify-self:center!important;
+    transform:rotate(90deg)!important;
+    margin:0!important;
+    height:34px!important;
+    width:34px!important;
+  }
+  body:has(.maak-flight-flow) .maak-city-popover{
+    right:0!important;
+    left:0!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
+  }
+}
