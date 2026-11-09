@@ -168,3 +168,36 @@
 @media (max-width: 767px) {
   .maak-passenger-row { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* All service forms now use one continuous page and an in-flow action below it. */
+@media (max-width: 767px) and (hover: none) and (pointer: coarse) {
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav.maak-bottom-actions {
+    display: flex !important;
+    position: static !important;
+    inset: auto !important;
+    transform: none !important;
+    z-index: auto !important;
+    width: 100% !important;
+    margin: 20px 0 18px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .flight-step-nav .maak-next {
+    width: 100% !important;
+    min-height: 54px !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow .maak-desktop-actions {
+    position: static !important;
+    inset: auto !important;
+    margin: 20px 0 18px !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+  body:has(.maak-service-flow) .maak-service-flow {
+    padding-bottom: 28px !important;
+  }
+}
