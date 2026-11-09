@@ -249,3 +249,28 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
 
 .maak-review-edit{width:100%;min-height:48px;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:9px;border:1px solid var(--border);border-radius:13px;background:var(--surface);color:var(--text);font:inherit;font-weight:700;cursor:pointer}
 .maak-review-edit:active{background:var(--bg-alt)}
+
+/* Mobile booking action belongs after the complete form, never as a fixed overlay. */
+@media(max-width:767px){
+  .maak-flight-flow{padding-bottom:28px!important}
+  .maak-bottom-actions{
+    position:static!important;
+    inset:auto!important;
+    z-index:auto!important;
+    display:flex!important;
+    width:100%!important;
+    margin:20px 0 18px!important;
+    padding:0!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    backdrop-filter:none!important;
+  }
+  .maak-bottom-actions .maak-next{
+    width:100%!important;
+    min-height:54px!important;
+    border-radius:14px!important;
+    font-size:1rem!important;
+  }
+}
