@@ -7,7 +7,26 @@
   .header .nav-logo .logo-tile { width: 34px !important; height: 34px !important; }
   .header .nav-tools { gap: 5px; }
   .header .icon-btn { min-width: 38px; height: 38px; padding: 0 9px; }
-  .hero { padding: 92px 0 20px; }
+  .hero { display: none !important; }
+  .mobile-home-banner {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 164px;
+    width: calc(100% - 28px);
+    margin: 88px auto 14px;
+    padding: 18px;
+    overflow: hidden;
+    border-radius: 22px;
+    color: #fff;
+    background-image: linear-gradient(90deg, rgba(10, 28, 52, .78), rgba(10, 28, 52, .18)), url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=85");
+    background-size: cover;
+    background-position: center;
+    box-shadow: var(--shadow);
+  }
+  .mobile-home-banner-copy { display: grid; gap: 4px; position: relative; z-index: 1; }
+  .mobile-home-banner-copy span { color: var(--c-gold); font-size: .78rem; font-weight: 800; letter-spacing: .16em; }
+  .mobile-home-banner-copy strong { font-size: 1.18rem; line-height: 1.4; }
   .hero-grid { gap: 18px; }
   .hero-copy { text-align: center; }
   .hero h1 { max-width: none; font-size: clamp(1.8rem, 7vw, 2.45rem); line-height: 1.35; }
@@ -21,10 +40,10 @@
   .home-services-section .section-head h2 { font-size: 1.2rem; }
   .home-services-section .section-head p { display: none; }
   .home-services-section > .container { width: calc(100% - 28px); }
-  .home-services-section .services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .home-services-section .service { min-height: 122px; padding: 14px 10px; align-items: center; justify-content: center; text-align: center; border-radius: 20px; gap: 7px; box-shadow: var(--shadow); }
-  .home-services-section .service-icon { width: 54px; height: 48px; margin: 0; border-radius: 15px; color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
-  .home-services-section .service h3 { font-size: .98rem; line-height: 1.35; }
+  .home-services-section .services { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .home-services-section .service { min-height: 112px; padding: 12px 6px; align-items: center; justify-content: center; text-align: center; border-radius: 20px; gap: 7px; box-shadow: var(--shadow); }
+  .home-services-section .service-icon { width: 44px; height: 42px; margin: 0; border-radius: 15px; color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
+  .home-services-section .service h3 { font-size: .82rem; line-height: 1.35; }
   .home-services-section .service-sub,
   .home-services-section .service p:not(.service-sub),
   .home-services-section .services-all-wrap { display: none; }
