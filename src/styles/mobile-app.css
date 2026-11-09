@@ -152,3 +152,19 @@
     display: none !important;
   }
 }
+
+
+/* Passenger identity rows in the flight request form. */
+.maak-passenger-details { display: grid; gap: 12px; margin-top: 14px; }
+.maak-passenger-details > h4 { margin: 0; color: var(--text); font-size: .98rem; }
+.maak-passenger-details > p { margin: -6px 0 0; color: var(--muted); font-size: .82rem; line-height: 1.55; }
+.maak-passenger-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(130px, .72fr); gap: 10px; align-items: end; padding: 12px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+.maak-passenger-row .maak-field { margin: 0; min-width: 0; }
+.maak-passenger-row .maak-field input { min-width: 0; }
+.maak-passport-upload { display: grid; gap: 6px; min-width: 0; padding: 10px; border: 1px dashed var(--border); border-radius: 12px; color: var(--text); background: color-mix(in srgb, var(--accent) 8%, var(--surface)); cursor: pointer; }
+.maak-passport-upload span { font-size: .82rem; font-weight: 700; }
+.maak-passport-upload input { width: 100%; min-width: 0; font: inherit; font-size: .72rem; color: var(--muted); }
+.maak-passport-upload small { overflow-wrap: anywhere; color: var(--muted); font-size: .72rem; }
+@media (max-width: 767px) {
+  .maak-passenger-row { grid-template-columns: minmax(0, 1fr); }
+}
