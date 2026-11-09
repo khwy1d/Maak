@@ -95,10 +95,10 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     </div>
     
     {step === 3 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
-      <div className="flight-summary-head"><h4>{txt("مراجعة ملخص الطلب", "Review request summary")}</h4><button type="button" onClick={() => {setSummary(false);setStep(2);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
-      <p>{txt("هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل البيانات قبل فتح واتساب.", "This is an enquiry, not a confirmed booking. You can return to edit details before opening WhatsApp.")}</p>
+      <div className="flight-summary-head"><h4>{txt("راجع طلبك", "Review your request")}</h4><button type="button" onClick={() => {setSummary(false);setStep(2);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
+      <p>{txt("تأكد من التفاصيل قبل تأكيد الحجز.", "Please review the details before confirming your booking.")}</p>
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن حجز الباصات والنقل البري", "General bus and ground transport enquiry")}</dd></div>}</dl>
-      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("فتح واتساب وإرسال الطلب", "Open WhatsApp and send")}</a></div>
+      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
     {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
     {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
