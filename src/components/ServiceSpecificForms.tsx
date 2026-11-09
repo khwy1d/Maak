@@ -63,12 +63,7 @@ function RequestCard({
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
     {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
-      <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
-      <div className="flight-step-buttons">
-        {step > 0 && <button type="button" className="btn btn-ghost maak-previous" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
-        {!reviewing && <button type="button" className="btn btn-primary maak-next" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}<ArrowLeft size={19}/></button>}
-      </div>
-    </div>}
+
     {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
