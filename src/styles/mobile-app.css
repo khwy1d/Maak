@@ -1,0 +1,89 @@
+/* MAAK mobile app presentation — scoped to phone-sized viewports only. */
+@media (max-width: 767px) {
+  body { background: var(--bg); }
+  .site-content { padding-bottom: calc(104px + env(safe-area-inset-bottom)); }
+  .header { inset: 8px 0 auto; }
+  .header .nav { width: calc(100% - 28px); border-radius: 18px; padding: 7px 10px; }
+  .header .nav-logo .logo-tile { width: 34px !important; height: 34px !important; }
+  .header .nav-tools { gap: 5px; }
+  .header .icon-btn { min-width: 38px; height: 38px; padding: 0 9px; }
+  .hero { padding: 92px 0 20px; }
+  .hero-grid { gap: 18px; }
+  .hero-copy { text-align: center; }
+  .hero h1 { max-width: none; font-size: clamp(1.8rem, 7vw, 2.45rem); line-height: 1.35; }
+  .hero .lead { margin: 10px auto 0; font-size: .96rem; max-width: 38ch; }
+  .hero .actions { display: none; }
+  .hero .mobile-services-cta { display: none; }
+  .home-desktop-only { display: block !important; }
+  .home-intro > .home-desktop-only:not(.home-services-section) { display: none !important; }
+  .home-services-section { padding: 12px 0 24px; }
+  .home-services-section .section-head { margin: 0 0 14px; text-align: center; }
+  .home-services-section .section-head h2 { font-size: 1.2rem; }
+  .home-services-section .section-head p { display: none; }
+  .home-services-section > .container { width: calc(100% - 28px); }
+  .home-services-section .services { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .home-services-section .service { min-height: 122px; padding: 14px 10px; align-items: center; justify-content: center; text-align: center; border-radius: 20px; gap: 7px; box-shadow: var(--shadow); }
+  .home-services-section .service-icon { width: 54px; height: 48px; margin: 0; border-radius: 15px; color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
+  .home-services-section .service h3 { font-size: .98rem; line-height: 1.35; }
+  .home-services-section .service-sub,
+  .home-services-section .service p:not(.service-sub),
+  .home-services-section .services-all-wrap { display: none; }
+  .home-services-section .service.feature { min-height: 122px; background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .home-services-section .service.feature .service-icon { color: var(--c-gold); background: color-mix(in srgb, var(--c-turquoise) 18%, transparent); }
+  .mobile-dock {
+    position: fixed !important;
+    z-index: 100 !important;
+    inset: auto 16px calc(12px + env(safe-area-inset-bottom)) 16px !important;
+    width: auto !important;
+    min-height: 76px;
+    padding: 8px 5px !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    gap: 2px !important;
+    border: 1px solid color-mix(in srgb, var(--c-gray) 78%, transparent) !important;
+    border-radius: 25px !important;
+    background: var(--surface) !important;
+    box-shadow: 0 8px 28px rgba(20, 44, 78, .16) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+  .mobile-dock a {
+    min-width: 0;
+    min-height: 58px;
+    padding: 4px 2px !important;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    color: var(--c-navy) !important;
+    font-size: .76rem;
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .mobile-dock a svg { width: 27px; height: 27px; stroke-width: 2; }
+  .mobile-dock a[aria-current="page"] { color: var(--c-gold) !important; }
+  .mobile-dock a span { white-space: nowrap; }
+  .mobile-dock a.dock-primary { display: none !important; }
+  body:has(.account-card) .mobile-dock { display: none !important; }
+  .account-page { padding: 26px 14px 28px; min-height: calc(100vh - 80px); }
+  .account-card, .account-dashboard { padding: 20px 16px; border-radius: 22px; }
+  .account-dashboard { width: 100%; }
+  .account-top { align-items: flex-start; }
+  .account-top-actions { width: 100%; }
+  .account-overview { grid-template-columns: 1fr; gap: 10px; }
+  .account-tabs { gap: 7px; }
+  .account-row { flex-direction: row; align-items: center; }
+  .account-row .btn { width: auto; }
+  .page-detail, .inner-page { padding-top: 10px !important; }
+  .section { padding: 26px 0; }
+  .footer { margin-bottom: 10px; }
+}
+@media (min-width: 768px) {
+  .mobile-dock { display: none !important; }
+  .home-desktop-only { display: block !important; }
+}
