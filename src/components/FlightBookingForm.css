@@ -179,3 +179,20 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
     font-size: .62rem !important;
   }
 }
+
+
+/* City / country / airport search is a fixed modal, never part of document flow. */
+.maak-city-modal-backdrop{position:fixed;inset:0;z-index:250;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(8,24,45,.48);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.maak-city-modal{width:min(560px,100%);max-height:min(78dvh,680px);display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--border);border-radius:22px;background:var(--surface);box-shadow:0 22px 70px rgba(10,30,55,.28);color:var(--text)}
+.maak-city-modal>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px;border-bottom:1px solid var(--border)}
+.maak-city-modal>header h3{margin:0;font-size:1rem;color:var(--text)}
+.maak-city-modal>header button{width:36px;height:36px;display:grid;place-items:center;border:1px solid var(--border);border-radius:50%;background:var(--bg-alt);color:var(--text)}
+.maak-city-modal-search{display:flex;align-items:center;gap:10px;margin:14px 16px;padding:0 13px;min-height:48px;border:1px solid var(--border);border-radius:13px;background:var(--bg-alt);color:var(--accent-text)}
+.maak-city-modal-search input{width:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:var(--text);font:inherit;padding:10px 0!important;box-shadow:none!important}
+.maak-city-modal-results{overflow:auto;overscroll-behavior:contain;padding:0 12px 12px}
+.maak-city-modal-results button{width:100%;min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--accent-text);text-align:start}
+.maak-city-modal-results button:active,.maak-city-modal-results button:hover{background:var(--bg-alt)}
+.maak-city-modal-results button span{display:grid;gap:3px}.maak-city-modal-results button strong{color:var(--text);font-size:.94rem}.maak-city-modal-results button small{color:var(--muted);font-size:.78rem}.maak-city-modal-results>p{padding:18px;color:var(--muted);text-align:center}
+.maak-flight-flow .maak-next:disabled,.maak-flight-flow .maak-submit:disabled{opacity:.48;cursor:not-allowed;filter:saturate(.5)}
+.maak-flight-flow .maak-field label small{display:inline;margin-inline-start:6px;color:var(--muted);font-size:.72rem;font-weight:500}
+@media(max-width:767px){.maak-city-modal-backdrop{align-items:flex-end;padding:10px 10px calc(10px + env(safe-area-inset-bottom))}.maak-city-modal{max-height:78dvh;border-radius:20px}.maak-city-modal>header{padding:14px}.maak-city-modal>header h3{font-size:.92rem}.maak-city-modal-search{margin:10px 12px}.maak-city-modal-results{padding:0 10px 10px}}
