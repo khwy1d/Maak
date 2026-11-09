@@ -61,21 +61,21 @@ function RequestCard({
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div><span className="maak-step-badge">{Math.min(step + 1, totalSteps)}/{totalSteps}</span></header>
     <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
-    {!reviewing && !desktopForm && <>{groups[step]}</>}
-    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions" aria-label={label(lang, "خطوات الطلب", "Request steps")}>
+    {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
+    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
       <span className="flight-step-count">{label(lang, `الخطوة ${Math.min(step + 1, totalSteps)} من ${totalSteps}`, `Step ${Math.min(step + 1, totalSteps)} of ${totalSteps}`)}</span>
       <div className="flight-step-buttons">
         {step > 0 && <button type="button" className="btn btn-ghost maak-previous" onClick={() => setStep(current => current - 1)}>{label(lang, "السابق", "Back")}</button>}
         {!reviewing && <button type="button" className="btn btn-primary maak-next" onClick={() => setStep(current => Math.min(current + 1, groups.length))}>{label(lang, "التالي", "Next")}<ArrowLeft size={19}/></button>}
       </div>
     </div>}
-    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={() => setStep(groups.length)}>{label(lang, "مراجعة الطلب", "Review request")}<ArrowLeft size={19}/></button></div>}
+    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
-        <h4>{label(lang, "راجع التفاصيل قبل المتابعة", "Review details before continuing")}</h4>
+        <h4>{label(lang, "راجع طلبك", "Review your request")}</h4>
         <button type="button" onClick={() => setStep(0)} aria-label={label(lang, "العودة للتعديل", "Back to edit")}><X size={20} /></button>
       </div>
-      <p>{label(lang, "هذا استفسار وليس حجزًا مؤكدًا. يمكنك العودة لتعديل التفاصيل قبل فتح واتساب.", "This is an enquiry, not a confirmed booking. You can return to edit details before opening WhatsApp.")}</p>
+      <p>{label(lang, "تأكد من التفاصيل قبل تأكيد الطلب.", "Please review the details before confirming your request.")}</p>
       <dl>{rows.length ? rows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
