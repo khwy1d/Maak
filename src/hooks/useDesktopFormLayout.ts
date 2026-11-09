@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const DESKTOP_FORM_QUERY = "(min-width: 1024px)";
+const DESKTOP_FORM_QUERY = "(min-width: 1024px), (hover: none) and (pointer: coarse)";
 
 export function useDesktopFormLayout() {
   const [isDesktop, setIsDesktop] = useState(() =>
