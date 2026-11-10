@@ -1,5 +1,5 @@
 import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
-import { ArrowLeft, CalendarDays, MessageCircle, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, MessageCircle, Minus, Plus, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
@@ -49,7 +49,6 @@ function RequestCard({
   const [step, setStep] = useState(0);
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
-  const totalSteps = groups.length + 1;
   const reviewing = step === groups.length;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const details = rows.length
@@ -63,8 +62,7 @@ function RequestCard({
   const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
 
   return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
-    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div><span className="maak-step-badge">{Math.min(step + 1, totalSteps)}/{totalSteps}</span></header>
-    <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
+    <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
     {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
@@ -183,42 +181,78 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
 }
 
 export function UmrahForm({ lang }: ServiceFormProps) {
-  const [departureCity, setDepartureCity] = useState("");
   const [date, setDate] = useState("");
-  const [travellers, setTravellers] = useState("");
-  const [rooms, setRooms] = useState("");
-  const [stay, setStay] = useState("");
-  const [transport, setTransport] = useState("");
+  const [travellers, setTravellers] = useState(1);
+  const [passengerNames, setPassengerNames] = useState<string[]>([""]);
+  const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
+  const [altPhone, setAltPhone] = useState("");
+  const [details, setDetails] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
+  const changeTravellerCount = (next: number) => {
+    const count = Math.max(1, Math.min(9, next));
+    setTravellers(count);
+    setPassengerNames(names => [...names, ...Array(Math.max(0, count - names.length)).fill("")].slice(0, count));
+    setPassportFiles(files => [...files, ...Array(Math.max(0, count - files.length)).fill(null)].slice(0, count));
+  };
   const rows: Row[] = [
-        ...(departureCity.trim() ? [[txt("مدينة الانطلاق", "Departure city"), departureCity.trim()] as Row] : []),
-    ...(date ? [[txt("موعد السفر المفضل", "Preferred travel date"), date] as Row] : []),
-    ...(travellers ? [[txt("عدد المسافرين", "Travellers"), travellers] as Row] : []),
-    ...(rooms ? [[txt("عدد الغرف", "Rooms"), rooms] as Row] : []),
-    ...(stay ? [[txt("السكن والغرف (اختياري)", "Accommodation and rooms (optional)"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
-    ...(transport ? [[txt("التنقلات (اختياري)", "Transport (optional)"), ({ airport: txt("التنقل بين المزارات", "Transport between visit sites"), between: txt("تنقلات أخرى", "Other transport"), both: txt("تنقلات متعددة", "Multiple transfers"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
+    ...(date ? [[txt("تاريخ العمرة", "Umrah date"), date] as Row] : []),
+    [txt("عدد المعتمرين", "Number of pilgrims"), String(travellers)],
+    ...passengerNames.slice(0, travellers).map((name, index) => [
+      txt("اسم المعتمر", "Pilgrim name") + " " + (index + 1),
+      (name.trim() || txt("لم يحدد بعد", "Not provided")) + " — " + txt("صورة الجواز", "Passport image") + ": " + (passportFiles[index]?.name || txt("لم ترفق", "Not attached"))
+    ] as Row),
+    ...(altPhone.trim() ? [[txt("رقم هاتف بديل", "Alternative phone number"), altPhone.trim()] as Row] : []),
+    ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
+    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), passportFiles.filter(Boolean).map(file => file!.name).join(", ") + ". " + txt("يرجى إرفاق الملفات يدويًا في محادثة واتساب.", "Please attach the files manually in WhatsApp.")] as Row] : []),
   ];
-  return <RequestCard lang={lang} canReview={!!departureCity.trim()} title={txt("نسّق رحلة العمرة", "Coordinate your Umrah trip")}
-    intro={txt("حدّد تفاصيل رحلة العمرة، ويمكنك إضافة طلب اختياري للسكن والغرف أو التنقل بين المزارات.", "Share your Umrah trip details, with optional requests for accommodation or transport between visit sites.")}
-    serviceName={txt("رحلة العمرة", "an Umrah trip")} rows={rows}
-    note={txt("تُراجع المواعيد والأسعار والتوافر عند التواصل، وهذا الطلب لا يمثل حجزًا مؤكدًا.", "Dates, prices and availability are confirmed during follow-up; this request is not a confirmed booking.")}>
-    <div className="flight-group"><h4>{txt("تفاصيل رحلة العمرة", "Umrah trip details")}</h4>
-      <div className="flight-input-grid">
-        <Field required title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: صنعاء", "e.g. Sana'a")} /></Field>
-        <Field title={<><CalendarDays size={16} />{txt("موعد السفر المفضل", "Preferred travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
-        <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 40)} /></Field>
+  const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+
+  return <RequestCard lang={lang} canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
+    intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows}
+    note={txt("راجع تفاصيل الطلب قبل إرساله. أرفق صور الجوازات يدويًا في محادثة واتساب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Review the request before sending. Attach passport images manually in WhatsApp; sending the request does not mean a visa has been issued or a booking confirmed.")}>
+    <div className="flight-group">
+      <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
+      <Field required title={<><CalendarDays size={16} />{txt("موعد العمرة", "Umrah date")}</>}>
+        <input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} />
+      </Field>
+    </div>
+    <div className="flight-group">
+      <div className="maak-passengers-title"><Users size={18}/><strong>{txt("المعتمرون", "Pilgrims")}</strong></div>
+      <div className="maak-counter">
+        <span><strong>{txt("عدد المعتمرين", "Number of pilgrims")} *</strong><small>{txt("اختر العدد المطلوب", "Select the number of pilgrims")}</small></span>
+        <div>
+          <button type="button" onClick={() => changeTravellerCount(travellers - 1)} aria-label={txt("تقليل العدد", "Decrease count")}><Minus size={16}/></button>
+          <output>{travellers}</output>
+          <button type="button" onClick={() => changeTravellerCount(travellers + 1)} aria-label={txt("زيادة العدد", "Increase count")}><Plus size={16}/></button>
+        </div>
+      </div>
+      <div className="maak-passenger-details">
+        <h4>{txt("أسماء المعتمرين ومرفقات الجوازات", "Pilgrim names and passport attachments")}</h4>
+        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim.")}</p>
+        {Array.from({ length: travellers }, (_, index) => <div className="maak-passenger-row" key={index}>
+          <div className="maak-field">
+            <label htmlFor={"umrah-name-" + index}>{txt("اسم المعتمر", "Pilgrim name")} {index + 1} *</label>
+            <input id={"umrah-name-" + index} required value={passengerNames[index] || ""} onChange={event => setPassengerNames(names => names.map((name, i) => i === index ? event.target.value : name))} placeholder={txt("الاسم الكامل كما في الجواز", "Full name as in passport")} />
+          </div>
+          <label className="maak-passport-upload">
+            <span>{txt("صورة الجواز", "Passport image")} *</span>
+            <input required type="file" accept="image/*,.pdf" onChange={event => setPassportFiles(files => files.map((file, i) => i === index ? event.target.files?.[0] || null : file))} />
+            <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
+          </label>
+        </div>)}
       </div>
     </div>
-    <div className="flight-group"><h4>{txt("خدمات إضافية اختيارية", "Optional additional services")}</h4>
-      <div className="flight-input-grid">
-        <Field title={txt("عدد الغرف", "Number of rooms")}><Select value={rooms} onChange={setRooms} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 16)} /></Field>
-        <Field title={txt("تفضيل السكن", "Accommodation preference")}><Select value={stay} onChange={setStay} placeholder={txt("اختر ما يناسبكم", "Choose a preference")} options={[["near", txt("قريب من الحرم", "Near the Haram")], ["hotel", txt("فندق مناسب للعائلة", "Family-friendly hotel")], ["flexible", txt("مرن", "Flexible")]]} /></Field>
-        <Field title={txt("ترتيب النقل", "Transport arrangements")}><Select value={transport} onChange={setTransport} placeholder={txt("اختر ما تحتاجه", "Choose if needed")} options={[["airport", txt("النقل من وإلى المطار", "Airport transfers")], ["between", txt("التنقل بين المدن", "Intercity transport")], ["both", txt("كلاهما", "Both")], ["none", txt("لا أحتاج نقلًا", "No transport needed")]]} /></Field>
-      </div>
+    <div className="flight-group">
+      <Field title={txt("رقم هاتف بديل", "Alternative phone number")}>
+        <input type="tel" inputMode="tel" value={altPhone} onChange={event => setAltPhone(event.target.value.replace(/[^0-9+()\s-]/g, ""))} placeholder={txt("اختياري", "Optional")} />
+      </Field>
+      <Field title={txt("تفاصيل أخرى", "Other details")}>
+        <textarea rows={3} value={details} onChange={event => setDetails(event.target.value)} placeholder={txt("اختياري", "Optional")} />
+      </Field>
     </div>
   </RequestCard>;
 }
-
 export function RealEstateForm({ lang }: ServiceFormProps) {
   const [serviceType, setServiceType] = useState("");
   const [city, setCity] = useState("");
