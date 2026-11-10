@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, Settings, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
 import { useApp } from "../context/AppContext";
@@ -36,30 +36,61 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [copied, setCopied] = useState(false);
+  const refreshRequestRef = useRef(0);
+  const activeUserIdRef = useRef<string | null>(null);
   const t = (a: string, e: string) => ar ? a : e;
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
-    const { data } = supabase.auth.onAuthStateChange((_event, value) => setSession(value));
+    let authEventSeen = false;
+    const { data } = supabase.auth.onAuthStateChange((_event, value) => {
+      authEventSeen = true;
+      const nextUserId = value?.user.id ?? null;
+      if (activeUserIdRef.current !== nextUserId) {
+        activeUserIdRef.current = nextUserId;
+        refreshRequestRef.current += 1;
+        setIsAdmin(false);
+        setProfile(null);
+        setOrders([]);
+        setTransactions([]);
+        setReferrals([]);
+        setCustomers([]);
+        setAuditRows([]);
+        setBalance(0);
+        setCommission("0");
+        setName("");
+        setPhone("");
+        setBusy(false);
+        setMessage("");
+      }
+      setSession(value);
+    });
+    supabase.auth.getSession().then(({ data: authData }) => {
+      if (authEventSeen) return;
+      activeUserIdRef.current = authData.session?.user.id ?? null;
+      setSession(authData.session);
+    });
     return () => data.subscription.unsubscribe();
   }, []);
   useEffect(() => { if (adminOnly) setTab("admin-orders"); else setTab(initialTab); setAuthMode(initialMode); }, [adminOnly, initialTab, initialMode]);
 
   const refresh = async () => {
     if (!supabase || !session) return;
+    const requestUserId = session.user.id;
+    const requestId = ++refreshRequestRef.current;
     setBusy(true);
     setMessage("");
     try {
       const user = session.user;
       const [{ data: profileRow, error: profileError }, { data: orderRows, error: orderError }, { data: walletRows, error: walletError }, { data: referralRows, error: referralError }, { data: role }, { data: settings }] = await Promise.all([
         supabase.from("profiles").select("id,full_name,phone,referral_code,created_at").eq("id", user.id).single(),
-        supabase.from("orders").select("*").order("created_at", { ascending: false }),
+        supabase.from("orders").select("id,customer_id,customer_name,customer_phone,service,request_data,referral_code,status,payment_status,total_amount,wallet_used,currency,created_at,updated_at").order("created_at", { ascending: false }),
         supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }),
         supabase.from("referrals").select("*").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
         supabase.from("app_settings").select("value").eq("key", "referral_commission").maybeSingle(),
       ]);
+      if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
       if (profileError) throw profileError;
       if (orderError) throw orderError;
       if (walletError) throw walletError;
@@ -73,6 +104,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       setIsAdmin(role?.role === "admin");
       setCommission(String(settings?.value?.amount ?? 0));
       const { data: walletBalance, error: balanceError } = await supabase.rpc("current_wallet_balance");
+      if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
       if (balanceError) throw balanceError;
       setBalance(Number(walletBalance ?? 0));
       if (role?.role === "admin") {
@@ -80,15 +112,16 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           supabase.from("profiles").select("id,full_name,phone,referral_code,created_at").order("created_at", { ascending: false }),
           supabase.from("audit_log").select("*").order("created_at", { ascending: false }).limit(100),
         ]);
+        if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
         if (customersError) throw customersError;
         if (auditError) throw auditError;
         setCustomers(customerRows ?? []);
         setAuditRows(auditLog ?? []);
       }
     } catch (error) {
-      setMessage(formatApiError(error));
+      if (requestId === refreshRequestRef.current && activeUserIdRef.current === requestUserId) setMessage(formatApiError(error));
     } finally {
-      setBusy(false);
+      if (requestId === refreshRequestRef.current) setBusy(false);
     }
   };
 
@@ -107,7 +140,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     if (digits.startsWith("967")) return `+${digits}`;
     if (/^07\d{8}$/.test(digits)) return `+967${digits.slice(1)}`;
     if (/^7\d{8}$/.test(digits)) return `+967${digits}`;
-    return digits;
+    return `+${digits}`;
   };
 
   const signIn = async (event: FormEvent) => {
@@ -128,8 +161,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           "Enter a Yemeni number as 7… or 07…, or an international number with its country code."
         ));
       }
-      const email = `${internationalDigits}@auth.maak.invalid`;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ phone: normalizedPhone, password });
       if (error) throw error;
       setSession(data.session);
       setPassword("");
@@ -145,6 +177,9 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     setBusy(true); setMessage("");
     const normalizedPhone = normalizePhone(phone);
     try {
+      if (!/^\+[1-9][0-9]{6,14}$/.test(normalizedPhone)) {
+        throw new Error(t("أدخل رقم هاتف دوليًا صحيحًا مع رمز الدولة.", "Enter a valid international phone number with its country code."));
+      }
       const { data, error } = await supabase.auth.signUp({
         phone: normalizedPhone,
         password,
@@ -207,7 +242,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     if (!status || !["requested", "quoted", "in_progress", "completed", "cancelled"].includes(status)) return;
     setBusy(true);
     try {
-      const { error } = await supabase.rpc("admin_update_order", { p_order_id: order.id, p_status: status, p_payment_status: payment, p_total_amount: total.trim() ? Number(total) : null, p_admin_note: order.admin_note });
+      const { error } = await supabase.rpc("admin_update_order", { p_order_id: order.id, p_status: status, p_payment_status: payment, p_total_amount: total.trim() ? Number(total) : null });
       if (error) throw error;
       await refresh();
     } catch (error) { setMessage(formatApiError(error)); }
