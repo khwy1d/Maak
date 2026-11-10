@@ -29,6 +29,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const desktopForm = useDesktopFormLayout();
   const today = new Date().toISOString().slice(0, 10);
+  const routeComplete = !!departure.country && !!departure.region && !!destination.country && !!destination.region;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
 
   const locationName = (side: Side) => {
@@ -46,18 +47,18 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const renderSide = (which: "departure" | "destination", side: Side) => {
     const options = side.country === "YE" ? yemenGovernorates : saudiCities;
     return <div className="inquiry-field ground-side">
-      <label>{txt(which === "departure" ? "بلد المغادرة" : "بلد الوصول", which === "departure" ? "Departure country" : "Destination country")}</label>
-      <select value={side.country} onChange={e => setSide(which, { country: e.target.value as Country, region: "", city: "" })}>
+      <label>{txt(which === "departure" ? "بلد المغادرة" : "بلد الوصول", which === "departure" ? "Departure country" : "Destination country")} *</label>
+      <select required value={side.country} onChange={e => setSide(which, { country: e.target.value as Country, region: "", city: "" })}>
         <option value="">{txt("اختر البلد", "Choose country")}</option>
         <option value="YE">{txt("اليمن", "Yemen")}</option>
         <option value="SA">{txt("السعودية", "Saudi Arabia")}</option>
       </select>
-      {side.country && <><label>{txt(side.country === "YE" ? "المحافظة" : "المدينة", side.country === "YE" ? "Governorate" : "City")}</label>
-        <select value={side.region} onChange={e => setSide(which, { ...side, region: e.target.value, city: "" })}>
+      {side.country && <><label>{txt(side.country === "YE" ? "المحافظة" : "المدينة", side.country === "YE" ? "Governorate" : "City")} *</label>
+        <select required value={side.region} onChange={e => setSide(which, { ...side, region: e.target.value, city: "" })}>
           <option value="">{txt(side.country === "YE" ? "اختر المحافظة" : "اختر المدينة", side.country === "YE" ? "Choose governorate" : "Choose city")}</option>
           {options.map(item => <option key={item[1]} value={item[1]}>{item[ar ? 0 : 1]}</option>)}
         </select>
-        {side.country === "YE" && side.region && <><label>{txt("المدينة أو المنطقة (اختياري)", "City or area (optional)")}</label>
+        {side.country === "YE" && side.region && <><label>{txt("المدينة أو المنطقة", "City or area")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label>
           <input value={side.city} onChange={e => setSide(which, { ...side, city: e.target.value })} placeholder={txt("اكتب اسم المدينة", "Enter city or area")} /></>}
       </>}
     </div>;
@@ -89,8 +90,8 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     <div className="flight-group" data-step="2">
       <h4>{txt("٢. تاريخ السفر وعدد المسافرين", "2. Travel date and passengers")}</h4>
       <div className="flight-input-grid">
-        <div className="inquiry-field flight-field"><label><CalendarDays size={16} />{txt("تاريخ السفر (اختياري)", "Travel date (optional)")}</label><input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} /></div>
-        <div className="inquiry-field flight-field"><label><Users size={16} />{txt("عدد المسافرين (اختياري)", "Passengers (optional)")}</label><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({ length: 20 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
+        <div className="inquiry-field flight-field"><label><CalendarDays size={16} />{txt("تاريخ السفر", "Travel date")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} /></div>
+        <div className="inquiry-field flight-field"><label><Users size={16} />{txt("عدد المسافرين", "Passengers")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({ length: 20 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
       </div>
     </div>
     
@@ -100,7 +101,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن حجز الباصات والنقل البري", "General bus and ground transport enquiry")}</dd></div>}</dl>
       <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
-    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }
