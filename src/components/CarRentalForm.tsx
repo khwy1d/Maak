@@ -32,6 +32,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
   const [summary, setSummary] = useState(false);
   const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
+  const locationComplete = !!country && !!city.trim();
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const selectedCountry = countries.find(item => item.code === country);
   const vehicleName: Record<string, [string, string]> = {
@@ -67,28 +68,28 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
       <h4><MapPin size={18} />{txt("١. مكان الاستلام والتسليم", "1. Pickup and return location")}</h4>
       <div className="flight-input-grid">
         <div className="inquiry-field flight-field">
-          <label>{txt("الدولة", "Country")}</label>
-          <select value={country} onChange={e => { setCountry(e.target.value as Country); setCity(""); setPickupArea(""); setDropoffCity(""); setDropoffArea(""); }}>
+          <label>{txt("الدولة", "Country")} *</label>
+          <select required value={country} onChange={e => { setCountry(e.target.value as Country); setCity(""); setPickupArea(""); setDropoffCity(""); setDropoffArea(""); }}>
             <option value="">{txt("اختر الدولة", "Choose a country")}</option>
             {countries.map(item => <option key={item.code} value={item.code}>{ar ? item.ar : item.en}</option>)}
           </select>
         </div>
         <div className="inquiry-field flight-field">
-          <label>{txt("مدينة الاستلام", "Pickup city")}</label>
-          <input list="car-rental-pickup-cities" value={city} onChange={e => setCity(e.target.value)} placeholder={txt("اكتب أو اختر المدينة", "Type or choose a city")} />
+          <label>{txt("مدينة الاستلام", "Pickup city")} *</label>
+          <input required list="car-rental-pickup-cities" value={city} onChange={e => setCity(e.target.value)} placeholder={txt("اكتب أو اختر المدينة", "Type or choose a city")} />
           <datalist id="car-rental-pickup-cities">{(selectedCountry?.cities ?? countries.flatMap(item => item.cities)).map(item => <option key={item[1]} value={ar ? item[0] : item[1]} />)}</datalist>
         </div>
         <div className="inquiry-field flight-field">
-          <label>{txt("موقع الاستلام (اختياري)", "Pickup location (optional)")}</label>
+          <label>{txt("موقع الاستلام", "Pickup location")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label>
           <input value={pickupArea} onChange={e => setPickupArea(e.target.value)} placeholder={txt("المطار، الفندق، أو المنطقة", "Airport, hotel or area")} />
         </div>
         <div className="inquiry-field flight-field">
-          <label>{txt("مدينة التسليم (اختياري)", "Return city (optional)")}</label>
+          <label>{txt("مدينة التسليم", "Return city")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label>
           <input list="car-rental-return-cities" value={dropoffCity} onChange={e => setDropoffCity(e.target.value)} placeholder={txt("نفس المدينة أو مدينة أخرى", "Same city or another city")} />
           <datalist id="car-rental-return-cities">{(selectedCountry?.cities ?? countries.flatMap(item => item.cities)).map(item => <option key={item[1]} value={ar ? item[0] : item[1]} />)}</datalist>
         </div>
         <div className="inquiry-field flight-field">
-          <label>{txt("موقع التسليم (اختياري)", "Return location (optional)")}</label>
+          <label>{txt("موقع التسليم", "Return location")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label>
           <input value={dropoffArea} onChange={e => setDropoffArea(e.target.value)} placeholder={txt("المطار، الفندق، أو المنطقة", "Airport, hotel or area")} />
         </div>
       </div>
@@ -97,24 +98,24 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
     <div className="flight-group" data-step="2">
       <h4><CalendarDays size={18} />{txt("٢. مدة التأجير", "2. Rental period")}</h4>
       <div className="flight-input-grid">
-        <div className="inquiry-field flight-field"><label>{txt("تاريخ الاستلام (اختياري)", "Pickup date (optional)")}</label><input type="date" min={today} value={pickupDate} onChange={e => { setPickupDate(e.target.value); if (returnDate && e.target.value > returnDate) setReturnDate(""); }} /></div>
-        <div className="inquiry-field flight-field"><label><Clock3 size={16} />{txt("وقت الاستلام (اختياري)", "Pickup time (optional)")}</label><input type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)} /></div>
-        <div className="inquiry-field flight-field"><label>{txt("تاريخ التسليم (اختياري)", "Return date (optional)")}</label><input type="date" min={pickupDate || today} value={returnDate} onChange={e => setReturnDate(e.target.value)} /></div>
-        <div className="inquiry-field flight-field"><label><Clock3 size={16} />{txt("وقت التسليم (اختياري)", "Return time (optional)")}</label><input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)} /></div>
+        <div className="inquiry-field flight-field"><label>{txt("تاريخ الاستلام", "Pickup date")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><input type="date" min={today} value={pickupDate} onChange={e => { setPickupDate(e.target.value); if (returnDate && e.target.value > returnDate) setReturnDate(""); }} /></div>
+        <div className="inquiry-field flight-field"><label><Clock3 size={16} />{txt("وقت الاستلام", "Pickup time")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><input type="time" value={pickupTime} onChange={e => setPickupTime(e.target.value)} /></div>
+        <div className="inquiry-field flight-field"><label>{txt("تاريخ التسليم", "Return date")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><input type="date" min={pickupDate || today} value={returnDate} onChange={e => setReturnDate(e.target.value)} /></div>
+        <div className="inquiry-field flight-field"><label><Clock3 size={16} />{txt("وقت التسليم", "Return time")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><input type="time" value={returnTime} onChange={e => setReturnTime(e.target.value)} /></div>
       </div>
     </div>
     <div className="flight-group" data-step="3">
       <h4><Car size={18} />{txt("٣. السيارة المناسبة", "3. Vehicle preferences")}</h4>
       <div className="flight-input-grid">
-        <div className="inquiry-field flight-field"><label>{txt("نوع السيارة (اختياري)", "Vehicle type (optional)")}</label><select value={vehicle} onChange={e => setVehicle(e.target.value)}>{Object.entries(vehicleName).map(([value, names]) => <option key={value} value={value}>{names[ar ? 0 : 1]}</option>)}</select></div>
-        <div className="inquiry-field flight-field"><label>{txt("طريقة التأجير (اختياري)", "Rental option (optional)")}</label><select value={driver} onChange={e => setDriver(e.target.value)}>{Object.entries(driverName).map(([value, names]) => <option key={value} value={value}>{names[ar ? 0 : 1]}</option>)}</select></div>
-        <div className="inquiry-field flight-field"><label><Users size={16} />{txt("عدد الركاب (اختياري)", "Passengers (optional)")}</label><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({ length: 15 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
-        <div className="inquiry-field flight-field"><label>{txt("عدد السيارات (اختياري)", "Number of cars (optional)")}</label><select value={cars} onChange={e => setCars(e.target.value)}>{Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
+        <div className="inquiry-field flight-field"><label>{txt("نوع السيارة", "Vehicle type")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><select value={vehicle} onChange={e => setVehicle(e.target.value)}>{Object.entries(vehicleName).map(([value, names]) => <option key={value} value={value}>{names[ar ? 0 : 1]}</option>)}</select></div>
+        <div className="inquiry-field flight-field"><label>{txt("طريقة التأجير", "Rental option")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><select value={driver} onChange={e => setDriver(e.target.value)}>{Object.entries(driverName).map(([value, names]) => <option key={value} value={value}>{names[ar ? 0 : 1]}</option>)}</select></div>
+        <div className="inquiry-field flight-field"><label><Users size={16} />{txt("عدد الركاب", "Passengers")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><select value={passengers} onChange={e => setPassengers(e.target.value)}><option value="">{txt("غير محدد", "Not specified")}</option>{Array.from({ length: 15 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
+        <div className="inquiry-field flight-field"><label>{txt("عدد السيارات", "Number of cars")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><select value={cars} onChange={e => setCars(e.target.value)}>{Array.from({ length: 10 }, (_, i) => <option key={i + 1} value={String(i + 1)}>{i + 1}</option>)}</select></div>
       </div>
     </div>
     <div className="flight-group" data-step="4">
       <h4>{txt("٤. ملاحظات إضافية", "4. Additional notes")}</h4>
-      <div className="inquiry-field flight-field"><label>{txt("متطلبات أو تفاصيل أخرى (اختياري)", "Other requirements (optional)")}</label><textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} placeholder={txt("مثل ناقل حركة أو مقعد طفل أو احتياج خاص", "E.g. transmission, child seat or special requirement")} /></div>
+      <div className="inquiry-field flight-field"><label>{txt("متطلبات أو تفاصيل أخرى", "Other requirements")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><textarea rows={3} value={notes} onChange={e => setNotes(e.target.value)} placeholder={txt("مثل ناقل حركة أو مقعد طفل أو احتياج خاص", "E.g. transmission, child seat or special requirement")} /></div>
     </div>
     
     {step === 5 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب", "Request summary")}>
@@ -123,7 +124,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن تأجير السيارات", "General car rental enquiry")}</dd></div>}</dl>
       <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(4);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
-    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }
