@@ -12,12 +12,12 @@ function label(lang: Lang, ar: string, en: string) {
   return lang === "ar" ? ar : en;
 }
 
-function Field({ title, children }: { title: ReactNode; children: ReactElement<{ id?: string }> }) {
+function Field({ title, children, required = false }: { title: ReactNode; children: ReactElement<{ id?: string; required?: boolean }>; required?: boolean }) {
   const id = useId();
-  const control = cloneElement(children, { id });
+  const control = cloneElement(children, { id, ...(required ? { required: true } : {}) });
   const { lang } = useApp();
   const titleAlreadyMarksOptional = typeof title === "string" && /اختياري|optional/i.test(title);
-  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{!titleAlreadyMarksOptional && <small className="field-requirement">{lang === "en" ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
+  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{required ? <span className="field-required" aria-hidden="true"> *</span> : !titleAlreadyMarksOptional && <small className="field-requirement">{lang === "en" ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
 }
 
 function Select({ value, onChange, placeholder, options, id }: {
@@ -34,7 +34,7 @@ function Select({ value, onChange, placeholder, options, id }: {
 }
 
 function RequestCard({
-  lang, title, intro, serviceName, rows, children, note,
+  lang, title, intro, serviceName, rows, children, note, canReview = true,
 }: {
   lang: Lang;
   title: string;
@@ -43,6 +43,7 @@ function RequestCard({
   rows: Row[];
   children: ReactNode;
   note: string;
+  canReview?: boolean;
 }) {
   const [step, setStep] = useState(0);
   const desktopForm = useDesktopFormLayout();
@@ -65,9 +66,9 @@ function RequestCard({
     <div className="maak-progress"><span style={{width: `${Math.min(step+1,totalSteps)/totalSteps*100}%`}}/></div>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
-    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
+    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
 
-    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
+    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع طلبك", "Review your request")}</h4>
@@ -113,15 +114,15 @@ export function MedicalTravelForm({ lang }: ServiceFormProps) {
     ...(support ? [[txt("المساعدة المطلوبة", "Arrangements requested"), ({ accommodation: txt("إقامة", "Accommodation"), transport: txt("تنقلات", "Transport"), both: txt("إقامة وتنقلات", "Accommodation and transport"), none: txt("تذاكر سفر فقط", "Travel only") } as Record<string, string>)[support]] as Row] : []),
     ...(notes.trim() ? [[txt("ملاحظات ترتيبات السفر", "Travel arrangement notes"), notes.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("رتّب تفاصيل السفر العلاجي", "Plan your medical travel")}
+  return <RequestCard lang={lang} canReview={!!purpose && !!destination.trim()} title={txt("رتّب تفاصيل السفر العلاجي", "Plan your medical travel")}
     intro={txt("أخبرنا بالوجهة والترتيبات التي تحتاجها. لا تكتب تشخيصًا طبيًا أو ترسل تقارير وفحوصات هنا.", "Tell us the destination and travel arrangements you need. Please do not enter a diagnosis or share medical records here.")}
     serviceName={txt("السفر العلاجي", "medical travel")} rows={rows}
     note={txt("تبقى القرارات الطبية لدى المختصين، وتُراجع المواعيد والتوافر عند التواصل.", "Medical decisions remain with qualified professionals; appointments and availability are confirmed during follow-up.")}>
     <div className="flight-group"><h4>{txt("الغرض من التنسيق", "Type of travel support")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("نوع الخدمة الصحية", "Type of care") }><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر نوع الخدمة", "Choose a type")}
+        <Field required title={txt("نوع الخدمة الصحية", "Type of care") }><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر نوع الخدمة", "Choose a type")}
           options={[[txt("استشارة", "Consultation"), txt("استشارة", "Consultation")], [txt("فحوصات", "Diagnostics"), txt("فحوصات", "Diagnostics")], [txt("علاج", "Treatment"), txt("علاج", "Treatment")], [txt("مرافقة مريض", "Accompanying a patient"), txt("مرافقة مريض", "Accompanying a patient")]]} /></Field>
-        <Field title={txt("المدينة المقصودة", "Destination city")}><input value={destination} onChange={event => setDestination(event.target.value)} placeholder={txt("مثال: القاهرة", "e.g. Cairo")} /></Field>
+        <Field required title={txt("المدينة المقصودة", "Destination city")}><input value={destination} onChange={event => setDestination(event.target.value)} placeholder={txt("مثال: القاهرة", "e.g. Cairo")} /></Field>
       </div>
     </div>
     <div className="flight-group"><h4>{txt("موعد السفر والمرافقون", "Travel date and party")}</h4>
@@ -156,14 +157,14 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
     ...(documentsReady ? [[txt("حالة المستندات", "Document status"), ({ yes: txt("نعم", "Yes"), partial: txt("بعضها", "Some are ready"), no: txt("ليس بعد", "Not yet") } as Record<string, string>)[documentsReady]] as Row] : []),
     ...(question.trim() ? [[txt("السؤال", "Question"), question.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
+  return <RequestCard lang={lang} canReview={!!requestType && !!purpose} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
     intro={txt("أدخل معلومات السفر العامة فقط لبدء الاستفسار. لا تكتب رقم جواز السفر أو أي بيانات تعريفية حساسة.", "Share general travel details to start your enquiry. Do not enter passport numbers or other sensitive identifiers.")}
     serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows}
     note={txt("لا يمكن ضمان الموافقة أو مدة صدورها؛ تُراجع الإجراءات والمتطلبات عند التواصل.", "Approval and processing times cannot be guaranteed; requirements are reviewed during follow-up.")}>
     <div className="flight-group"><h4>{txt("تفاصيل الاستفسار", "Enquiry details")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("مرحلة الطلب", "Request stage")}><Select value={requestType} onChange={setRequestType} placeholder={txt("اختر المرحلة", "Choose a stage")} options={[["new", txt("استفسار جديد", "New enquiry")], ["follow-up", txt("متابعة طلب سابق", "Follow-up on an existing request")]]} /></Field>
-        <Field title={txt("غرض السفر", "Travel purpose")}><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر الغرض", "Choose a purpose")} options={[["tourism", txt("زيارة أو سياحة", "Visit or tourism")], ["family", txt("زيارة عائلية", "Family visit")], ["business", txt("عمل", "Business")], ["transit", txt("عبور", "Transit")], ["other", txt("غرض آخر", "Other")]]} /></Field>
+        <Field required title={txt("مرحلة الطلب", "Request stage")}><Select value={requestType} onChange={setRequestType} placeholder={txt("اختر المرحلة", "Choose a stage")} options={[["new", txt("استفسار جديد", "New enquiry")], ["follow-up", txt("متابعة طلب سابق", "Follow-up on an existing request")]]} /></Field>
+        <Field required title={txt("غرض السفر", "Travel purpose")}><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر الغرض", "Choose a purpose")} options={[["tourism", txt("زيارة أو سياحة", "Visit or tourism")], ["family", txt("زيارة عائلية", "Family visit")], ["business", txt("عمل", "Business")], ["transit", txt("عبور", "Transit")], ["other", txt("غرض آخر", "Other")]]} /></Field>
       </div>
     </div>
     <div className="flight-group"><h4>{txt("توقيت السفر والمسافرون", "Travel timing and party")}</h4>
@@ -196,13 +197,13 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     ...(stay ? [[txt("السكن والغرف (اختياري)", "Accommodation and rooms (optional)"), ({ near: txt("قريب من الحرم", "Near the Haram"), hotel: txt("فندق مناسب للعائلة", "Family-friendly hotel"), flexible: txt("مرن", "Flexible") } as Record<string, string>)[stay]] as Row] : []),
     ...(transport ? [[txt("التنقلات (اختياري)", "Transport (optional)"), ({ airport: txt("التنقل بين المزارات", "Transport between visit sites"), between: txt("تنقلات أخرى", "Other transport"), both: txt("تنقلات متعددة", "Multiple transfers"), none: txt("لا أحتاج نقلًا", "No transport needed") } as Record<string, string>)[transport]] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("نسّق رحلة العمرة", "Coordinate your Umrah trip")}
+  return <RequestCard lang={lang} canReview={!!departureCity.trim()} title={txt("نسّق رحلة العمرة", "Coordinate your Umrah trip")}
     intro={txt("حدّد تفاصيل رحلة العمرة، ويمكنك إضافة طلب اختياري للسكن والغرف أو التنقل بين المزارات.", "Share your Umrah trip details, with optional requests for accommodation or transport between visit sites.")}
     serviceName={txt("رحلة العمرة", "an Umrah trip")} rows={rows}
     note={txt("تُراجع المواعيد والأسعار والتوافر عند التواصل، وهذا الطلب لا يمثل حجزًا مؤكدًا.", "Dates, prices and availability are confirmed during follow-up; this request is not a confirmed booking.")}>
     <div className="flight-group"><h4>{txt("تفاصيل رحلة العمرة", "Umrah trip details")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: صنعاء", "e.g. Sana'a")} /></Field>
+        <Field required title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: صنعاء", "e.g. Sana'a")} /></Field>
         <Field title={<><CalendarDays size={16} />{txt("موعد السفر المفضل", "Preferred travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
         <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 40)} /></Field>
       </div>
@@ -237,15 +238,15 @@ export function RealEstateForm({ lang }: ServiceFormProps) {
     ...(timing ? [[txt("التوقيت المتوقع", "Expected timing"), timing] as Row] : []),
     ...(details.trim() ? [[txt("تفاصيل إضافية", "Additional details"), details.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("ما الخدمة العقارية التي تبحث عنها؟", "What property service do you need?")}
+  return <RequestCard lang={lang} canReview={!!serviceType && !!propertyType && !!city.trim()} title={txt("ما الخدمة العقارية التي تبحث عنها؟", "What property service do you need?")}
     intro={txt("أخبرنا بنوع الخدمة والمدينة ومواصفات العقار لتوجيه استفسارك.", "Share the service, location and property details so we can direct your enquiry.")}
     serviceName={txt("الخدمات العقارية", "real estate services")} rows={rows}
     note={txt("تُراجع الأسعار والتفاصيل والتوافر مباشرة، ولا يمثل هذا الاستفسار عرضًا أو التزامًا.", "Prices, details and availability are confirmed directly; this enquiry is not an offer or commitment.")}>
     <div className="flight-group"><h4>{txt("الخدمة والموقع", "Service and location")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("نوع الخدمة", "Service needed")}><Select value={serviceType} onChange={setServiceType} placeholder={txt("اختر الخدمة", "Choose a service")} options={[["rent", txt("استئجار", "Rent")], ["buy", txt("شراء", "Buy")], ["sell", txt("بيع", "Sell")], ["management", txt("إدارة عقار", "Property management")]]} /></Field>
-        <Field title={txt("نوع العقار", "Property type")}><Select value={propertyType} onChange={setPropertyType} placeholder={txt("اختر نوع العقار", "Choose a property type")} options={[["apartment", txt("شقة", "Apartment")], ["house", txt("منزل أو فيلا", "House or villa")], ["land", txt("أرض", "Land")], ["commercial", txt("عقار تجاري", "Commercial property")], ["other", txt("نوع آخر", "Other")]]} /></Field>
-        <Field title={txt("المدينة", "City")}><input value={city} onChange={event => setCity(event.target.value)} placeholder={txt("مثال: عدن", "e.g. Aden")} /></Field>
+        <Field required title={txt("نوع الخدمة", "Service needed")}><Select value={serviceType} onChange={setServiceType} placeholder={txt("اختر الخدمة", "Choose a service")} options={[["rent", txt("استئجار", "Rent")], ["buy", txt("شراء", "Buy")], ["sell", txt("بيع", "Sell")], ["management", txt("إدارة عقار", "Property management")]]} /></Field>
+        <Field required title={txt("نوع العقار", "Property type")}><Select value={propertyType} onChange={setPropertyType} placeholder={txt("اختر نوع العقار", "Choose a property type")} options={[["apartment", txt("شقة", "Apartment")], ["house", txt("منزل أو فيلا", "House or villa")], ["land", txt("أرض", "Land")], ["commercial", txt("عقار تجاري", "Commercial property")], ["other", txt("نوع آخر", "Other")]]} /></Field>
+        <Field required title={txt("المدينة", "City")}><input value={city} onChange={event => setCity(event.target.value)} placeholder={txt("مثال: عدن", "e.g. Aden")} /></Field>
         <Field title={txt("الحي أو المنطقة (اختياري)", "Neighbourhood or area (optional)")}><input value={area} onChange={event => setArea(event.target.value)} /></Field>
       </div>
     </div>
@@ -282,14 +283,14 @@ export function TourismForm({ lang }: ServiceFormProps) {
     ...(services ? [[txt("الخدمات المطلوبة", "Services needed"), ({ transport: txt("تنقلات", "Transport"), accommodation: txt("إقامة", "Accommodation"), activities: txt("أنشطة وجولات", "Activities and tours"), all: txt("تنسيق الرحلة بالكامل", "Full trip coordination") } as Record<string, string>)[services]] as Row] : []),
     ...(notes.trim() ? [[txt("تفاصيل الرحلة", "Trip details"), notes.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} title={txt("صمّم رحلتك السياحية", "Shape your travel plans")}
+  return <RequestCard lang={lang} canReview={!!tripType && !!destination.trim()} title={txt("صمّم رحلتك السياحية", "Shape your travel plans")}
     intro={txt("شاركنا الوجهة وطبيعة الرحلة والخدمات التي تهمك، وسنساعدك في ترتيب الخيارات المناسبة.", "Tell us where you want to go, what kind of trip you have in mind and which arrangements matter to you.")}
     serviceName={txt("السياحة والرحلات", "tourism and trips")} rows={rows}
     note={txt("تُراجع البرامج والأسعار والتوافر قبل تأكيد أي ترتيب.", "Itineraries, prices and availability are confirmed before any arrangements are finalized.")}>
     <div className="flight-group"><h4>{txt("وجهتك وطبيعة الرحلة", "Destination and trip style")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("طبيعة الرحلة", "Trip style")}><Select value={tripType} onChange={setTripType} placeholder={txt("اختر ما يناسبك", "Choose a trip style")} options={[["family", txt("عائلية", "Family")], ["culture", txt("ثقافية", "Cultural")], ["nature", txt("طبيعة ومغامرة", "Nature and adventure")], ["relaxation", txt("استجمام", "Relaxation")], ["custom", txt("مخصصة", "Custom")]]} /></Field>
-        <Field title={txt("الوجهة أو الوجهات", "Destination(s)")}><input value={destination} onChange={event => setDestination(event.target.value)} placeholder={txt("مثال: القاهرة والأقصر", "e.g. Cairo and Luxor")} /></Field>
+        <Field required title={txt("طبيعة الرحلة", "Trip style")}><Select value={tripType} onChange={setTripType} placeholder={txt("اختر ما يناسبك", "Choose a trip style")} options={[["family", txt("عائلية", "Family")], ["culture", txt("ثقافية", "Cultural")], ["nature", txt("طبيعة ومغامرة", "Nature and adventure")], ["relaxation", txt("استجمام", "Relaxation")], ["custom", txt("مخصصة", "Custom")]]} /></Field>
+        <Field required title={txt("الوجهة أو الوجهات", "Destination(s)")}><input value={destination} onChange={event => setDestination(event.target.value)} placeholder={txt("مثال: القاهرة والأقصر", "e.g. Cairo and Luxor")} /></Field>
         <Field title={txt("مدينة الانطلاق", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("اختياري", "Optional")} /></Field>
       </div>
     </div>
