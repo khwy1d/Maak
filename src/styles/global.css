@@ -2071,3 +2071,5 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
   .account-auth-page { display:grid; align-content:center; }
   .account-auth-brand { padding:22px 0; }
 }
+
+.account-auth-unavailable { margin-top:14px; padding:10px 12px; border:1px solid color-mix(in srgb,var(--c-gold) 44%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--c-gold) 14%,var(--surface)); color:var(--text)!important; font-size:.83rem!important; text-align:start!important; }
