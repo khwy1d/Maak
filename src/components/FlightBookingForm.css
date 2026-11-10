@@ -40,7 +40,6 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
 /* Match the supplied compact flight-booking reference on phones. */
 @media (max-width: 767px) {
   body:has(.maak-flight-flow) { background: var(--bg) !important; }
-  body:has(.maak-flight-flow) .header,
   body:has(.maak-flight-flow) .mobile-dock,
   body:has(.maak-flight-flow) .footer,
   body:has(.maak-flight-flow) .skip,
@@ -106,7 +105,6 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
 
 /* Final mobile reference alignment: retain the app dock, remove only the site header. */
 @media (max-width: 767px) {
-  body:has(.maak-flight-flow) .header { display: none !important; }
   body:has(.maak-flight-flow) .mobile-dock {
     display: grid !important;
     position: fixed !important;
