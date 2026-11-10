@@ -1,8 +1,9 @@
-import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useEffect, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Minus, Plus, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
+import { useAccountName } from "../hooks/useAccountName";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -47,12 +48,19 @@ function RequestCard({
   canReview?: boolean;
 }) {
   const [step, setStep] = useState(0);
+  const accountName = useAccountName();
+  const [requesterName, setRequesterName] = useState("");
+  useEffect(() => { if (accountName) setRequesterName(current => current || accountName); }, [accountName]);
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const reviewing = step === groups.length;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
-  const details = rows.length
-    ? rows.map(([name, value]) => `${name}: ${value}`).join("\n")
+  const requestRows: Row[] = [
+    ...rows,
+    ...(requesterName.trim() ? [[label(lang, "اسم صاحب الطلب", "Contact name"), requesterName.trim()] as Row] : []),
+  ];
+  const details = requestRows.length
+    ? requestRows.map(([name, value]) => `${name}: ${value}`).join("\n")
     : label(lang, "لم أحدد التفاصيل بعد؛ أود الاستفسار عن الخدمة.", "No details selected yet; I’d like to enquire about this service.");
   const message = [
     label(lang, `مرحبًا فريق معك، أود الاستفسار عن ${serviceName}.`, `Hello MAAK team, I’d like to enquire about ${serviceName}.`),
@@ -65,6 +73,7 @@ function RequestCard({
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
+    {!reviewing && <div className="flight-group maak-requester-name"><Field title={label(lang, "اسم صاحب الطلب", "Contact name")}><input autoComplete="name" value={requesterName} onChange={event => setRequesterName(event.target.value)} placeholder={label(lang, "اختياري", "Optional")} /></Field></div>}
     {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
 
     {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
@@ -74,7 +83,7 @@ function RequestCard({
         <button type="button" onClick={() => setStep(0)} aria-label={label(lang, "العودة للتعديل", "Back to edit")}><X size={20} /></button>
       </div>
       <p>{label(lang, "تأكد من التفاصيل قبل تأكيد الطلب.", "Please review the details before confirming your request.")}</p>
-      <dl>{rows.length ? rows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
+      <dl>{requestRows.length ? requestRows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>

@@ -1995,10 +1995,12 @@ button.maak-submit, button.inquiry-submit { font: inherit; cursor: pointer; }
 .maak-empty-inline { padding:16px; color:var(--muted); text-align:center; }
 
 .maak-profile-page { display:grid; align-content:start; gap:18px; }
-.maak-profile-page .maak-page-heading { margin-bottom:0; }
+.maak-profile-page .maak-page-heading { margin:0 6px 0; }
+.maak-account-notification { position:relative; width:40px; height:40px; display:grid; place-items:center; color:var(--c-navy); }
+:root[data-theme="dark"] .maak-account-notification { color:var(--c-gold); }
 .maak-profile-hero { display:grid; justify-items:center; gap:8px; text-align:center; }
-.maak-avatar { width:112px; height:112px; display:grid; place-items:center; border-radius:50%; background:color-mix(in srgb,var(--c-teal) 10%,var(--bg-alt)); color:var(--c-gold); }
-.maak-profile-hero h2 { font-size:1.3rem; font-weight:800; }
+.maak-avatar { width:112px; height:112px; display:grid; place-items:center; border-radius:50%; background:#e2eaf0; color:var(--c-gold); }
+.maak-profile-hero h2 { font-size:1.34rem; font-weight:800; }
 .maak-contact-card { display:grid; grid-template-columns:1fr 1fr; align-items:center; padding:14px; border:1px solid var(--border); border-radius:20px; background:var(--surface); box-shadow:0 8px 18px -14px rgba(20,44,78,.45); }
 .maak-contact-card > div { min-width:0; display:grid; grid-template-columns:minmax(0,1fr) 30px; align-items:center; gap:2px 6px; padding:3px 8px; }
 .maak-contact-card > div + div { border-inline-start:1px solid var(--border); }
@@ -2006,6 +2008,16 @@ button.maak-submit, button.inquiry-submit { font: inherit; cursor: pointer; }
 .maak-contact-card small { grid-column:1/-1; color:var(--muted); font-size:.72rem; text-align:center; }
 .maak-contact-card svg,.maak-contact-card button { color:var(--c-gold); }
 .maak-contact-card button { width:30px; height:30px; display:grid; place-items:center; border:0; border-radius:9px; background:color-mix(in srgb,var(--c-turquoise) 16%,var(--surface)); cursor:pointer; }
+.maak-profile-page .maak-contact-card { grid-template-columns:1fr 1fr; padding:4px 12px; border-radius:22px; }
+.maak-profile-page .maak-contact-card > div { position:relative; grid-template-columns:minmax(0,1fr) 36px; align-items:center; gap:0 8px; padding:8px 6px; }
+.maak-profile-page .maak-contact-card > div + div { border-inline-start:1px solid color-mix(in srgb,var(--c-navy) 45%,var(--border)); }
+.maak-profile-page .maak-contact-card strong { font-size:.95rem; font-weight:800; text-align:center; }
+.maak-profile-page .maak-contact-card small { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.maak-profile-page .maak-contact-card button { width:36px; height:36px; border-radius:50%; background:color-mix(in srgb,var(--c-turquoise) 22%,var(--surface)); }
+.maak-profile-page .maak-contact-card svg { color:var(--c-gold); }
+.maak-flight-contact-card { grid-template-columns:1fr!important; gap:12px; }
+.maak-flight-contact-card > h4 { grid-column:1/-1; margin:0; }
+.maak-flight-contact-card > .maak-field { display:grid; grid-template-columns:1fr; gap:6px; padding:0; border:0; }
 .maak-profile-group { display:grid; gap:9px; }
 .maak-profile-group > h2 { margin-inline:2px; color:var(--c-gold); font-size:1.22rem; font-weight:800; }
 .maak-settings-card { padding:7px 14px; border:1px solid var(--border); border-radius:21px; background:var(--surface); box-shadow:0 8px 18px -14px rgba(20,44,78,.45); }
@@ -2065,6 +2077,10 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
   .maak-contact-card { padding:10px 6px; }
   .maak-contact-card > div { padding:3px 4px; grid-template-columns:minmax(0,1fr) 24px; }
   .maak-contact-card strong { font-size:.72rem; }
+  .maak-profile-page .maak-contact-card { padding:4px 7px; }
+  .maak-profile-page .maak-contact-card > div { padding:6px 3px; grid-template-columns:minmax(0,1fr) 32px; gap:0 4px; }
+  .maak-profile-page .maak-contact-card strong { font-size:.75rem; }
+  .maak-profile-page .maak-contact-card button { width:32px; height:32px; }
 }
 @media (min-width:768px) {
   .maak-app-page { width:min(100%,720px); padding-top:38px; }
