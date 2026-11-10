@@ -2073,3 +2073,9 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 }
 
 .account-auth-unavailable { margin-top:14px; padding:10px 12px; border:1px solid color-mix(in srgb,var(--c-gold) 44%,var(--border)); border-radius:12px; background:color-mix(in srgb,var(--c-gold) 14%,var(--surface)); color:var(--text)!important; font-size:.83rem!important; text-align:start!important; }
+
+.account-auth-social { display:flex; justify-content:center; align-items:center; gap:28px; margin:40px 0 4px; }
+.account-auth-social a { width:50px; height:50px; display:grid; place-items:center; border-radius:50%; background:var(--surface); box-shadow:0 5px 14px -9px rgba(20,44,78,.5); }
+.auth-social-facebook { color:#1877f2; }
+.auth-social-instagram { color:#c13584; }
+.auth-social-whatsapp { color:#25a45a; }
