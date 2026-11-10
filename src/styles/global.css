@@ -1352,7 +1352,6 @@ body:has(.maak-service-flow) nav[aria-label="Mobile navigation"] { display:none!
  .maak-service-flow .flight-summary-actions .btn { width:100%; }
 }
 
-body:has(.maak-service-flow) .mobile-dock,
 body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
 .maak-service-flow:has(.flight-summary) .maak-service-intro { display:none!important; }
 .maak-service-flow .flight-step-nav .flight-step-count { max-width:40%; }
@@ -1363,8 +1362,6 @@ body:has(.maak-service-flow) .pwa-install-prompt { display:none!important; }
 .maak-service-flow .maak-step-badge,
 .maak-service-flow .flight-step-count,
 .maak-service-flow > .maak-service-intro { display:none!important; }
-/* Keep the site-wide mobile navigation available during service requests. */
-body:has(.maak-service-flow) .mobile-dock { display:flex!important; }
 /* The primary next action sits at the end of the form, spans its full width, and uses MAAK gold. */
 .maak-service-flow .flight-step-nav {
   position:static!important;
@@ -1401,7 +1398,6 @@ body:has(.maak-service-flow) .mobile-dock { display:flex!important; }
   background:#edaa1c!important;
   border-color:#edaa1c!important;
 }
-body:has(.maak-service-flow) .mobile-dock { z-index:45; }
 @media(max-width:1023px) {
   .maak-service-flow { padding-bottom:120px!important; }
   .maak-service-flow .flight-step-nav { position:static!important; }
@@ -1413,7 +1409,6 @@ body:has(.maak-service-flow) .page-hero-request,
 body:has(.maak-service-flow) .page-hero-hotel,
 body:has(.maak-service-flow) .page-hero-bus,
 body:has(.maak-service-flow) .page-hero-flight { display:none!important; }
-body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:visible!important; }
 .maak-service-flow { padding-top:0!important; padding-bottom:20px!important; }
 .maak-service-flow .maak-flight-head {
   display:flex!important;
@@ -1473,62 +1468,15 @@ body:has(.maak-service-flow) .mobile-dock { display:flex!important; visibility:v
   background:transparent!important;
   border:1px solid var(--border)!important;
 }
-body:has(.maak-service-flow) .mobile-dock { z-index:45!important; }
 @media(max-width:1023px) {
   .maak-service-flow { padding-bottom:20px!important; }
   .maak-service-flow .flight-step-nav { position:sticky!important; }
   .maak-service-flow .flight-step-buttons { flex-direction:row!important; }
 }
 
-/* Final mobile booking controls: keep the homepage dock layout and pin step actions in place. */
+/* Mobile service actions stay in the form flow above the shared app dock. */
 @media (max-width: 767px) {
   body:has(.maak-service-flow) .site-content { padding-bottom: 178px!important; }
-  body:has(.maak-service-flow) .mobile-dock {
-    position:fixed!important;
-    z-index:80!important;
-    inset:auto 10px max(8px, env(safe-area-inset-bottom)) 10px!important;
-    display:grid!important;
-    grid-template-columns:1fr 1fr 1.12fr 1fr 1fr!important;
-    align-items:center!important;
-    gap:2px!important;
-    padding:8px 7px!important;
-    border:1px solid var(--glass-border)!important;
-    border-radius:28px!important;
-    background:var(--glass)!important;
-    -webkit-backdrop-filter:blur(24px) saturate(160%)!important;
-    backdrop-filter:blur(24px) saturate(160%)!important;
-  }
-  body:has(.maak-service-flow) .mobile-dock a {
-    display:flex!important;
-    flex-direction:column!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:2px!important;
-    min-width:0!important;
-    min-height:48px!important;
-    margin:0!important;
-    padding:0!important;
-    font-size:clamp(.58rem,2.5vw,.7rem)!important;
-    line-height:1.35!important;
-    white-space:nowrap!important;
-  }
-  body:has(.maak-service-flow) .mobile-dock a svg {
-    width:21px!important;
-    height:21px!important;
-    flex:0 0 auto!important;
-  }
-  body:has(.maak-service-flow) .mobile-dock .dock-primary {
-    width:48px!important;
-    height:48px!important;
-    min-height:48px!important;
-    justify-self:center!important;
-    border-radius:50%!important;
-    background:var(--c-gold)!important;
-  }
-  body:has(.maak-service-flow) .mobile-dock .dock-primary svg {
-    width:25px!important;
-    height:25px!important;
-  }
   body:has(.maak-service-flow) .flight-step-nav {
     position:fixed!important;
     z-index:75!important;
