@@ -20,14 +20,15 @@ function Field({ title, children, required = false }: { title: ReactNode; childr
   return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{required ? <span className="field-required" aria-hidden="true"> *</span> : !titleAlreadyMarksOptional && <small className="field-requirement">{lang === "en" ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
 }
 
-function Select({ value, onChange, placeholder, options, id }: {
+function Select({ value, onChange, placeholder, options, id, required }: {
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
   id?: string;
+  required?: boolean;
   options: Array<[string, string]>;
 }) {
-  return <select id={id} value={value} onChange={event => onChange(event.target.value)}>
+  return <select id={id} required={required} value={value} onChange={event => onChange(event.target.value)}>
     <option value="">{placeholder}</option>
     {options.map(([optionValue, title]) => <option key={optionValue} value={optionValue}>{title}</option>)}
   </select>;
