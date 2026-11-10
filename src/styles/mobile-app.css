@@ -53,7 +53,7 @@
   .mobile-dock {
     position: fixed !important;
     z-index: 100 !important;
-    inset: auto 16px calc(12px + env(safe-area-inset-bottom)) 16px !important;
+    inset: auto 10px calc(12px + env(safe-area-inset-bottom)) 10px !important;
     width: auto !important;
     min-height: 76px;
     padding: 8px 5px !important;
@@ -61,10 +61,10 @@
     grid-template-columns: repeat(4, minmax(0, 1fr));
     align-items: center;
     gap: 2px !important;
-    border: 1px solid color-mix(in srgb, var(--c-gray) 78%, transparent) !important;
+    border: 1px solid var(--glass-border) !important;
     border-radius: 25px !important;
-    background: var(--surface) !important;
-    box-shadow: 0 8px 28px rgba(20, 44, 78, .16) !important;
+    background: var(--glass) !important;
+    box-shadow: var(--shadow), inset 0 1px 0 color-mix(in srgb, var(--glass-border) 55%, transparent) !important;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
   }
@@ -80,16 +80,17 @@
     border: 0 !important;
     border-radius: 14px !important;
     background: transparent !important;
-    color: var(--c-navy) !important;
+    color: var(--text) !important;
     font-size: .76rem;
     font-weight: 700;
     line-height: 1.25;
   }
-  .mobile-dock a svg { width: 27px; height: 27px; stroke-width: 2; }
-  .mobile-dock a[aria-current="page"] { color: var(--c-gold) !important; }
+  .mobile-dock a { position: relative; text-decoration: none; transition: background-color .2s, color .2s; }
+  .mobile-dock a svg { width: 25px; height: 25px; stroke-width: 2; color: currentColor; }
+  .mobile-dock a[aria-current="page"] { color: var(--c-turquoise) !important; background: color-mix(in srgb, var(--c-turquoise) 12%, transparent) !important; }
+  .mobile-dock a[aria-current="page"]::before { content: ""; position: absolute; top: 1px; width: 22px; height: 3px; border-radius: 999px; background: var(--c-turquoise); }
   .mobile-dock a span { white-space: nowrap; }
   .mobile-dock a.dock-primary { display: none !important; }
-  body:has(.account-card) .mobile-dock { display: none !important; }
   .account-page { padding: 26px 14px 28px; min-height: calc(100vh - 80px); }
   .account-card, .account-dashboard { padding: 20px 16px; border-radius: 22px; }
   .account-dashboard { width: 100%; }
@@ -209,4 +210,17 @@
 @media (min-width: 960px) {
   .desktop-header { display: block; }
   .mobile-header { display: none; }
+}
+
+
+/* The shared dock uses the same glass treatment on every phone route. */
+@media (max-width: 767px) {
+  .mobile-dock { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  :root[data-theme="dark"] .mobile-dock a,
+  :root[data-theme="dark"] .mobile-dock a svg { color: var(--c-gold) !important; }
+  :root[data-theme="dark"] .mobile-dock a[aria-current="page"] { color: var(--c-gold) !important; background: color-mix(in srgb, var(--c-turquoise) 18%, transparent) !important; }
+  :root[data-theme="dark"] .mobile-dock a[aria-current="page"]::before { background: var(--c-turquoise); }
+}
+@media (min-width: 768px) {
+  .mobile-dock { display: none !important; }
 }
