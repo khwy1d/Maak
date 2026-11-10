@@ -15,7 +15,7 @@ export default function MobileDock({ path }: MobileDockProps) {
   return (
     <nav className="mobile-dock glass" aria-label={lang === "ar" ? "التنقل الرئيسي" : "Main navigation"} dir={lang === "ar" ? "rtl" : "ltr"}>
       {links.map(({ href, label, Icon }) => (
-        <a key={href} href={href} aria-label={label} aria-current={path === href || (href === "/account" && path === "/account") ? "page" : undefined}>
+        <a key={href} href={href} aria-label={label} aria-current={path === href ? "page" : undefined}>
           <Icon aria-hidden="true" />
           <span>{label}</span>
         </a>
