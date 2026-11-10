@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, FileText, Gift, Hotel, Info, Languages, LogOut, LockKeyhole, Moon, Phone, Plane, RefreshCw, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
+import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
+import { siteConfig } from "../config/site";
 
 type Row = Record<string, any>;
 
@@ -284,6 +285,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           <p className="account-auth-switch">{t("لديك حساب؟", "Already have an account?")} <a href="/login">{t("تسجيل الدخول", "Sign in")}</a></p>
         </form>}
         {message && <p className="account-message" role="status">{message}</p>}
+        {authMode === "login" && !pendingPhone && <nav className="account-auth-social" aria-label={t("تابع معك", "Follow MAAK")}><a className="auth-social-facebook" href="https://www.facebook.com/share/1MxwiuHyvi/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={25}/></a><a className="auth-social-instagram" href="https://www.instagram.com/maaktravel" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={25}/></a><a className="auth-social-whatsapp" href={"https://wa.me/" + siteConfig.whatsappNumber.replace(/\D/g, "")} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={25}/></a></nav>}
       </section>
     </section>
   </main>;
