@@ -304,9 +304,6 @@ begin
     raise exception 'Order not found' using errcode = 'P0002';
   end if;
 
-  if old.status = 'cancelled' then
-    raise exception 'Cancelled orders are terminal and cannot be reopened' using errcode = '22023';
-  end if;
   if o.status = 'cancelled' and p_status <> 'cancelled' then
     raise exception 'Cancelled orders are terminal and cannot be reopened' using errcode = '22023';
   end if;
@@ -347,7 +344,6 @@ declare
   outstanding numeric;
 begin
   if (new.payment_status <> 'refunded' and new.status <> 'cancelled')
-    or (old.payment_status = 'refunded' or old.status = 'cancelled')
     or new.customer_id is null then
     return new;
   end if;
