@@ -1923,3 +1923,5 @@ button.maak-submit, button.inquiry-submit { font: inherit; cursor: pointer; }
 /* Required and optional labels share one readable treatment across service forms. */
 .maak-service-flow.maak-flight-flow .field-requirement,
 .maak-service-flow.maak-flight-flow .maak-field label small { margin-inline-start: auto; color: var(--muted); font-size: .76rem; font-weight: 500; white-space: nowrap; }
+
+.maak-service-flow.maak-flight-flow .field-required { color: var(--accent-text); font-weight: 800; }
