@@ -201,3 +201,12 @@
     padding-bottom: 28px !important;
   }
 }
+
+
+/* Share one phone header across the home and every service route. */
+.desktop-header { display: none; }
+.mobile-header { display: block; }
+@media (min-width: 960px) {
+  .desktop-header { display: block; }
+  .mobile-header { display: none; }
+}
