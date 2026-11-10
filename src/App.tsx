@@ -83,7 +83,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {path === "/account" ? <Account /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      {path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
           <div className="mobile-home-banner-copy">
@@ -97,7 +97,7 @@ export default function App() {
         <div className="home-desktop-only"><How /><SocialFollow /></div>
       </main> : <Pages path={path} />}
       <Footer />
-      {path !== "/admin" && <MobileDock path={path} />}
+      {path !== "/admin" && path !== "/login" && path !== "/signup" && <MobileDock path={path} />}
       </div>
     </>
   );
