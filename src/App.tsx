@@ -69,7 +69,6 @@ export default function App() {
     <>
       <GlassBackground />
       <div className="site-content">
-      <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
       <MobileHeader />
       <InquiryCapture lang={lang} />
