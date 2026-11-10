@@ -84,7 +84,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       const user = session.user;
       const [{ data: profileRow, error: profileError }, { data: orderRows, error: orderError }, { data: walletRows, error: walletError }, { data: referralRows, error: referralError }, { data: role }, { data: settings }] = await Promise.all([
         supabase.from("profiles").select("id,full_name,phone,referral_code,created_at").eq("id", user.id).single(),
-        supabase.from("orders").select("*").order("created_at", { ascending: false }),
+        supabase.from("orders").select("id,customer_id,customer_name,customer_phone,service,request_data,referral_code,status,payment_status,total_amount,wallet_used,currency,created_at,updated_at").order("created_at", { ascending: false }),
         supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }),
         supabase.from("referrals").select("*").order("created_at", { ascending: false }),
         supabase.from("user_roles").select("role").eq("user_id", user.id).maybeSingle(),
@@ -242,7 +242,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     if (!status || !["requested", "quoted", "in_progress", "completed", "cancelled"].includes(status)) return;
     setBusy(true);
     try {
-      const { error } = await supabase.rpc("admin_update_order", { p_order_id: order.id, p_status: status, p_payment_status: payment, p_total_amount: total.trim() ? Number(total) : null, p_admin_note: order.admin_note });
+      const { error } = await supabase.rpc("admin_update_order", { p_order_id: order.id, p_status: status, p_payment_status: payment, p_total_amount: total.trim() ? Number(total) : null });
       if (error) throw error;
       await refresh();
     } catch (error) { setMessage(formatApiError(error)); }
