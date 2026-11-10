@@ -2,6 +2,7 @@ import { Children, cloneElement, useId, useState, type ReactElement, type ReactN
 import { ArrowLeft, CalendarDays, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { useApp } from "../context/AppContext";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -14,8 +15,9 @@ function label(lang: Lang, ar: string, en: string) {
 function Field({ title, children }: { title: ReactNode; children: ReactElement<{ id?: string }> }) {
   const id = useId();
   const control = cloneElement(children, { id });
+  const { lang } = useApp();
   const titleAlreadyMarksOptional = typeof title === "string" && /اختياري|optional/i.test(title);
-  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{!titleAlreadyMarksOptional && <small className="field-requirement">{typeof title === "string" && /[A-Za-z]/.test(title) ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
+  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{!titleAlreadyMarksOptional && <small className="field-requirement">{lang === "en" ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
 }
 
 function Select({ value, onChange, placeholder, options, id }: {
