@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { createInquiryOrder } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
+import { useAccountName } from "../hooks/useAccountName";
 
 type PendingInquiry = { service: string; message: string; url: string };
 const serviceNames: Record<string, string> = {
@@ -11,11 +12,14 @@ const serviceNames: Record<string, string> = {
 
 export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   const ar = lang === "ar";
+  const accountName = useAccountName();
   const [pending, setPending] = useState<PendingInquiry | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => { if (pending && accountName) setName(current => current || accountName); }, [accountName, pending]);
 
   useEffect(() => {
     const client = supabase;
@@ -32,11 +36,12 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       event.preventDefault();
       event.stopImmediatePropagation();
       setPending({ service, message, url: link.href });
+      setName(accountName);
       setError("");
       void client.auth.getUser().then(async ({ data }) => {
         if (!data.user) return;
         const { data: profile } = await client.from("profiles").select("full_name,phone").eq("id", data.user.id).maybeSingle();
-        if (profile) { setName(profile.full_name ?? ""); setPhone(profile.phone ?? ""); }
+        if (profile) setPhone(profile.phone ?? "");
       });
     };
     document.addEventListener("click", capture, true);

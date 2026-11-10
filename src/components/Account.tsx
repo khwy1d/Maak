@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
+import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, Settings, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
@@ -21,7 +21,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const [referralInput, setReferralInput] = useState(getReferralCode() ?? "");
   const [orderFilter, setOrderFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
   const [profileEditing, setProfileEditing] = useState(false);
-  const [accountPanel, setAccountPanel] = useState<"documents" | "info" | null>(null);
+  const [accountPanel, setAccountPanel] = useState<"documents" | "settings" | "info" | null>(null);
   const [otp, setOtp] = useState("");
   const [pendingPhone, setPendingPhone] = useState("");
   const [balance, setBalance] = useState(0);
@@ -386,11 +386,11 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     </main>;
 
     return <main className="maak-app-page maak-profile-page" dir={ar ? "rtl" : "ltr"}>
-      <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1></header>
+      <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1><span className="maak-account-notification" aria-hidden="true"><Bell size={27}/></span></header>
       <section className="maak-profile-hero"><span className="maak-avatar"><UserRound size={66}/></span><h2>{profile?.full_name ?? name}</h2></section>
       <section className="maak-contact-card">
-        <div><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الحساب", "Copy account code")}>{copied ? <Check size={18}/> : <Copy size={18}/>}</button><small>{t("رمز الحساب", "Account code")}</small></div>
-        <div><strong dir="ltr">{profile?.phone ?? phone}</strong><Phone size={18}/><small>{t("رقم الهاتف", "Phone number")}</small></div>
+        <div className="maak-account-phone"><strong dir="ltr">{profile?.phone ?? phone}</strong><Phone size={20}/><small>{t("رقم الهاتف", "Phone number")}</small></div>
+        <div className="maak-account-code"><strong dir="ltr">{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الحساب", "Copy account code")}>{copied ? <Check size={18}/> : <Copy size={18}/>}</button><small>{t("رمز الحساب", "Account code")}</small></div>
       </section>
       {message && <p className="account-message" role="status">{message}</p>}
       <section className="maak-profile-group">
@@ -398,8 +398,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         <div className="maak-settings-card">
           <button type="button" className="maak-settings-row" onClick={() => setProfileEditing(value => !value)}><span className="maak-settings-icon"><UserRound size={22}/></span><strong>{t("الملف الشخصي", "Personal profile")}</strong><ChevronLeft size={20}/></button>
           {profileEditing && <form className="maak-profile-edit" onSubmit={saveProfile}><label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={event => setName(event.target.value)}/></label><label>{t("رقم الهاتف", "Phone number")}<input value={profile?.phone ?? phone} readOnly dir="ltr"/></label><button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ الحفظ…", "Saving…") : t("حفظ التغييرات", "Save changes")}</button></form>}
-          <button type="button" className="maak-settings-row" onClick={() => { toggleTheme(); setMessage(""); }}><span className="maak-settings-icon">{theme === "dark" ? <Moon size={22}/> : <Sun size={22}/>}</span><strong>{t("المظهر", "Appearance")}</strong><small>{theme === "dark" ? t("داكن", "Dark") : t("فاتح", "Light")}</small><ChevronLeft size={20}/></button>
-          <button type="button" className="maak-settings-row" onClick={toggleLang}><span className="maak-settings-icon"><Languages size={22}/></span><strong>{t("اللغة", "Language")}</strong><small>{lang === "ar" ? "العربية" : "English"}</small><ChevronLeft size={20}/></button>
+          <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "settings" ? null : "settings")}><span className="maak-settings-icon"><Settings size={22}/></span><strong>{t("إعدادات الحساب", "Account settings")}</strong><ChevronLeft size={20}/></button>
+          {accountPanel === "settings" && <p className="maak-settings-note">{t("رقم الهاتف هو وسيلة تسجيل الدخول إلى حسابك.", "Your phone number is the sign-in method for your account.")}</p>}
           <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "documents" ? null : "documents")}><span className="maak-settings-icon"><FileText size={22}/></span><strong>{t("وثائقي", "My documents")}</strong><ChevronLeft size={20}/></button>
           {accountPanel === "documents" && <p className="maak-settings-note">{t("لا توجد وثائق محفوظة في الحساب حاليًا.", "There are no documents saved to this account yet.")}</p>}
         </div>
@@ -407,6 +407,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       <section className="maak-profile-group maak-app-settings">
         <h2>{t("التطبيق", "App")}</h2>
         <div className="maak-settings-card">
+          <button type="button" className="maak-settings-row" onClick={() => { toggleTheme(); setMessage(""); }}><span className="maak-settings-icon">{theme === "dark" ? <Moon size={22}/> : <Sun size={22}/>}</span><strong>{t("المظهر", "Appearance")}</strong><small>{theme === "dark" ? t("داكن", "Dark") : t("فاتح", "Light")}</small><ChevronLeft size={20}/></button>
+          <button type="button" className="maak-settings-row" onClick={toggleLang}><span className="maak-settings-icon"><Languages size={22}/></span><strong>{t("اللغة", "Language")}</strong><small>{lang === "ar" ? "العربية" : "English"}</small><ChevronLeft size={20}/></button>
           <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "info" ? null : "info")}><span className="maak-settings-icon"><Info size={22}/></span><strong>{t("معلومات التطبيق", "App information")}</strong><ChevronLeft size={20}/></button>
           {accountPanel === "info" && <p className="maak-settings-note">{t("معك للسفر والسياحة — دائمًا معك في كل رحلة.", "MAAK Travel and Tourism — with you on every journey.")}</p>}
         </div>
