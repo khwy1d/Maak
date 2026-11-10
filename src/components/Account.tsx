@@ -111,7 +111,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
   const signIn = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     setBusy(true); setMessage("");
     try {
       const normalizedPhone = normalizePhone(phone);
@@ -138,7 +138,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
   const signUp = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     if (!/^[0-9]{6}$/.test(password)) { setMessage(t("كلمة المرور يجب أن تتكون من 6 أرقام بالضبط.", "Password must contain exactly 6 digits.")); return; }
     if (password !== confirmPassword) { setMessage(t("كلمتا المرور غير متطابقتين.", "Passwords do not match.")); return; }
     setBusy(true); setMessage("");
@@ -160,7 +160,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
   const verifyCode = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     setBusy(true); setMessage("");
     try {
       const { data, error } = await supabase.auth.verifyOtp({ phone: pendingPhone, token: otp.trim(), type: "sms" });
@@ -253,7 +253,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     finally { setBusy(false); }
   };
 
-  if (!supabase) return <main className="account-page"><section className="account-card"><h1>{t("الحسابات غير مفعّلة بعد", "Accounts are not configured yet")}</h1><p>{t("أضف إعدادات Supabase إلى بيئة النشر لتفعيل الحسابات والتحقق عبر SMS.", "Add Supabase environment settings to the deployment to enable accounts and SMS verification.")}</p></section></main>;
+
 
   if (!session) return <main className="account-page account-auth-page" dir={ar ? "rtl" : "ltr"}>
     <section className="account-auth-shell">
@@ -262,6 +262,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       <section className="account-auth-panel">
         <h2>{pendingPhone ? t("تأكيد رقم الهاتف", "Verify your phone") : authMode === "login" ? t("تسجيل الدخول", "Sign in") : t("إنشاء حساب", "Create account")}</h2>
         <p>{pendingPhone ? t("أدخل رمز التأكيد الذي أرسلناه برسالة SMS إلى رقمك.", "Enter the verification code sent to your phone by SMS.") : authMode === "login" ? t("أدخل بياناتك للوصول إلى حسابك.", "Enter your details to access your account.") : t("اكتب بياناتك كما تظهر في هويتك.", "Enter your details as they appear on your ID.")}</p>
+        {!supabase && <p className="account-auth-unavailable" role="status">{t("الحسابات غير مفعّلة في هذه المعاينة. ستعمل عند إعداد خدمة الحسابات للنشر.", "Accounts are not enabled in this preview. They will work once account services are configured for deployment.")}</p>}
         {pendingPhone ? <form onSubmit={verifyCode} className="account-form account-auth-form">
           <label className="account-auth-field"><span>{t("رمز التأكيد", "Verification code")}</span><span className="account-auth-input"><ShieldCheck size={20}/><input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value)} /></span></label>
           <button className="btn btn-primary account-auth-submit" disabled={busy}>{busy ? t("جارٍ التأكيد…", "Verifying…") : t("تأكيد رقم الهاتف", "Verify phone number")}</button>
