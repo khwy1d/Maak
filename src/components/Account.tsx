@@ -178,6 +178,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const signOut = async () => { await supabase?.auth.signOut(); setSession(null); setIsAdmin(false); };
   const inviteUrl = useMemo(() => profile ? `${window.location.origin}/?ref=${encodeURIComponent(profile.referral_code)}` : "", [profile]);
   const copyInvite = async () => { try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرابط. يمكنك نسخه يدويًا.", "Could not copy the link. You can copy it manually.")); } };
+  const copyReferralCode = async () => { const code = profile?.referral_code; if (!code) return; try { await navigator.clipboard.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرمز.", "Could not copy the code.")); } };
   const shareInvite = async () => { if (navigator.share) { try { await navigator.share({ title: t("دعوة إلى معك", "Join MAAK"), text: t("استخدم رابط الدعوة للتسجيل في معك.", "Use my invitation link to join MAAK."), url: inviteUrl }); } catch { /* sharing was cancelled */ } } else { await copyInvite(); } };
   const saveProfile = async (event: FormEvent) => { event.preventDefault(); if (!supabase || !session || !name.trim()) return; setBusy(true); setMessage(""); try { const { error } = await supabase.from("profiles").update({ full_name: name.trim() }).eq("id", session.user.id); if (error) throw error; setProfileEditing(false); setMessage(t("تم حفظ الاسم.", "Name saved.")); await refresh(); } catch (error) { setMessage(formatApiError(error)); } finally { setBusy(false); } };
 
@@ -370,7 +371,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         <span className="maak-invite-icon"><Gift size={26}/></span>
         <h2>{t("ادعُ أصدقاءك", "Invite your friends")}</h2>
         <p>{t("شارك رمز الدعوة مع أصدقائك واحصل على مكافآت عند إكمال حجوزاتهم.", "Share your invitation code and earn rewards when your friends complete their bookings.")}</p>
-        <div className="maak-invite-code"><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyInvite()} aria-label={t("نسخ رمز الدعوة", "Copy invitation code")}>{copied ? <Check size={20}/> : <Copy size={20}/>}</button></div>
+        <div className="maak-invite-code"><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الدعوة", "Copy invitation code")}>{copied ? <Check size={20}/> : <Copy size={20}/>}</button></div>
         <button type="button" className="btn btn-primary maak-share-invite" onClick={() => void shareInvite()}>{t("مشاركة رابط الدعوة", "Share invitation link")}</button>
       </section>
       <section className="maak-reward-stats" aria-label={t("إحصائيات الدعوات", "Invitation statistics")}>
@@ -388,7 +389,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1></header>
       <section className="maak-profile-hero"><span className="maak-avatar"><UserRound size={66}/></span><h2>{profile?.full_name ?? name}</h2></section>
       <section className="maak-contact-card">
-        <div><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyInvite()} aria-label={t("نسخ رمز الحساب", "Copy account code")}>{copied ? <Check size={18}/> : <Copy size={18}/>}</button><small>{t("رمز الحساب", "Account code")}</small></div>
+        <div><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الحساب", "Copy account code")}>{copied ? <Check size={18}/> : <Copy size={18}/>}</button><small>{t("رمز الحساب", "Account code")}</small></div>
         <div><strong dir="ltr">{profile?.phone ?? phone}</strong><Phone size={18}/><small>{t("رقم الهاتف", "Phone number")}</small></div>
       </section>
       {message && <p className="account-message" role="status">{message}</p>}
