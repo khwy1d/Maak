@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Check, Copy, LogOut, RefreshCw, ShieldCheck, Wallet } from "lucide-react";
+import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
 import { useApp } from "../context/AppContext";
+import Logo from "./Logo";
 import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
+import { siteConfig } from "../config/site";
 
 type Row = Record<string, any>;
 
-export default function Account({ adminOnly = false, initialTab = "orders" }: { adminOnly?: boolean; initialTab?: string }) {
-  const { lang } = useApp();
+export default function Account({ adminOnly = false, initialTab = "profile", initialMode = "login" }: { adminOnly?: boolean; initialTab?: string; initialMode?: "login" | "signup" }) {
+  const { lang, theme, toggleLang, toggleTheme } = useApp();
   const ar = lang === "ar";
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -15,7 +17,11 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
+  const [authMode, setAuthMode] = useState<"login" | "signup">(initialMode);
+  const [referralInput, setReferralInput] = useState(getReferralCode() ?? "");
+  const [orderFilter, setOrderFilter] = useState<"all" | "active" | "completed" | "cancelled">("all");
+  const [profileEditing, setProfileEditing] = useState(false);
+  const [accountPanel, setAccountPanel] = useState<"documents" | "info" | null>(null);
   const [otp, setOtp] = useState("");
   const [pendingPhone, setPendingPhone] = useState("");
   const [balance, setBalance] = useState(0);
@@ -38,7 +44,7 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
     const { data } = supabase.auth.onAuthStateChange((_event, value) => setSession(value));
     return () => data.subscription.unsubscribe();
   }, []);
-  useEffect(() => { if (adminOnly) setTab("admin-orders"); else setTab(initialTab); }, [adminOnly, initialTab]);
+  useEffect(() => { if (adminOnly) setTab("admin-orders"); else setTab(initialTab); setAuthMode(initialMode); }, [adminOnly, initialTab, initialMode]);
 
   const refresh = async () => {
     if (!supabase || !session) return;
@@ -106,7 +112,7 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
 
   const signIn = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     setBusy(true); setMessage("");
     try {
       const normalizedPhone = normalizePhone(phone);
@@ -133,7 +139,7 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
 
   const signUp = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     if (!/^[0-9]{6}$/.test(password)) { setMessage(t("كلمة المرور يجب أن تتكون من 6 أرقام بالضبط.", "Password must contain exactly 6 digits.")); return; }
     if (password !== confirmPassword) { setMessage(t("كلمتا المرور غير متطابقتين.", "Passwords do not match.")); return; }
     setBusy(true); setMessage("");
@@ -142,7 +148,7 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
       const { data, error } = await supabase.auth.signUp({
         phone: normalizedPhone,
         password,
-        options: { data: { full_name: name.trim(), referral_code: getReferralCode() } },
+        options: { data: { full_name: name.trim(), referral_code: referralInput.trim().toUpperCase() || getReferralCode() } },
       });
       if (error) throw error;
       if (!data.user) throw new Error(t("تعذر إنشاء الحساب. حاول مرة أخرى.", "Could not create the account. Please try again."));
@@ -155,7 +161,7 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
 
   const verifyCode = async (event: FormEvent) => {
     event.preventDefault();
-    if (!supabase) return;
+    if (!supabase) { setMessage(t("الحسابات غير مفعّلة على هذه النسخة.", "Accounts are not enabled in this deployment.")); return; }
     setBusy(true); setMessage("");
     try {
       const { data, error } = await supabase.auth.verifyOtp({ phone: pendingPhone, token: otp.trim(), type: "sms" });
@@ -171,7 +177,10 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
 
   const signOut = async () => { await supabase?.auth.signOut(); setSession(null); setIsAdmin(false); };
   const inviteUrl = useMemo(() => profile ? `${window.location.origin}/?ref=${encodeURIComponent(profile.referral_code)}` : "", [profile]);
-  const copyInvite = async () => { await navigator.clipboard.writeText(inviteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); };
+  const copyInvite = async () => { try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرابط. يمكنك نسخه يدويًا.", "Could not copy the link. You can copy it manually.")); } };
+  const copyReferralCode = async () => { const code = profile?.referral_code; if (!code) return; try { await navigator.clipboard.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرمز.", "Could not copy the code.")); } };
+  const shareInvite = async () => { if (navigator.share) { try { await navigator.share({ title: t("دعوة إلى معك", "Join MAAK"), text: t("استخدم رابط الدعوة للتسجيل في معك.", "Use my invitation link to join MAAK."), url: inviteUrl }); } catch { /* sharing was cancelled */ } } else { await copyInvite(); } };
+  const saveProfile = async (event: FormEvent) => { event.preventDefault(); if (!supabase || !session || !name.trim()) return; setBusy(true); setMessage(""); try { const { error } = await supabase.from("profiles").update({ full_name: name.trim() }).eq("id", session.user.id); if (error) throw error; setProfileEditing(false); setMessage(t("تم حفظ الاسم.", "Name saved.")); await refresh(); } catch (error) { setMessage(formatApiError(error)); } finally { setBusy(false); } };
 
   const applyWallet = async (order: Row) => {
     if (!supabase || !order.total_amount) return;
@@ -246,35 +255,166 @@ export default function Account({ adminOnly = false, initialTab = "orders" }: { 
     finally { setBusy(false); }
   };
 
-  if (!supabase) return <main className="account-page"><section className="account-card"><h1>{t("الحسابات غير مفعّلة بعد", "Accounts are not configured yet")}</h1><p>{t("أضف إعدادات Supabase إلى بيئة النشر لتفعيل الحسابات والتحقق عبر SMS.", "Add Supabase environment settings to the deployment to enable accounts and SMS verification.")}</p></section></main>;
 
-  if (!session) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><ShieldCheck size={32}/><h1>{pendingPhone ? t("تأكيد رقم الهاتف", "Verify your phone") : authMode === "login" ? t("تسجيل الدخول", "Sign in") : t("إنشاء حساب جديد", "Create an account")}</h1>
-    <p>{pendingPhone ? t("أدخل رمز التأكيد الذي أرسلناه برسالة SMS إلى رقمك.", "Enter the verification code sent to your phone by SMS.") : authMode === "login" ? t("أدخل رقم هاتفك وكلمة المرور للدخول إلى حسابك.", "Enter your phone number and password to access your account.") : t("أنشئ حسابك، ثم أكّد رقم هاتفك باستخدام رمز SMS.", "Create your account, then verify your phone with an SMS code.")}</p>
-    {pendingPhone ? <form onSubmit={verifyCode} className="account-form">
-      <label>{t("رمز التأكيد", "Verification code")}<input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value)} /></label>
-      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ التأكيد…", "Verifying…") : t("تأكيد رقم الهاتف", "Verify phone number")}</button>
-      <button type="button" className="btn btn-ghost" onClick={() => { setPendingPhone(""); setOtp(""); }}>{t("العودة", "Back")}</button>
-    </form> : authMode === "login" ? <form onSubmit={signIn} className="account-form">
-      <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
-      <label>{t("كلمة المرور", "Password")}<input required type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></label>
-      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ الدخول…", "Signing in…") : t("تسجيل الدخول", "Sign in")}</button>
-      <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("signup"); setMessage(""); }}>{t("ليس لديك حساب؟ إنشاء حساب", "New to MAAK? Create an account")}</button>
-    </form> : <form onSubmit={signUp} className="account-form">
-      <label>{t("رقم الهاتف", "Phone number")}<input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></label>
-      <label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name" /></label>
-      <label>{t("كلمة المرور", "Password")}<input required minLength={6} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" type="password" value={password} onChange={e => setPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} autoComplete="new-password" /></label>
-      <label>{t("تأكيد كلمة المرور", "Confirm password")}<input required minLength={6} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} autoComplete="new-password" /></label>
-      <button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ إنشاء الحساب…", "Creating account…") : t("إنشاء الحساب وإرسال الرمز", "Create account and send code")}</button>
-      <button type="button" className="btn btn-ghost" onClick={() => { setAuthMode("login"); setMessage(""); }}>{t("لديك حساب بالفعل؟ تسجيل الدخول", "Already have an account? Sign in")}</button>
-    </form>}
-    {message && <p className="account-message" role="status">{message}</p>}
-    {!pendingPhone && <p className="account-note">{t("يمكنك متابعة الطلبات كضيف من خلال نماذج الخدمات.", "You can continue as a guest through the service request forms.")}</p>}
-  </section></main>;
+
+  if (!session) return <main className="account-page account-auth-page" dir={ar ? "rtl" : "ltr"}>
+    <section className="account-auth-shell">
+      <header className="account-auth-top"><button type="button" className="account-auth-language" onClick={toggleLang} aria-label={t("تغيير اللغة", "Change language")}><Languages size={20}/></button><h1>{t("مرحبًا", "Welcome")}</h1></header>
+      <div className="account-auth-brand"><Logo size={112}/><strong>{t("دائمًا معك", "Always with you")}</strong></div>
+      <section className="account-auth-panel">
+        <h2>{pendingPhone ? t("تأكيد رقم الهاتف", "Verify your phone") : authMode === "login" ? t("تسجيل الدخول", "Sign in") : t("إنشاء حساب", "Create account")}</h2>
+        <p>{pendingPhone ? t("أدخل رمز التأكيد الذي أرسلناه برسالة SMS إلى رقمك.", "Enter the verification code sent to your phone by SMS.") : authMode === "login" ? t("أدخل بياناتك للوصول إلى حسابك.", "Enter your details to access your account.") : t("اكتب بياناتك كما تظهر في هويتك.", "Enter your details as they appear on your ID.")}</p>
+        {!supabase && <p className="account-auth-unavailable" role="status">{t("الحسابات غير مفعّلة في هذه المعاينة. ستعمل عند إعداد خدمة الحسابات للنشر.", "Accounts are not enabled in this preview. They will work once account services are configured for deployment.")}</p>}
+        {pendingPhone ? <form onSubmit={verifyCode} className="account-form account-auth-form">
+          <label className="account-auth-field"><span>{t("رمز التأكيد", "Verification code")}</span><span className="account-auth-input"><ShieldCheck size={20}/><input required inputMode="numeric" autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value)} /></span></label>
+          <button className="btn btn-primary account-auth-submit" disabled={busy}>{busy ? t("جارٍ التأكيد…", "Verifying…") : t("تأكيد رقم الهاتف", "Verify phone number")}</button>
+          <a className="account-auth-link" href="/login">{t("العودة إلى تسجيل الدخول", "Back to sign in")}</a>
+        </form> : authMode === "login" ? <form onSubmit={signIn} className="account-form account-auth-form">
+          <label className="account-auth-field"><span>{t("رقم الهاتف", "Phone number")}</span><span className="account-auth-input"><Phone size={20}/><input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></span></label>
+          <label className="account-auth-field"><span>{t("كلمة المرور", "Password")}</span><span className="account-auth-input"><LockKeyhole size={20}/><input required type="password" value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password" /></span></label>
+          <div className="account-auth-forgot"><a href="/contact">{t("نسيت كلمة المرور؟", "Forgot password?")}</a></div>
+          <button className="btn btn-primary account-auth-submit" disabled={busy}>{busy ? t("جارٍ الدخول…", "Signing in…") : t("تسجيل الدخول", "Sign in")}</button>
+          <p className="account-auth-switch">{t("ليس لديك حساب؟", "Don't have an account?")} <a href="/signup">{t("إنشاء حساب", "Create account")}</a></p>
+          <a className="account-auth-guest" href="/">{t("الاستمرار كضيف", "Continue as guest")}</a>
+        </form> : <form onSubmit={signUp} className="account-form account-auth-form">
+          <label className="account-auth-field"><span>{t("الاسم الكامل", "Full name")}</span><span className="account-auth-input"><UserRound size={20}/><input required minLength={2} maxLength={120} value={name} onChange={e => setName(e.target.value)} autoComplete="name" placeholder={t("اكتب اسمك الكامل كما في هويتك", "Full name as it appears on your ID")} /></span></label>
+          <label className="account-auth-field"><span>{t("رقم الهاتف", "Phone number")}</span><span className="account-auth-input"><Phone size={20}/><input required type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+967…" autoComplete="tel" /></span></label>
+          <label className="account-auth-field"><span>{t("كلمة المرور", "Password")}</span><span className="account-auth-input"><LockKeyhole size={20}/><input required minLength={6} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" type="password" value={password} onChange={e => setPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} autoComplete="new-password" /></span></label>
+          <label className="account-auth-field"><span>{t("تأكيد كلمة المرور", "Confirm password")}</span><span className="account-auth-input"><LockKeyhole size={20}/><input required minLength={6} maxLength={6} pattern="[0-9]{6}" inputMode="numeric" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value.replace(/\D/g, "").slice(0, 6))} autoComplete="new-password" /></span></label>
+          <label className="account-auth-field"><span>{t("رمز الدعوة", "Invitation code")} <small>{t("(اختياري)", "(optional)")}</small></span><span className="account-auth-input"><TicketPercent size={20}/><input value={referralInput} onChange={e => setReferralInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 20))} placeholder="AB12CD34EF" /></span></label>
+          <button className="btn btn-primary account-auth-submit" disabled={busy}>{busy ? t("جارٍ إنشاء الحساب…", "Creating account…") : t("إنشاء الحساب وإرسال الرمز", "Create account and send code")}</button>
+          <p className="account-auth-switch">{t("لديك حساب؟", "Already have an account?")} <a href="/login">{t("تسجيل الدخول", "Sign in")}</a></p>
+        </form>}
+        {message && <p className="account-message" role="status">{message}</p>}
+        {authMode === "login" && !pendingPhone && <nav className="account-auth-social" aria-label={t("تابع معك", "Follow MAAK")}><a className="auth-social-facebook" href="https://www.facebook.com/share/1MxwiuHyvi/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={25}/></a><a className="auth-social-instagram" href="https://www.instagram.com/maaktravel" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={25}/></a><a className="auth-social-whatsapp" href={"https://wa.me/" + siteConfig.whatsappNumber.replace(/\D/g, "")} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={25}/></a></nav>}
+      </section>
+    </section>
+  </main>;
 
   if (adminOnly && !isAdmin) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><h1>{t("غير مصرح", "Access denied")}</h1><p>{t("هذه الصفحة مخصصة لفريق الإدارة.", "This page is for administrators only.")}</p><button className="btn btn-ghost" onClick={signOut}>{t("تسجيل الخروج", "Sign out")}</button></section></main>;
 
   const showAdmin = isAdmin && (adminOnly || tab.startsWith("admin"));
   const labels: Record<string, string> = { orders: t("طلباتي", "My orders"), wallet: t("المحفظة", "Wallet"), referrals: t("دعواتي", "Invites"), "admin-orders": t("الطلبات", "Orders"), "admin-customers": t("العملاء", "Customers"), "admin-referrals": t("الإحالات", "Referrals"), "admin-finance": t("العمولات والمحافظ", "Commissions & wallets") };
+
+  if (!showAdmin) {
+    const ownedReferrals = referrals.filter(item => item.referrer_id === session?.user.id);
+    const completedReferrals = ownedReferrals.filter(item => ["completed", "rewarded", "paid"].includes(String(item.status).toLowerCase()));
+    const pendingReferrals = ownedReferrals.filter(item => !["completed", "rewarded", "paid", "cancelled", "rejected"].includes(String(item.status).toLowerCase()));
+    const pendingRewards = pendingReferrals.length * Number(commission || 0);
+    const earnedRewards = transactions.filter(item => Number(item.amount) > 0).reduce((total, item) => total + Number(item.amount), 0);
+    const activeOrderCount = orders.filter(order => ["requested", "quoted", "in_progress"].includes(String(order.status).toLowerCase())).length;
+    const matchingOrders = orders.filter(order => orderFilter === "all"
+      || (orderFilter === "active" && ["requested", "quoted", "in_progress"].includes(String(order.status).toLowerCase()))
+      || (orderFilter === "completed" && String(order.status).toLowerCase() === "completed")
+      || (orderFilter === "cancelled" && ["cancelled", "canceled"].includes(String(order.status).toLowerCase())));
+    const formatDate = (value: string) => new Date(value).toLocaleDateString(ar ? "ar" : "en-US", { year: "numeric", month: "long", day: "numeric" });
+    const statusLabel = (status: string) => ({
+      requested: t("قيد المراجعة", "Under review"),
+      quoted: t("بانتظار التأكيد", "Awaiting confirmation"),
+      in_progress: t("قيد التنفيذ", "In progress"),
+      completed: t("مكتمل", "Completed"),
+      cancelled: t("ملغي", "Cancelled"),
+      canceled: t("ملغي", "Cancelled"),
+    } as Record<string, string>)[String(status).toLowerCase()] ?? status;
+    const serviceLabel = (value: string) => {
+      const key = String(value ?? "").toLowerCase();
+      if (key.includes("flight") || key.includes("طيران") || key.includes("تذكرة")) return t("حجز تذاكر الطيران", "Flight booking");
+      if (key.includes("hotel") || key.includes("فندق") || key.includes("إقامة")) return t("حجز الفنادق", "Hotel booking");
+      if (key.includes("umrah") || key.includes("عمرة")) return t("العمرة", "Umrah");
+      if (key.includes("car") || key.includes("سيار")) return t("تأجير السيارات", "Car rental");
+      if (key.includes("bus") || key.includes("باص") || key.includes("نقل بري")) return t("النقل البري", "Ground transport");
+      return value;
+    };
+    const serviceIcon = (value: string) => {
+      const key = String(value ?? "").toLowerCase();
+      if (key.includes("flight") || key.includes("طيران") || key.includes("تذكرة")) return <Plane size={26}/>;
+      if (key.includes("hotel") || key.includes("فندق") || key.includes("إقامة")) return <Hotel size={26}/>;
+      if (key.includes("umrah") || key.includes("عمرة")) return <Moon size={26}/>;
+      if (key.includes("car") || key.includes("سيار")) return <Car size={26}/>;
+      if (key.includes("bus") || key.includes("باص") || key.includes("نقل بري")) return <Bus size={26}/>;
+      return <CalendarDays size={26}/>;
+    };
+    const bookingFilters: Array<["all" | "active" | "completed" | "cancelled", string]> = [
+      ["all", t("الكل", "All")], ["active", t("النشطة", "Active")], ["completed", t("المكتملة", "Completed")], ["cancelled", t("الملغاة", "Cancelled")]
+    ];
+
+    if (tab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("حجوزاتي", "My bookings")}</h1><button type="button" className="maak-notification-button" onClick={() => setOrderFilter("active")} aria-label={t("الطلبات النشطة", "Active bookings")}><Bell size={22}/>{activeOrderCount > 0 && <span>{activeOrderCount}</span>}</button></header>
+      <nav className="maak-filter-tabs" aria-label={t("تصفية الحجوزات", "Filter bookings")}>{bookingFilters.map(([key, title]) => <button type="button" key={key} className={orderFilter === key ? "active" : ""} aria-pressed={orderFilter === key} onClick={() => setOrderFilter(key)}>{title}</button>)}</nav>
+      <section className="maak-booking-list" aria-live="polite">
+        {busy && !orders.length && <p className="maak-empty-state">{t("جارٍ تحميل الحجوزات…", "Loading bookings…")}</p>}
+        {!busy && !matchingOrders.length && <div className="maak-empty-state"><CalendarDays size={34}/><strong>{t("لا توجد حجوزات هنا بعد", "No bookings here yet")}</strong><p>{t("ستظهر طلباتك ومتابعة حالتها في هذه الصفحة.", "Your requests and their status will appear here.")}</p><a className="btn btn-primary" href="/services">{t("استعرض الخدمات", "Explore services")}</a></div>}
+        {matchingOrders.map(order => {
+          const status = String(order.status ?? "requested").toLowerCase();
+          const ref = order.order_number ?? order.reference ?? ("MK-" + String(order.id ?? "").replace(/\D/g, "").slice(-5).padStart(5, "0"));
+          return <article className="maak-booking-card" key={order.id}>
+            <span className="maak-service-icon">{serviceIcon(order.service)}</span>
+            <div className="maak-booking-details">
+              <h2>{serviceLabel(order.service)}</h2><strong className="maak-booking-reference">{ref}</strong>
+              <p>{t("تاريخ التقديم", "Submitted")}: {formatDate(order.created_at)}</p>
+              <span className={"maak-booking-status status-" + status.replace(/[^a-z]/g, "-")}>{statusLabel(status)}</span>
+            </div>
+            <ChevronLeft className="maak-booking-chevron" size={21} aria-hidden="true"/>
+          </article>;
+        })}
+      </section>
+    </main>;
+
+    if (tab === "referrals") return <main className="maak-app-page maak-rewards-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("المكافآت", "Rewards")}</h1></header>
+      <section className="maak-rewards-balance">
+        <h2>{t("رصيد المكافآت", "Rewards balance")}</h2>
+        <strong>{balance.toLocaleString()} <small>{t("ر.ي", "YER")}</small></strong>
+        <div className="maak-rewards-summary"><div><span>{t("مكتسبة", "Earned")}</span><b>{earnedRewards.toLocaleString()}</b></div><div><span>{t("معلقة", "Pending")}</span><b>{pendingRewards.toLocaleString()}</b></div></div>
+      </section>
+      <section className="maak-invite-card">
+        <span className="maak-invite-icon"><Gift size={26}/></span>
+        <h2>{t("ادعُ أصدقاءك", "Invite your friends")}</h2>
+        <p>{t("شارك رمز الدعوة مع أصدقائك واحصل على مكافآت عند إكمال حجوزاتهم.", "Share your invitation code and earn rewards when your friends complete their bookings.")}</p>
+        <div className="maak-invite-code"><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الدعوة", "Copy invitation code")}>{copied ? <Check size={20}/> : <Copy size={20}/>}</button></div>
+        <button type="button" className="btn btn-primary maak-share-invite" onClick={() => void shareInvite()}>{t("مشاركة رابط الدعوة", "Share invitation link")}</button>
+      </section>
+      <section className="maak-reward-stats" aria-label={t("إحصائيات الدعوات", "Invitation statistics")}>
+        <article><span>{t("عدد الدعوات", "Invitations")}</span><strong>{ownedReferrals.length}</strong></article>
+        <article><span>{t("المكتملة", "Completed")}</span><strong>{completedReferrals.length}</strong></article>
+        <article><span>{t("قيد الانتظار", "Pending")}</span><strong>{pendingReferrals.length}</strong></article>
+      </section>
+      <section className="maak-reward-ledger">
+        <h2>{t("سجل الحركات", "Activity")}</h2>
+        {transactions.length ? transactions.map(entry => <article className="maak-ledger-row" key={entry.id}><span className="maak-ledger-icon"><UserRound size={22}/></span><div><strong>{entry.description}</strong><small>{formatDate(entry.created_at)}</small></div><div className="maak-ledger-amount"><strong className={Number(entry.amount) >= 0 ? "credit" : "debit"}>{Number(entry.amount) > 0 ? "+" : ""}{Number(entry.amount).toLocaleString()}</strong><small>{Number(entry.amount) >= 0 ? t("مكتسبة", "Earned") : t("خصم", "Debit")}</small></div></article>) : <p className="maak-empty-inline">{t("ستظهر المكافآت وحركات الرصيد هنا.", "Rewards and wallet activity will appear here.")}</p>}
+      </section>
+    </main>;
+
+    return <main className="maak-app-page maak-profile-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1></header>
+      <section className="maak-profile-hero"><span className="maak-avatar"><UserRound size={66}/></span><h2>{profile?.full_name ?? name}</h2></section>
+      <section className="maak-contact-card">
+        <div><strong>{profile?.referral_code ?? "—"}</strong><button type="button" onClick={() => void copyReferralCode()} aria-label={t("نسخ رمز الحساب", "Copy account code")}>{copied ? <Check size={18}/> : <Copy size={18}/>}</button><small>{t("رمز الحساب", "Account code")}</small></div>
+        <div><strong dir="ltr">{profile?.phone ?? phone}</strong><Phone size={18}/><small>{t("رقم الهاتف", "Phone number")}</small></div>
+      </section>
+      {message && <p className="account-message" role="status">{message}</p>}
+      <section className="maak-profile-group">
+        <h2>{t("حسابي", "My account")}</h2>
+        <div className="maak-settings-card">
+          <button type="button" className="maak-settings-row" onClick={() => setProfileEditing(value => !value)}><span className="maak-settings-icon"><UserRound size={22}/></span><strong>{t("الملف الشخصي", "Personal profile")}</strong><ChevronLeft size={20}/></button>
+          {profileEditing && <form className="maak-profile-edit" onSubmit={saveProfile}><label>{t("الاسم الكامل", "Full name")}<input required minLength={2} maxLength={120} value={name} onChange={event => setName(event.target.value)}/></label><label>{t("رقم الهاتف", "Phone number")}<input value={profile?.phone ?? phone} readOnly dir="ltr"/></label><button className="btn btn-primary" disabled={busy}>{busy ? t("جارٍ الحفظ…", "Saving…") : t("حفظ التغييرات", "Save changes")}</button></form>}
+          <button type="button" className="maak-settings-row" onClick={() => { toggleTheme(); setMessage(""); }}><span className="maak-settings-icon">{theme === "dark" ? <Moon size={22}/> : <Sun size={22}/>}</span><strong>{t("المظهر", "Appearance")}</strong><small>{theme === "dark" ? t("داكن", "Dark") : t("فاتح", "Light")}</small><ChevronLeft size={20}/></button>
+          <button type="button" className="maak-settings-row" onClick={toggleLang}><span className="maak-settings-icon"><Languages size={22}/></span><strong>{t("اللغة", "Language")}</strong><small>{lang === "ar" ? "العربية" : "English"}</small><ChevronLeft size={20}/></button>
+          <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "documents" ? null : "documents")}><span className="maak-settings-icon"><FileText size={22}/></span><strong>{t("وثائقي", "My documents")}</strong><ChevronLeft size={20}/></button>
+          {accountPanel === "documents" && <p className="maak-settings-note">{t("لا توجد وثائق محفوظة في الحساب حاليًا.", "There are no documents saved to this account yet.")}</p>}
+        </div>
+      </section>
+      <section className="maak-profile-group maak-app-settings">
+        <h2>{t("التطبيق", "App")}</h2>
+        <div className="maak-settings-card">
+          <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "info" ? null : "info")}><span className="maak-settings-icon"><Info size={22}/></span><strong>{t("معلومات التطبيق", "App information")}</strong><ChevronLeft size={20}/></button>
+          {accountPanel === "info" && <p className="maak-settings-note">{t("معك للسفر والسياحة — دائمًا معك في كل رحلة.", "MAAK Travel and Tourism — with you on every journey.")}</p>}
+        </div>
+      </section>
+      {isAdmin && <a className="btn btn-ghost maak-admin-link" href="/admin">{t("لوحة الإدارة", "Admin panel")}</a>}
+      <button type="button" className="maak-sign-out" onClick={signOut}><LogOut size={20}/>{t("تسجيل الخروج", "Sign out")}</button>
+    </main>;
+  }
 
   return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-dashboard"><header className="account-top"><div><span>{t("مرحبًا", "Welcome")}</span><h1>{profile?.full_name ?? name}</h1><p>{profile?.phone}</p></div><div className="account-top-actions">{isAdmin && <a className="btn btn-ghost" href={adminOnly ? "/account" : "/admin"}>{t("لوحة الإدارة", "Admin panel")}</a>}<button className="btn btn-ghost" onClick={() => void refresh()} disabled={busy}><RefreshCw size={16}/>{t("تحديث", "Refresh")}</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={16}/>{t("خروج", "Sign out")}</button></div></header>
     {message && <p className="account-message" role="status">{message}</p>}
