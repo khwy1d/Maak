@@ -389,7 +389,7 @@ begin
   values (
     new.customer_id, outstanding, 'refund',
     'Unrefunded wallet amount returned for booking',
-    new.id, 'wallet-refund:' || new.id::text
+    new.id, 'wallet-refund-final:' || new.id::text
   )
   on conflict (idempotency_key) do nothing;
 
@@ -404,6 +404,45 @@ begin
   return new;
 end;
 $$;
+
+-- Settle any legacy net wallet debit left on an order that was already cancelled
+-- or refunded before this migration. The distinct key avoids collision with the
+-- former one-refund-per-order key.
+with inserted_refunds as (
+  insert into public.wallet_transactions(
+    user_id, amount, kind, description, order_id, idempotency_key
+  )
+  select
+    o.customer_id,
+    outstanding.net_amount,
+    'refund',
+    'Legacy outstanding wallet amount settled during lifecycle migration',
+    o.id,
+    'wallet-refund-final:' || o.id::text
+  from public.orders o
+  cross join lateral (
+    select greatest(
+      coalesce(-sum(w.amount) filter (where w.kind = 'booking_debit'), 0)
+        - coalesce(sum(w.amount) filter (where w.kind = 'refund'), 0),
+      0
+    ) as net_amount
+    from public.wallet_transactions w
+    where w.order_id = o.id
+  ) outstanding
+  where (o.status = 'cancelled' or o.payment_status = 'refunded')
+    and o.customer_id is not null
+    and outstanding.net_amount > 0
+  on conflict (idempotency_key) do nothing
+  returning user_id, order_id, amount
+)
+insert into public.audit_log(actor_id, action, entity_type, entity_id, details)
+select
+  null,
+  'wallet.legacy_refund_settled',
+  'order',
+  order_id::text,
+  jsonb_build_object('user_id', user_id, 'wallet_amount', amount)
+from inserted_refunds;
 
 -- Restore only the intended RPC grants after replacing their return types.
 revoke all on function public.create_order(uuid, text, text, text, jsonb, text) from public, anon, authenticated;
