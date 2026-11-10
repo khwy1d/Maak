@@ -17,7 +17,7 @@
 - [Tourism and trips](https://maaktravel.vercel.app/tourism): Travel planning and trip-related enquiries.
 - [Medical travel](https://maaktravel.vercel.app/medical-tourism): Coordination enquiries for medical travel.
 - [Egypt security clearance](https://maaktravel.vercel.app/security-clearance-egypt): Enquiries about requirements and procedures.
-- [Hajj and Umrah](https://maaktravel.vercel.app/umrah): Enquiries about pilgrimage travel arrangements.
+- [Umrah visa](https://maaktravel.vercel.app/umrah): Umrah visa requests and enquiries.
 - [Bus tickets and ground transport](https://maaktravel.vercel.app/transport): Enquiries about local and international ground transport.
 - [Real estate services](https://maaktravel.vercel.app/real-estate): Enquiries about property-related services.
 
