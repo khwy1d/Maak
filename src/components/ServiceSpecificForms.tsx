@@ -14,7 +14,8 @@ function label(lang: Lang, ar: string, en: string) {
 function Field({ title, children }: { title: ReactNode; children: ReactElement<{ id?: string }> }) {
   const id = useId();
   const control = cloneElement(children, { id });
-  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}</label>{control}</div>;
+  const titleAlreadyMarksOptional = typeof title === "string" && /اختياري|optional/i.test(title);
+  return <div className="inquiry-field flight-field"><label htmlFor={id}>{title}{!titleAlreadyMarksOptional && <small className="field-requirement">{typeof title === "string" && /[A-Za-z]/.test(title) ? "(optional)" : "(اختياري)"}</small>}</label>{control}</div>;
 }
 
 function Select({ value, onChange, placeholder, options, id }: {
@@ -90,6 +91,42 @@ function countOptions(lang: Lang, max: number) {
     const value = String(index + 1);
     return [value, value] as [string, string];
   });
+}
+
+export function VisaForm({ lang }: ServiceFormProps) {
+  const [requestType, setRequestType] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [destination, setDestination] = useState("");
+  const [departureCity, setDepartureCity] = useState("");
+  const [date, setDate] = useState("");
+  const [travellers, setTravellers] = useState("");
+  const [question, setQuestion] = useState("");
+  const txt = (ar: string, en: string) => label(lang, ar, en);
+  const rows: Row[] = [
+    ...(requestType ? [[txt("مرحلة الطلب", "Request stage"), requestType === "new" ? txt("استفسار جديد", "New enquiry") : txt("متابعة طلب سابق", "Follow-up on an existing request")] as Row] : []),
+    ...(purpose ? [[txt("غرض السفر", "Travel purpose"), purpose] as Row] : []),
+    ...(destination.trim() ? [[txt("الوجهة", "Destination"), destination.trim()] as Row] : []),
+    ...(departureCity.trim() ? [[txt("مدينة المغادرة", "Departure city"), departureCity.trim()] as Row] : []),
+    ...(date ? [[txt("موعد السفر المتوقع", "Expected travel date"), date] as Row] : []),
+    ...(travellers ? [[txt("عدد المسافرين", "Travellers"), travellers] as Row] : []),
+    ...(question.trim() ? [[txt("تفاصيل الاستفسار", "Enquiry details"), question.trim()] as Row] : []),
+  ];
+  return <RequestCard lang={lang} title={txt("استفسر عن التأشيرات", "Visa enquiry")}
+    intro={txt("شارك الوجهة والغرض وموعد السفر المتوقع لبدء استفسارك. لا تدخل أرقام الجوازات أو بيانات تعريفية حساسة.", "Share your destination, travel purpose and expected date to start an enquiry. Do not enter passport numbers or other sensitive identifying details.")}
+    serviceName={txt("خدمات التأشيرات", "visa services")} rows={rows}
+    note={txt("تختلف المتطلبات والقرارات بحسب الوجهة والجهات المختصة؛ تُراجع المعلومات عند التواصل.", "Requirements and decisions vary by destination and relevant authorities; details are reviewed during follow-up.")}>
+    <div className="flight-group"><h4>{txt("تفاصيل الاستفسار", "Enquiry details")}</h4>
+      <div className="flight-input-grid">
+        <Field title={txt("مرحلة الطلب", "Request stage")}><Select value={requestType} onChange={setRequestType} placeholder={txt("اختر المرحلة", "Choose a stage")} options={[["new", txt("استفسار جديد", "New enquiry")], ["follow-up", txt("متابعة طلب سابق", "Follow-up on an existing request")]]} /></Field>
+        <Field title={txt("غرض السفر", "Travel purpose")}><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر الغرض", "Choose a purpose")} options={[["tourism", txt("زيارة أو سياحة", "Visit or tourism")], ["family", txt("زيارة عائلية", "Family visit")], ["business", txt("عمل", "Business")], ["transit", txt("عبور", "Transit")], ["other", txt("غرض آخر", "Other")]]} /></Field>
+        <Field title={txt("الوجهة", "Destination")}><input value={destination} onChange={event => setDestination(event.target.value)} placeholder={txt("مثال: مصر", "e.g. Egypt")} /></Field>
+        <Field title={txt("مدينة المغادرة", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: عدن", "e.g. Aden")} /></Field>
+        <Field title={<><CalendarDays size={16} />{txt("موعد السفر المتوقع", "Expected travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
+        <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 20)} /></Field>
+      </div>
+      <Field title={txt("ما الذي تود الاستفسار عنه؟", "What would you like to ask?")}><textarea rows={3} value={question} onChange={event => setQuestion(event.target.value)} placeholder={txt("لا ترفق بيانات أو صور وثائق السفر", "Do not include personal data or travel-document images")} /></Field>
+    </div>
+  </RequestCard>;
 }
 
 export function MedicalTravelForm({ lang }: ServiceFormProps) {
