@@ -95,6 +95,8 @@ for each row
 when (new.phone_confirmed_at is not null and old.phone_confirmed_at is null)
 execute function public.attach_confirmed_referral();
 
+revoke all on function public.attach_confirmed_referral() from public, anon, authenticated;
+
 create or replace function public.reward_qualified_referral()
 returns trigger
 language plpgsql security definer set search_path = '' as $$
