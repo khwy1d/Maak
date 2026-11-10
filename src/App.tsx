@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Download, House, Gift, CalendarDays, UserRound, X } from "lucide-react";
 import { useApp } from "./context/AppContext";
 import Header from "./components/Header";
+import MobileHeader from "./components/MobileHeader";
 import Hero from "./components/Hero";
 import Services from "./components/Services";
 import Pages from "./components/Pages";
@@ -69,6 +70,7 @@ export default function App() {
       <div className="site-content">
       <a className="skip" href={isHome ? "#services" : "/services"}>Skip to content</a>
       <Header />
+      <MobileHeader />
       <InquiryCapture lang={lang} />
       {installPrompt && !installDismissed && (
         <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
