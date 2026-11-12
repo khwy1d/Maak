@@ -143,6 +143,7 @@ begin
       or char_length(trim(form_data ->> 'departure')) > 120
       or nullif(trim(form_data ->> 'destination'), '') is null
       or char_length(trim(form_data ->> 'destination')) > 120
+      or trim(form_data ->> 'departure') = trim(form_data ->> 'destination')
       or form_data ->> 'trip_type' is null
       or form_data ->> 'trip_type' not in ('oneway', 'return')
       or coalesce(form_data ->> 'departure_date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
