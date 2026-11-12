@@ -34,7 +34,7 @@ begin
 
   if p_idempotency_key is null
     or p_customer_name is null
-    or char_length(trim(p_customer_name)) not between 1 and 120
+    or char_length(trim(p_customer_name)) not between 2 and 120
     or phone_value !~ '^\+[1-9][0-9]{6,14}$'
     or p_service is null
     or trim(p_service) not in (
