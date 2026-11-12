@@ -60,7 +60,6 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
 
   useEffect(() => {
     const client = supabase;
-    if (!client) return;
     const capture = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target;
@@ -84,16 +83,16 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         setError(ar ? "تعذر قراءة تفاصيل الطلب. أعد المحاولة." : "Could not read request details. Please try again.");
         return;
       }
-      event.preventDefault();
-      event.stopImmediatePropagation();
       setPending({ service, message, url: link.href, requestData });
       setName(accountName);
       setError("");
-      void client.auth.getUser().then(async ({ data }) => {
-        if (!data.user) return;
-        const { data: profile } = await client.from("profiles").select("full_name,phone").eq("id", data.user.id).maybeSingle();
-        if (profile) setPhone(profile.phone ?? "");
-      });
+      if (client) {
+        void client.auth.getUser().then(async ({ data }) => {
+          if (!data.user) return;
+          const { data: profile } = await client.from("profiles").select("full_name,phone").eq("id", data.user.id).maybeSingle();
+          if (profile) setPhone(profile.phone ?? "");
+        });
+      }
     };
     document.addEventListener("click", capture, true);
     return () => document.removeEventListener("click", capture, true);
