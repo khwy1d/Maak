@@ -68,13 +68,15 @@ function RequestCard({
     note,
   ].join("\n\n");
   const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  const dateValues = rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean);
+  const datesValid = dateValues.every(value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && value >= today());
 
   return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
     {!reviewing && <div className="flight-group maak-requester-name"><Field title={label(lang, "اسم صاحب الطلب", "Contact name")}><input autoComplete="name" value={requesterName} onChange={event => setRequesterName(event.target.value)} placeholder={label(lang, "اختياري", "Optional")} /></Field></div>}
-    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
+    {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview || !datesValid} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
 
     {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
