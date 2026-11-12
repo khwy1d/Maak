@@ -3,7 +3,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const allowedOrigins = (Deno.env.get("APP_ORIGINS") ?? "https://maaktravel.vercel.app").split(",").map(value => value.trim()).filter(Boolean);
+const configuredOrigins = (Deno.env.get("APP_ORIGINS") ?? "").split(",").map(value => value.trim()).filter(Boolean);
+const allowedOrigins = new Set(["https://maaktravel.vercel.app", "http://localhost:3000", "http://127.0.0.1:3000", ...configuredOrigins]);
 const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
 const authClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: false, autoRefreshToken: false } });
 const bucket = "customer-passports";
@@ -12,7 +13,7 @@ const mimeExtensions: Record<string, string> = { "image/jpeg": "jpg", "image/png
 
 function json(body: Record<string, unknown>, status: number, origin: string | null) {
   const headers = new Headers({ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
-  if (origin && allowedOrigins.includes(origin)) {
+  if (origin && allowedOrigins.has(origin)) {
     headers.set("access-control-allow-origin", origin);
     headers.set("vary", "Origin");
   }
