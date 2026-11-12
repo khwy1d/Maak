@@ -80,7 +80,7 @@ function RequestCard({
     {!reviewing && <div className="flight-group maak-requester-name"><Field title={label(lang, "اسم صاحب الطلب", "Contact name")}><input autoComplete="name" value={requesterName} onChange={event => setRequesterName(event.target.value)} placeholder={label(lang, "اختياري", "Optional")} /></Field></div>}
     {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview || !datesValid} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
 
-    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
+    {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview || !datesValid} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
     {reviewing && <section className="flight-summary" aria-label={label(lang, "مراجعة الطلب", "Review request")}>
       <div className="flight-summary-head">
         <h4>{label(lang, "راجع طلبك", "Review your request")}</h4>
