@@ -67,8 +67,13 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       const link = target.closest<HTMLAnchorElement>('a[data-save-inquiry="true"]');
       const service = serviceNames[window.location.pathname.replace(/\/+$/, "")];
       if (!link || !service) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
       const parsed = new URL(link.href);
-      if (parsed.protocol !== "https:" || parsed.hostname !== "wa.me" || !/^\\d+$/.test(parsed.pathname.slice(1))) return;
+      if (parsed.protocol !== "https:" || parsed.hostname !== "wa.me" || !/^\d+$/.test(parsed.pathname.slice(1))) {
+        setError(ar ? "رابط واتساب غير صالح." : "Invalid WhatsApp link.");
+        return;
+      }
       const message = parsed.searchParams.get("text") ?? service;
       let requestData: Record<string, unknown> = {};
       try {
