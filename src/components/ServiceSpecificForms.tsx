@@ -4,6 +4,7 @@ import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
 import { useAccountName } from "../hooks/useAccountName";
+import { buildWhatsAppUrl } from "../lib/whatsapp";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -54,7 +55,6 @@ function RequestCard({
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const reviewing = step === groups.length;
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const requestRows: Row[] = [
     ...rows,
     ...(requesterName.trim() ? [[label(lang, "اسم صاحب الطلب", "Contact name"), requesterName.trim()] as Row] : []),
@@ -67,7 +67,7 @@ function RequestCard({
     details,
     note,
   ].join("\n\n");
-  const whatsappUrl = `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
   const dateValues = rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean);
   const datesValid = dateValues.every(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= today());
 
