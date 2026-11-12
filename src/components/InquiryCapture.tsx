@@ -135,12 +135,12 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       };
       const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
       await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+      if (whatsapp) whatsapp.location.href = pending.url;
+      else window.location.assign(pending.url);
       clearIdempotencyKey(idempotencyIntent);
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
-      if (whatsapp) whatsapp.location.href = pending.url;
-      else window.location.assign(pending.url);
       setPending(null);
     } catch (cause) {
       whatsapp?.close();
