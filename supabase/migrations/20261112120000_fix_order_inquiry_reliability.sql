@@ -17,7 +17,11 @@ declare
   date_text text;
   parsed_date date;
   previous_date date;
+  check_in date;
+  check_out date;
 begin
+  -- Match the international phone normalization contract used by Auth:
+  -- accept +, 00, or country-code digits, then store canonical +E.164.
   if phone_value like '00%' then
     phone_value := '+' || substr(phone_value, 3);
   elsif phone_value !~ '^\+' then
@@ -52,8 +56,8 @@ begin
     end if;
   end if;
 
-  -- Every service form sends ISO date values separately from its display message.
-  -- Reject malformed, impossible, or past dates at the API boundary.
+  -- All service forms send their date fields separately from display text.
+  -- Validate the date shape, calendar validity, past dates and chronological order.
   if p_request_data ? 'date_values' then
     if jsonb_typeof(p_request_data -> 'date_values') <> 'array' then
       raise exception 'Invalid date values' using errcode = '22023';
@@ -66,21 +70,56 @@ begin
       for date_text in
         select jsonb_array_elements_text(p_request_data -> 'date_values')
       loop
-        if date_text is null or date_text !~ '^\d{4}-\d{2}-\d{2}
-  -- future dates and checkout must be strictly later than check-in.
+        if date_text is null or date_text !~ '^\d{4}-\d{2}-\d{2}$' then
+          raise exception 'Invalid date value' using errcode = '22023';
+        end if;
+        parsed_date := date_text::date;
+        if parsed_date < current_date then
+          raise exception 'Travel dates cannot be in the past' using errcode = '22023';
+        end if;
+        if previous_date is not null and parsed_date <= previous_date then
+          raise exception 'Travel dates must be in chronological order' using errcode = '22023';
+        end if;
+        previous_date := parsed_date;
+      end loop;
+    exception when invalid_datetime_format or datetime_field_overflow then
+      raise exception 'Invalid date value' using errcode = '22023';
+    end;
+  end if;
+
+  -- Hotel dates are optional, but if present they must be valid and ordered.
   if trim(p_service) = 'accommodation' then
-    declare
-      check_in date;
-      check_out date;
     begin
+      check_in := null;
+      check_out := null;
       if nullif(p_request_data ->> 'check_in_date', '') is not null then
+        if (p_request_data ->> 'check_in_date') !~ '^\d{4}-\d{2}-\d{2}$' then
+          raise exception 'Invalid check-in date' using errcode = '22023';
+        end if;
         check_in := (p_request_data ->> 'check_in_date')::date;
       end if;
       if nullif(p_request_data ->> 'check_out_date', '') is not null then
+        if (p_request_data ->> 'check_out_date') !~ '^\d{4}-\d{2}-\d{2}$' then
+          raise exception 'Invalid check-out date' using errcode = '22023';
+        end if;
         check_out := (p_request_data ->> 'check_out_date')::date;
       end if;
-      if (p_request_data ? 'check_in_date' and p_request_data ->> 'check_in_date' is not null
-            and (p_request_data ->> 'check_in_date') !~ '^\d{4}-\d{2}-\d{2}
+    exception when invalid_datetime_format or datetime_field_overflow then
+      raise exception 'Invalid accommodation dates' using errcode = '22023';
+    end;
+
+    if check_in is not null and check_in < current_date then
+      raise exception 'Check-in date cannot be in the past' using errcode = '22023';
+    end if;
+    if check_out is not null and check_out < current_date then
+      raise exception 'Check-out date cannot be in the past' using errcode = '22023';
+    end if;
+    if check_in is not null and check_out is not null and check_out <= check_in then
+      raise exception 'Check-out must be after check-in' using errcode = '22023';
+    end if;
+  end if;
+
+  if actor is not null and not exists (
     select 1 from public.profiles where id = actor and phone = phone_value
   ) then
     raise exception 'Phone does not match authenticated profile' using errcode = '42501';
