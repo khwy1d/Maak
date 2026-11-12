@@ -4,28 +4,40 @@ import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
 type PendingInquiry = { service: string; message: string; url: string; requestData: Record<string, unknown> };
-async function getOrCreateIdempotencyKey(payload: unknown): Promise<string> {
-  const serialized = JSON.stringify(payload);
+const fallbackIdempotencyKeys = new Map<string, { fingerprint: string; key: string }>();
+
+function getOrCreateIdempotencyKey(service: string, payload: unknown): string {
+  const fingerprint = JSON.stringify(payload);
+  const storageKey = `maak-inquiry-idempotency:${service}`;
   try {
-    if (!globalThis.crypto?.subtle) throw new Error("Secure hashing unavailable");
-    const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(serialized));
-    const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
-    const storageKey = `maak-inquiry-idempotency:${fingerprint}`;
-    const now = Date.now();
-    try {
-      const stored = sessionStorage.getItem(storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored) as { key?: string; createdAt?: number };
-        if (parsed.key && parsed.createdAt && now - parsed.createdAt < 24 * 60 * 60 * 1000) return parsed.key;
-      }
-      const key = globalThis.crypto.randomUUID();
-      sessionStorage.setItem(storageKey, JSON.stringify({ key, createdAt: now }));
-      return key;
-    } catch {
-      return globalThis.crypto.randomUUID();
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      const parsed = JSON.parse(stored) as { fingerprint?: string; key?: string };
+      if (parsed.fingerprint === fingerprint && parsed.key) return parsed.key;
+    }
+    const key = globalThis.crypto.randomUUID();
+    localStorage.setItem(storageKey, JSON.stringify({ fingerprint, key }));
+    fallbackIdempotencyKeys.set(service, { fingerprint, key });
+    return key;
+  } catch {
+    const previous = fallbackIdempotencyKeys.get(service);
+    if (previous?.fingerprint === fingerprint) return previous.key;
+    const key = globalThis.crypto.randomUUID();
+    fallbackIdempotencyKeys.set(service, { fingerprint, key });
+    return key;
+  }
+}
+
+function clearIdempotencyKey(service: string, key: string) {
+  fallbackIdempotencyKeys.delete(service);
+  try {
+    const storageKey = `maak-inquiry-idempotency:${service}`;
+    const stored = localStorage.getItem(storageKey);
+    if (stored && (JSON.parse(stored) as { key?: string }).key === key) {
+      localStorage.removeItem(storageKey);
     }
   } catch {
-    return globalThis.crypto.randomUUID();
+    // The in-memory key is still cleared after a confirmed save.
   }
 }
 
@@ -100,8 +112,9 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         service: pending.service,
         requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
       };
-      const idempotencyKey = await getOrCreateIdempotencyKey(orderPayload);
+      const idempotencyKey = getOrCreateIdempotencyKey(pending.service, orderPayload);
       await submitInquiry({ ...orderPayload, idempotencyKey });
+      clearIdempotencyKey(pending.service, idempotencyKey);
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
