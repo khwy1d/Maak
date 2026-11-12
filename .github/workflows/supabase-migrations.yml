@@ -28,7 +28,7 @@ jobs:
         uses: denoland/setup-deno@v2
 
       - name: Type-check passport upload Edge Function
-        run: deno check supabase/functions/upload-passport/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/upload-passport/index.ts
 
       - name: Start isolated local Supabase stack
         run: supabase start
