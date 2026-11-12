@@ -1,11 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { submitInquiry } from "../lib/orders";
+import { submitInquiry, type InquiryService } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
-
-type InquiryService =
-  | "flight" | "ground_transport" | "accommodation" | "car_rental"
-  | "medical_travel" | "security_clearance" | "umrah" | "real_estate" | "tourism";
 
 type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown> };
 
