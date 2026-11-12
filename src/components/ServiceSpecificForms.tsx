@@ -203,6 +203,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [passengerNames, setPassengerNames] = useState<string[]>([""]);
   const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
   const [passportAccountLinked, setPassportAccountLinked] = useState<number[]>([]);
+  const [passportConsent, setPassportConsent] = useState(false);
   const [hasAuthenticatedAccount, setHasAuthenticatedAccount] = useState(false);
   const [passportUploadKey] = useState(() => crypto.randomUUID());
   useEffect(() => { void supabase?.auth.getUser().then(({ data }) => setHasAuthenticatedAccount(!!data.user)); }, []);
@@ -227,7 +228,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
     ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
-  const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+  const canReview = !!date && passportConsent && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
@@ -251,7 +252,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
       </div>
       <div className="maak-passenger-details">
         <h4>{txt("أسماء المعتمرين ومرفقات الجوازات", "Pilgrim names and passport attachments")}</h4>
-        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim.")}</p>
+        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim. Images are uploaded to private storage and are not public.")}</p><label className="maak-passport-consent"><input type="checkbox" checked={passportConsent} onChange={event => setPassportConsent(event.target.checked)} />{txt("أوافق على رفع صور الجوازات وتخزينها بشكل خاص لمعالجة هذا الطلب.", "I agree to upload and privately store the passport images to process this request.")}</label>
         {Array.from({ length: travellers }, (_, index) => <div className="maak-passenger-row" key={index}>
           <div className="maak-field">
             <label htmlFor={"umrah-name-" + index}>{txt("اسم المعتمر", "Pilgrim name")} {index + 1} *</label>
@@ -261,7 +262,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
             <span>{txt("صورة الجواز", "Passport image")} *</span>
             <input required type="file" accept="image/jpeg,image/png,application/pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
             <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
-            {hasAuthenticatedAccount && <span className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [...current, index] : current.filter(value => value !== index))} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</span>}
+            {hasAuthenticatedAccount && <span className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [index] : [])} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</span>}
           </label>
         </div>)}
       </div>
