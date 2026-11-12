@@ -24,6 +24,8 @@ declare
   check_in date;
   check_out date;
   form_data jsonb := p_request_data -> 'form_data';
+  passenger_count integer;
+  traveller_count integer;
 begin
   -- Accept +E.164, 00-prefixed, or country-code-only international numbers.
   -- Store all variants in canonical +E.164 form, matching the Auth profile contract.
@@ -133,7 +135,7 @@ begin
 
   -- M08: validate the structured fields that each service form submits.
   -- The WhatsApp message is presentation text and is never trusted as field data.
-  if jsonb_typeof(form_data) <> 'object' then
+  if coalesce(jsonb_typeof(form_data), '') <> 'object' then
     raise exception 'Missing structured service data' using errcode = '22023';
   end if;
 
@@ -142,23 +144,28 @@ begin
       or char_length(trim(form_data ->> 'departure')) > 120
       or nullif(trim(form_data ->> 'destination'), '') is null
       or char_length(trim(form_data ->> 'destination')) > 120
+      or form_data ->> 'trip_type' is null
       or form_data ->> 'trip_type' not in ('oneway', 'return')
       or coalesce(form_data ->> 'departure_date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
-      or coalesce(form_data ->> 'passenger_count', '') !~ '^[1-9][0-9]?$'
-      or (form_data ->> 'passenger_count')::integer > 30
-      or jsonb_typeof(form_data -> 'passenger_names') <> 'array'
-      or jsonb_array_length(form_data -> 'passenger_names') <> (form_data ->> 'passenger_count')::integer
+      or coalesce(form_data ->> 'passenger_count', '') !~ '^[1-9][0-9]?$' then
+      raise exception 'Invalid flight request fields' using errcode = '22023';
+    end if;
+    passenger_count := (form_data ->> 'passenger_count')::integer;
+    if passenger_count > 30 or jsonb_typeof(form_data -> 'passenger_names') is distinct from 'array' then
+      raise exception 'Invalid flight passenger list' using errcode = '22023';
+    end if;
+    if jsonb_array_length(form_data -> 'passenger_names') <> passenger_count
       or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
         where char_length(trim(n.value)) not between 2 and 120)
       or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) < 1
       or (form_data ->> 'trip_type' = 'return' and coalesce(form_data ->> 'return_date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
       or (form_data ->> 'trip_type' = 'oneway' and nullif(form_data ->> 'return_date', '') is not null) then
-      raise exception 'Invalid flight request fields' using errcode = '22023';
+      raise exception 'Invalid flight passenger or date details' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'ground_transport' then
-    if form_data ->> 'departure_country' not in ('YE', 'SA')
+    if form_data ->> 'departure_country' is null or form_data ->> 'departure_country' not in ('YE', 'SA')
       or nullif(trim(form_data ->> 'departure_region'), '') is null
-      or form_data ->> 'destination_country' not in ('YE', 'SA')
+      or form_data ->> 'destination_country' is null or form_data ->> 'destination_country' not in ('YE', 'SA')
       or nullif(trim(form_data ->> 'destination_region'), '') is null then
       raise exception 'Invalid ground transport route' using errcode = '22023';
     end if;
@@ -168,7 +175,7 @@ begin
       raise exception 'Invalid accommodation destination' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'car_rental' then
-    if form_data ->> 'country' not in ('YE', 'EG')
+    if form_data ->> 'country' is null or form_data ->> 'country' not in ('YE', 'EG')
       or nullif(trim(form_data ->> 'pickup_city'), '') is null
       or char_length(trim(form_data ->> 'pickup_city')) > 120 then
       raise exception 'Invalid car rental location' using errcode = '22023';
@@ -181,29 +188,32 @@ begin
       raise exception 'Invalid medical travel request' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'security_clearance' then
-    if form_data ->> 'request_type' not in ('new', 'follow-up')
-      or form_data ->> 'purpose' not in ('tourism', 'family', 'business', 'transit', 'other') then
+    if form_data ->> 'request_type' is null or form_data ->> 'request_type' not in ('new', 'follow-up')
+      or form_data ->> 'purpose' is null or form_data ->> 'purpose' not in ('tourism', 'family', 'business', 'transit', 'other') then
       raise exception 'Invalid security clearance request' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'umrah' then
     if coalesce(form_data ->> 'date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
       or coalesce(form_data ->> 'travellers', '') !~ '^[1-9]$'
-      or jsonb_typeof(form_data -> 'passenger_names') <> 'array'
-      or jsonb_array_length(form_data -> 'passenger_names') <> (form_data ->> 'travellers')::integer
-      or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
-        where char_length(trim(n.value)) not between 2 and 120)
-      or form_data ->> 'passport_files_attached' <> 'true' then
+      or jsonb_typeof(form_data -> 'passenger_names') is distinct from 'array'
+      or form_data ->> 'passport_files_attached' is distinct from 'true' then
       raise exception 'Invalid Umrah request fields' using errcode = '22023';
     end if;
+    traveller_count := (form_data ->> 'travellers')::integer;
+    if jsonb_array_length(form_data -> 'passenger_names') <> traveller_count
+      or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
+        where char_length(trim(n.value)) not between 2 and 120) then
+      raise exception 'Invalid Umrah passenger details' using errcode = '22023';
+    end if;
   elsif trim(p_service) = 'real_estate' then
-    if form_data ->> 'service_type' not in ('rent', 'buy', 'sell', 'management')
-      or form_data ->> 'property_type' not in ('apartment', 'house', 'land', 'commercial', 'other')
+    if form_data ->> 'service_type' is null or form_data ->> 'service_type' not in ('rent', 'buy', 'sell', 'management')
+      or form_data ->> 'property_type' is null or form_data ->> 'property_type' not in ('apartment', 'house', 'land', 'commercial', 'other')
       or nullif(trim(form_data ->> 'city'), '') is null
       or char_length(trim(form_data ->> 'city')) > 120 then
       raise exception 'Invalid real estate request' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'tourism' then
-    if form_data ->> 'trip_type' not in ('family', 'culture', 'nature', 'relaxation', 'custom')
+    if form_data ->> 'trip_type' is null or form_data ->> 'trip_type' not in ('family', 'culture', 'nature', 'relaxation', 'custom')
       or nullif(trim(form_data ->> 'destination'), '') is null
       or char_length(trim(form_data ->> 'destination')) > 200 then
       raise exception 'Invalid tourism request' using errcode = '22023';
