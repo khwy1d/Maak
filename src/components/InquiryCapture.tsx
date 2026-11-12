@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from "react";
 import { submitInquiry, type InquiryService } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
+import { getPassportFiles, clearPassportFiles } from "../lib/passportUploads";
 
-type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown> };
+type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown>; passportUploadKey: string; passportUploadToken: string };
 
 function normalizeInternationalPhone(value: string): string | null {
   let digits = value.replace(/\D/g, "");
@@ -100,7 +101,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         setError(ar ? "تعذر قراءة تفاصيل الطلب. أعد المحاولة." : "Could not read request details. Please try again.");
         return;
       }
-      setPending({ service, message, url: link.href, requestData });
+      setPending({ service, message, url: link.href, requestData, passportUploadKey: link.dataset.passportUploadKey ?? "", passportUploadToken: crypto.randomUUID() });
       setName(accountName);
       setError("");
       if (client) {
@@ -131,10 +132,37 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         customerName: name,
         customerPhone: normalizedPhone,
         service: pending.service,
-        requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
+        requestData: { ...pending.requestData, ...(pending.passportUploadKey ? { passport_upload_token: pending.passportUploadToken } : {}), message: pending.message, source_path: window.location.pathname },
       };
       const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
-      await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+      const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+      const passportFiles = pending.passportUploadKey ? getPassportFiles(pending.passportUploadKey) : [];
+      if (passportFiles.length) {
+        const savedRecord = (Array.isArray(savedOrder) ? savedOrder[0] : savedOrder) as Record<string, unknown> | null;
+        const orderId = typeof savedRecord?.id === "string" ? savedRecord.id : "";
+        const formData = pending.requestData.form_data as Record<string, unknown> | undefined;
+        const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
+        const linkedIndices = Array.isArray(formData?.account_linked_passenger_indices) ? formData.account_linked_passenger_indices : [];
+        if (!orderId || passengerNames.length !== passportFiles.length || !supabase) {
+          throw new Error(ar ? "حُفظ الطلب، لكن تعذر تجهيز مرفقات الجواز. أعد المحاولة." : "The request was saved, but passport attachments could not be prepared. Please retry.");
+        }
+        for (let index = 0; index < passportFiles.length; index += 1) {
+          const passengerName = passengerNames[index];
+          if (typeof passengerName !== "string" || passengerName.trim().length < 2) {
+            throw new Error(ar ? "تحقق من أسماء المسافرين ومرفقاتهم." : "Check passenger names and their attachments.");
+          }
+          const upload = new FormData();
+          upload.append("orderId", orderId);
+          upload.append("uploadToken", pending.passportUploadToken);
+          upload.append("passengerIndex", String(index));
+          upload.append("passengerName", passengerName.trim());
+          upload.append("linkToAccount", String(linkedIndices.includes(index)));
+          upload.append("file", passportFiles[index], passportFiles[index].name);
+          const { error: uploadError } = await supabase.functions.invoke("upload-passport", { body: upload });
+          if (uploadError) throw uploadError;
+        }
+        clearPassportFiles(pending.passportUploadKey);
+      }
       if (whatsapp) whatsapp.location.href = pending.url;
       else window.location.assign(pending.url);
       clearIdempotencyKey(idempotencyIntent);
