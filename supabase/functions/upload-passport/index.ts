@@ -54,6 +54,13 @@ Deno.serve(async request => {
     if (!extension || file.size < 1 || file.size > maxBytes) {
       return json({ error: "Use a JPG, PNG, or PDF file up to 10 MB." }, 400, origin);
     }
+    const fileBytes = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+    const validSignature = file.type === "image/jpeg"
+      ? fileBytes[0] === 0xff && fileBytes[1] === 0xd8 && fileBytes[2] === 0xff
+      : file.type === "image/png"
+        ? fileBytes.length === 8 && fileBytes[0] === 0x89 && fileBytes[1] === 0x50 && fileBytes[2] === 0x4e && fileBytes[3] === 0x47 && fileBytes[4] === 0x0d && fileBytes[5] === 0x0a && fileBytes[6] === 0x1a && fileBytes[7] === 0x0a
+        : new TextDecoder().decode(fileBytes.slice(0, 4)) === "%PDF";
+    if (!validSignature) return json({ error: "The file content does not match its declared type." }, 400, origin);
 
     let userId: string | null = null;
     const authorization = request.headers.get("authorization") ?? "";
@@ -83,6 +90,8 @@ Deno.serve(async request => {
       && existing.passenger_name === passengerName;
     if (order.customer_id) {
       if (!userId || order.customer_id !== userId) return json({ error: "You cannot upload documents to this request." }, 403, origin);
+    } else if (userId) {
+      return json({ error: "Guest requests must be uploaded from the original guest session." }, 403, origin);
     } else if (requestData.passport_upload_token !== uploadToken && !alreadyUploadedForToken) {
       return json({ error: "Guest upload authorization is invalid or expired." }, 403, origin);
     }
@@ -112,7 +121,8 @@ Deno.serve(async request => {
     const nextDocuments = [...documents.filter(item => item.passenger_index !== passengerIndex), metadata]
       .sort((a, b) => Number(a.passenger_index) - Number(b.passenger_index));
     const nextFormData = { ...formData, passport_documents: nextDocuments };
-    const nextRequestData = { ...requestData, form_data: nextFormData };
+    const nextRequestData: Record<string, unknown> = { ...requestData, form_data: nextFormData };
+    if (nextDocuments.length >= names.length) delete nextRequestData.passport_upload_token;
     const { error: updateError } = await admin.from("orders").update({ request_data: nextRequestData }).eq("id", orderId);
     if (updateError) throw updateError;
 
