@@ -20,7 +20,7 @@ declare
 begin
   if phone_value like '00%' then
     phone_value := '+' || substr(phone_value, 3);
-  elsif phone_value !~ '^\\+' then
+  elsif phone_value !~ '^\+' then
     phone_value := '+' || phone_value;
   end if;
 
