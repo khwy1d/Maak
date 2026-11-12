@@ -167,13 +167,19 @@ begin
   elsif trim(p_service) = 'ground_transport' then
     if form_data ->> 'departure_country' is null or form_data ->> 'departure_country' not in ('YE', 'SA')
       or nullif(trim(form_data ->> 'departure_region'), '') is null
+      or char_length(trim(form_data ->> 'departure_region')) > 120
       or form_data ->> 'destination_country' is null or form_data ->> 'destination_country' not in ('YE', 'SA')
-      or nullif(trim(form_data ->> 'destination_region'), '') is null then
+      or nullif(trim(form_data ->> 'destination_region'), '') is null
+      or char_length(trim(form_data ->> 'destination_region')) > 120 then
       raise exception 'Invalid ground transport route' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'accommodation' then
     if nullif(trim(form_data ->> 'country'), '') is null
-      or nullif(trim(form_data ->> 'city'), '') is null then
+      or char_length(trim(form_data ->> 'country')) > 80
+      or nullif(trim(form_data ->> 'city'), '') is null
+      or char_length(trim(form_data ->> 'city')) > 120
+      or (form_data ->> 'country') is distinct from (p_request_data ->> 'country')
+      or (form_data ->> 'city') is distinct from (p_request_data ->> 'city') then
       raise exception 'Invalid accommodation destination' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'car_rental' then
