@@ -89,7 +89,7 @@ function RequestCard({
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
+        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
       </div>
     </section>}
   </div>;
