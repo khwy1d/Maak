@@ -22,3 +22,6 @@ enable_signup = true
 
 [storage]
 enabled = true
+
+[functions.upload-passport]
+verify_jwt = false
