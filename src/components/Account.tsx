@@ -73,6 +73,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         setIsAdmin(false);
         setProfile(null);
         setPassportSignedUrl("");
+        setAccountPanel(null);
         setOrders([]);
         setTransactions([]);
         setReferrals([]);
@@ -152,7 +153,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     let active = true;
     const path = profile?.passport_storage_path;
     if (!supabase || !path || !session) { setPassportSignedUrl(""); return; }
-    void supabase.storage.from("customer-passports").createSignedUrl(path, 300).then(({ data, error }) => {
+    void supabase.storage.from("customer-passports").createSignedUrl(path, 3600).then(({ data, error }) => {
       if (active) setPassportSignedUrl(error ? "" : data?.signedUrl ?? "");
     });
     return () => { active = false; };
