@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { createInquiryOrder } from "../lib/orders";
+import { submitInquiry } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
@@ -53,10 +53,11 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const target = event.target;
       if (!(target instanceof Element)) return;
-      const link = target.closest<HTMLAnchorElement>('a[href^="https://wa.me/"]');
+      const link = target.closest<HTMLAnchorElement>('a[data-save-inquiry="true"]');
       const service = serviceNames[window.location.pathname.replace(/\/+$/, "")];
       if (!link || !service) return;
       const parsed = new URL(link.href);
+      if (parsed.protocol !== "https:" || parsed.hostname !== "wa.me" || !/^\\d+$/.test(parsed.pathname.slice(1))) return;
       const message = parsed.searchParams.get("text") ?? service;
       let requestData: Record<string, unknown> = {};
       try {
@@ -100,7 +101,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
       };
       const idempotencyKey = await getOrCreateIdempotencyKey(orderPayload);
-      await createInquiryOrder({ ...orderPayload, idempotencyKey });
+      await submitInquiry({ ...orderPayload, idempotencyKey });
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
