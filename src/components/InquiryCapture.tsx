@@ -3,7 +3,7 @@ import { createInquiryOrder } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
-type PendingInquiry = { service: string; message: string; url: string };
+type PendingInquiry = { service: string; message: string; url: string; requestData: Record<string, unknown> };
 async function getOrCreateIdempotencyKey(payload: unknown): Promise<string> {
   const serialized = JSON.stringify(payload);
   try {
@@ -58,9 +58,22 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       if (!link || !service) return;
       const parsed = new URL(link.href);
       const message = parsed.searchParams.get("text") ?? service;
+      let requestData: Record<string, unknown> = {};
+      try {
+        const rawRequestData = link.dataset.requestData;
+        if (rawRequestData) {
+          const parsedRequestData: unknown = JSON.parse(rawRequestData);
+          if (parsedRequestData && typeof parsedRequestData === "object" && !Array.isArray(parsedRequestData)) {
+            requestData = parsedRequestData as Record<string, unknown>;
+          }
+        }
+      } catch {
+        setError(ar ? "تعذر قراءة تفاصيل الطلب. أعد المحاولة." : "Could not read request details. Please try again.");
+        return;
+      }
       event.preventDefault();
       event.stopImmediatePropagation();
-      setPending({ service, message, url: link.href });
+      setPending({ service, message, url: link.href, requestData });
       setName(accountName);
       setError("");
       void client.auth.getUser().then(async ({ data }) => {
@@ -84,7 +97,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         customerName: name,
         customerPhone: phone,
         service: pending.service,
-        requestData: { message: pending.message, source_path: window.location.pathname },
+        requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
       };
       const idempotencyKey = await getOrCreateIdempotencyKey(orderPayload);
       await createInquiryOrder({ ...orderPayload, idempotencyKey });
