@@ -8,16 +8,22 @@ import { siteConfig } from "../config/site";
 
 type Row = Record<string, any>;
 
+const fallbackWalletDebitKeys = new Map<string, string>();
+
 function getWalletDebitKey(orderId: string, amount: number) {
   const storageKey = `maak-wallet-debit:${orderId}:${amount.toFixed(2)}`;
   try {
     const existing = sessionStorage.getItem(storageKey);
-    if (existing) return { key: existing, storageKey };
+    if (existing) return { key: existing, storageKey, fallbackKey: null };
     const key = crypto.randomUUID();
     sessionStorage.setItem(storageKey, key);
-    return { key, storageKey };
+    return { key, storageKey, fallbackKey: null };
   } catch {
-    return { key: crypto.randomUUID(), storageKey: null };
+    const existing = fallbackWalletDebitKeys.get(storageKey);
+    if (existing) return { key: existing, storageKey: null, fallbackKey: storageKey };
+    const key = crypto.randomUUID();
+    fallbackWalletDebitKeys.set(storageKey, key);
+    return { key, storageKey: null, fallbackKey: storageKey };
   }
 }
 
@@ -243,6 +249,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       if (debitIntent.storageKey) {
         try { sessionStorage.removeItem(debitIntent.storageKey); } catch { /* storage may be unavailable */ }
       }
+      if (debitIntent.fallbackKey) fallbackWalletDebitKeys.delete(debitIntent.fallbackKey);
       await refresh();
       setMessage(t("تم تطبيق الرصيد على الطلب.", "Wallet balance applied to the order."));
     } catch (error) { setMessage(formatApiError(error)); }
