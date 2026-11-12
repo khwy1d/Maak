@@ -4,7 +4,7 @@ import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
 import { useAccountName } from "../hooks/useAccountName";
-import { buildWhatsAppUrl } from "../lib/whatsapp";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
