@@ -4,6 +4,7 @@ const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const bucket = "customer-passports";
+const allowedOrigins = new Set(["https://maaktravel.vercel.app", "http://localhost:3000", "http://127.0.0.1:3000"]);
 const maxBytes = 10 * 1024 * 1024;
 const extensions: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf" };
 const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -11,7 +12,7 @@ const authClient = createClient(supabaseUrl, anonKey, { auth: { persistSession: 
 
 function respond(body: Record<string, unknown>, status = 200, origin: string | null = null) {
   const headers = new Headers({ "content-type": "application/json; charset=utf-8", "cache-control": "no-store" });
-  if (origin && new Set(["https://maaktravel.vercel.app", "http://localhost:3000", "http://127.0.0.1:3000"]).has(origin)) {
+  if (origin && allowedOrigins.has(origin)) {
     headers.set("access-control-allow-origin", origin);
     headers.set("vary", "Origin");
   }
@@ -20,15 +21,19 @@ function respond(body: Record<string, unknown>, status = 200, origin: string | n
 
 Deno.serve(async request => {
   const origin = request.headers.get("origin");
-  if (request.method === "OPTIONS") return new Response("", { status: 204, headers: {
-    "access-control-allow-origin": origin ?? "https://maaktravel.vercel.app",
+  if (request.method === "OPTIONS") {
+    if (!origin || !allowedOrigins.has(origin)) return new Response("", { status: 403 });
+    return new Response("", { status: 204, headers: {
+    "access-control-allow-origin": origin,
     "access-control-allow-methods": "POST, OPTIONS",
     "access-control-allow-headers": "authorization, apikey, content-type, x-client-info",
     "access-control-max-age": "86400",
   }});
+  }
   if (request.method !== "POST") return respond({ error: "Method not allowed." }, 405, origin);
   try {
-    const bearer = request.headers.get("authorization")?.match(/^Bearer\\s+(.+)$/i)?.[1];
+    const authorization = request.headers.get("authorization") ?? "";
+    const bearer = authorization.toLowerCase().startsWith("bearer ") ? authorization.slice(7).trim() : "";
     if (!bearer) return respond({ error: "Sign in to manage your passport document." }, 401, origin);
     const { data: authData, error: authError } = await authClient.auth.getUser(bearer);
     if (authError || !authData.user) return respond({ error: "Your session could not be verified." }, 401, origin);
