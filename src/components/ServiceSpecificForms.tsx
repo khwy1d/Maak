@@ -38,7 +38,7 @@ function Select({ value, onChange, placeholder, options, id, required }: {
 }
 
 function RequestCard({
-  lang, title, intro, serviceName, serviceCode, rows, children, note, canReview = true,
+  lang, title, intro, serviceName, serviceCode, rows, formData, children, note, canReview = true,
 }: {
   lang: Lang;
   title: string;
@@ -46,6 +46,7 @@ function RequestCard({
   serviceName: string;
   serviceCode: InquiryService;
   rows: Row[];
+  formData: Record<string, unknown>;
   children: ReactNode;
   note: string;
   canReview?: boolean;
@@ -91,7 +92,7 @@ function RequestCard({
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
+        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: formData })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
       </div>
     </section>}
   </div>;
@@ -128,7 +129,7 @@ export function MedicalTravelForm({ lang }: ServiceFormProps) {
   ];
   return <RequestCard lang={lang} serviceCode="medical_travel" canReview={!!purpose && !!destination.trim()} title={txt("رتّب تفاصيل السفر العلاجي", "Plan your medical travel")}
     intro={txt("أخبرنا بالوجهة والترتيبات التي تحتاجها. لا تكتب تشخيصًا طبيًا أو ترسل تقارير وفحوصات هنا.", "Tell us the destination and travel arrangements you need. Please do not enter a diagnosis or share medical records here.")}
-    serviceName={txt("السفر العلاجي", "medical travel")} rows={rows}
+    serviceName={txt("السفر العلاجي", "medical travel")} rows={rows} formData={{ purpose, destination: destination.trim() }}
     note={txt("تبقى القرارات الطبية لدى المختصين، وتُراجع المواعيد والتوافر عند التواصل.", "Medical decisions remain with qualified professionals; appointments and availability are confirmed during follow-up.")}>
     <div className="flight-group"><h4>{txt("الغرض من التنسيق", "Type of travel support")}</h4>
       <div className="flight-input-grid">
@@ -171,7 +172,7 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
   ];
   return <RequestCard lang={lang} serviceCode="security_clearance" canReview={!!requestType && !!purpose} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
     intro={txt("أدخل معلومات السفر العامة فقط لبدء الاستفسار. لا تكتب رقم جواز السفر أو أي بيانات تعريفية حساسة.", "Share general travel details to start your enquiry. Do not enter passport numbers or other sensitive identifiers.")}
-    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows}
+    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ request_type: requestType, purpose }}
     note={txt("لا يمكن ضمان الموافقة أو مدة صدورها؛ تُراجع الإجراءات والمتطلبات عند التواصل.", "Approval and processing times cannot be guaranteed; requirements are reviewed during follow-up.")}>
     <div className="flight-group"><h4>{txt("تفاصيل الاستفسار", "Enquiry details")}</h4>
       <div className="flight-input-grid">
@@ -222,7 +223,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
-    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows}
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }}
     note={txt("راجع تفاصيل الطلب قبل إرساله. أرفق صور الجوازات يدويًا في محادثة واتساب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Review the request before sending. Attach passport images manually in WhatsApp; sending the request does not mean a visa has been issued or a booking confirmed.")}>
     <div className="flight-group">
       <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
@@ -288,7 +289,7 @@ export function RealEstateForm({ lang }: ServiceFormProps) {
   ];
   return <RequestCard lang={lang} serviceCode="real_estate" canReview={!!serviceType && !!propertyType && !!city.trim()} title={txt("ما الخدمة العقارية التي تبحث عنها؟", "What property service do you need?")}
     intro={txt("أخبرنا بنوع الخدمة والمدينة ومواصفات العقار لتوجيه استفسارك.", "Share the service, location and property details so we can direct your enquiry.")}
-    serviceName={txt("الخدمات العقارية", "real estate services")} rows={rows}
+    serviceName={txt("الخدمات العقارية", "real estate services")} rows={rows} formData={{ service_type: serviceType, property_type: propertyType, city: city.trim() }}
     note={txt("تُراجع الأسعار والتفاصيل والتوافر مباشرة، ولا يمثل هذا الاستفسار عرضًا أو التزامًا.", "Prices, details and availability are confirmed directly; this enquiry is not an offer or commitment.")}>
     <div className="flight-group"><h4>{txt("الخدمة والموقع", "Service and location")}</h4>
       <div className="flight-input-grid">
@@ -333,7 +334,7 @@ export function TourismForm({ lang }: ServiceFormProps) {
   ];
   return <RequestCard lang={lang} serviceCode="tourism" canReview={!!tripType && !!destination.trim()} title={txt("صمّم رحلتك السياحية", "Shape your travel plans")}
     intro={txt("شاركنا الوجهة وطبيعة الرحلة والخدمات التي تهمك، وسنساعدك في ترتيب الخيارات المناسبة.", "Tell us where you want to go, what kind of trip you have in mind and which arrangements matter to you.")}
-    serviceName={txt("السياحة والرحلات", "tourism and trips")} rows={rows}
+    serviceName={txt("السياحة والرحلات", "tourism and trips")} rows={rows} formData={{ trip_type: tripType, destination: destination.trim() }}
     note={txt("تُراجع البرامج والأسعار والتوافر قبل تأكيد أي ترتيب.", "Itineraries, prices and availability are confirmed before any arrangements are finalized.")}>
     <div className="flight-group"><h4>{txt("وجهتك وطبيعة الرحلة", "Destination and trip style")}</h4>
       <div className="flight-input-grid">
