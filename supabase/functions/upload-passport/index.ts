@@ -96,10 +96,12 @@ Deno.serve(async request => {
       return json({ error: "Guest upload authorization is invalid or expired." }, 403, origin);
     }
     let linkToAccount = false;
+    let previousAccountPath: string | null = null;
     if (userId && order.customer_id === userId) {
       const { data: ownerProfile, error: ownerProfileError } = await admin.from("profiles")
         .select("full_name,passport_storage_path").eq("id", userId).maybeSingle();
       if (ownerProfileError) throw ownerProfileError;
+      previousAccountPath = typeof ownerProfile?.passport_storage_path === "string" ? ownerProfile.passport_storage_path : null;
       const normalizeName = (value: string) => value.normalize("NFKC").toLocaleLowerCase()
         .replace(/[\u064B-\u065F\u0670\u0640]/g, "").trim().replace(/\s+/g, " ");
       linkToAccount = !!ownerProfile?.full_name
@@ -140,6 +142,10 @@ Deno.serve(async request => {
       if (profileError) {
         await admin.storage.from(bucket).remove([accountPath]);
         throw profileError;
+      }
+      if (previousAccountPath?.startsWith(userId + "/account/") && previousAccountPath !== accountPath) {
+        const { error: cleanupError } = await admin.storage.from(bucket).remove([previousAccountPath]);
+        if (cleanupError) console.error("Previous account passport cleanup failed", cleanupError.message);
       }
     }
 
