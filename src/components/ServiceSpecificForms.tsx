@@ -260,7 +260,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
             <span>{txt("صورة الجواز", "Passport image")} *</span>
             <input required type="file" accept="image/*,.pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
             <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
-            {hasAuthenticatedAccount && <label className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [...current, index] : current.filter(value => value !== index))} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</label>}
+            {hasAuthenticatedAccount && <span className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [...current, index] : current.filter(value => value !== index))} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</span>}
           </label>
         </div>)}
       </div>
