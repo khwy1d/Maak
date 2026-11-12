@@ -4,6 +4,31 @@ import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
 type PendingInquiry = { service: string; message: string; url: string };
+async function getOrCreateIdempotencyKey(payload: unknown): Promise<string> {
+  const serialized = JSON.stringify(payload);
+  try {
+    if (!globalThis.crypto?.subtle) throw new Error("Secure hashing unavailable");
+    const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(serialized));
+    const fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
+    const storageKey = `maak-inquiry-idempotency:${fingerprint}`;
+    const now = Date.now();
+    try {
+      const stored = sessionStorage.getItem(storageKey);
+      if (stored) {
+        const parsed = JSON.parse(stored) as { key?: string; createdAt?: number };
+        if (parsed.key && parsed.createdAt && now - parsed.createdAt < 24 * 60 * 60 * 1000) return parsed.key;
+      }
+      const key = globalThis.crypto.randomUUID();
+      sessionStorage.setItem(storageKey, JSON.stringify({ key, createdAt: now }));
+      return key;
+    } catch {
+      return globalThis.crypto.randomUUID();
+    }
+  } catch {
+    return globalThis.crypto.randomUUID();
+  }
+}
+
 const serviceNames: Record<string, string> = {
   "/flights": "flight", "/transport": "ground_transport", "/hotels": "accommodation",
   "/car-rental": "car_rental", "/medical-tourism": "medical_travel", "/security-clearance-egypt": "security_clearance",
@@ -55,13 +80,17 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
     const whatsapp = window.open("about:blank", "_blank");
     if (whatsapp) whatsapp.opener = null;
     try {
-      await createInquiryOrder({
+      const orderPayload = {
         customerName: name,
         customerPhone: phone,
         service: pending.service,
         requestData: { message: pending.message, source_path: window.location.pathname },
-        idempotencyKey: crypto.randomUUID(),
-      });
+      };
+      const idempotencyKey = await getOrCreateIdempotencyKey(orderPayload);
+      await createInquiryOrder({ ...orderPayload, idempotencyKey });
+      if (pending.service === "flight") {
+        try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
+      }
       if (whatsapp) whatsapp.location.href = pending.url;
       else window.location.assign(pending.url);
       setPending(null);
