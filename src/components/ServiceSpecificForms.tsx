@@ -9,6 +9,7 @@ import { buildWhatsAppUrl } from "../lib/whatsapp";
 type Lang = "ar" | "en";
 type Row = [string, string];
 type ServiceFormProps = { lang: Lang };
+type InquiryService = "medical_travel" | "security_clearance" | "umrah" | "real_estate" | "tourism";
 
 function label(lang: Lang, ar: string, en: string) {
   return lang === "ar" ? ar : en;
@@ -37,12 +38,13 @@ function Select({ value, onChange, placeholder, options, id, required }: {
 }
 
 function RequestCard({
-  lang, title, intro, serviceName, rows, children, note, canReview = true,
+  lang, title, intro, serviceName, serviceCode, rows, children, note, canReview = true,
 }: {
   lang: Lang;
   title: string;
   intro: string;
   serviceName: string;
+  serviceCode: InquiryService;
   rows: Row[];
   children: ReactNode;
   note: string;
@@ -89,7 +91,7 @@ function RequestCard({
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
+        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
       </div>
     </section>}
   </div>;
@@ -124,7 +126,7 @@ export function MedicalTravelForm({ lang }: ServiceFormProps) {
     ...(support ? [[txt("المساعدة المطلوبة", "Arrangements requested"), ({ accommodation: txt("إقامة", "Accommodation"), transport: txt("تنقلات", "Transport"), both: txt("إقامة وتنقلات", "Accommodation and transport"), none: txt("تذاكر سفر فقط", "Travel only") } as Record<string, string>)[support]] as Row] : []),
     ...(notes.trim() ? [[txt("ملاحظات ترتيبات السفر", "Travel arrangement notes"), notes.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} canReview={!!purpose && !!destination.trim()} title={txt("رتّب تفاصيل السفر العلاجي", "Plan your medical travel")}
+  return <RequestCard lang={lang} serviceCode="medical_travel" canReview={!!purpose && !!destination.trim()} title={txt("رتّب تفاصيل السفر العلاجي", "Plan your medical travel")}
     intro={txt("أخبرنا بالوجهة والترتيبات التي تحتاجها. لا تكتب تشخيصًا طبيًا أو ترسل تقارير وفحوصات هنا.", "Tell us the destination and travel arrangements you need. Please do not enter a diagnosis or share medical records here.")}
     serviceName={txt("السفر العلاجي", "medical travel")} rows={rows}
     note={txt("تبقى القرارات الطبية لدى المختصين، وتُراجع المواعيد والتوافر عند التواصل.", "Medical decisions remain with qualified professionals; appointments and availability are confirmed during follow-up.")}>
@@ -167,7 +169,7 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
     ...(documentsReady ? [[txt("حالة المستندات", "Document status"), ({ yes: txt("نعم", "Yes"), partial: txt("بعضها", "Some are ready"), no: txt("ليس بعد", "Not yet") } as Record<string, string>)[documentsReady]] as Row] : []),
     ...(question.trim() ? [[txt("السؤال", "Question"), question.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} canReview={!!requestType && !!purpose} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
+  return <RequestCard lang={lang} serviceCode="security_clearance" canReview={!!requestType && !!purpose} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
     intro={txt("أدخل معلومات السفر العامة فقط لبدء الاستفسار. لا تكتب رقم جواز السفر أو أي بيانات تعريفية حساسة.", "Share general travel details to start your enquiry. Do not enter passport numbers or other sensitive identifiers.")}
     serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows}
     note={txt("لا يمكن ضمان الموافقة أو مدة صدورها؛ تُراجع الإجراءات والمتطلبات عند التواصل.", "Approval and processing times cannot be guaranteed; requirements are reviewed during follow-up.")}>
@@ -218,7 +220,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   ];
   const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
-  return <RequestCard lang={lang} canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
+  return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
     serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows}
     note={txt("راجع تفاصيل الطلب قبل إرساله. أرفق صور الجوازات يدويًا في محادثة واتساب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Review the request before sending. Attach passport images manually in WhatsApp; sending the request does not mean a visa has been issued or a booking confirmed.")}>
@@ -284,7 +286,7 @@ export function RealEstateForm({ lang }: ServiceFormProps) {
     ...(timing ? [[txt("التوقيت المتوقع", "Expected timing"), timing] as Row] : []),
     ...(details.trim() ? [[txt("تفاصيل إضافية", "Additional details"), details.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} canReview={!!serviceType && !!propertyType && !!city.trim()} title={txt("ما الخدمة العقارية التي تبحث عنها؟", "What property service do you need?")}
+  return <RequestCard lang={lang} serviceCode="real_estate" canReview={!!serviceType && !!propertyType && !!city.trim()} title={txt("ما الخدمة العقارية التي تبحث عنها؟", "What property service do you need?")}
     intro={txt("أخبرنا بنوع الخدمة والمدينة ومواصفات العقار لتوجيه استفسارك.", "Share the service, location and property details so we can direct your enquiry.")}
     serviceName={txt("الخدمات العقارية", "real estate services")} rows={rows}
     note={txt("تُراجع الأسعار والتفاصيل والتوافر مباشرة، ولا يمثل هذا الاستفسار عرضًا أو التزامًا.", "Prices, details and availability are confirmed directly; this enquiry is not an offer or commitment.")}>
@@ -329,7 +331,7 @@ export function TourismForm({ lang }: ServiceFormProps) {
     ...(services ? [[txt("الخدمات المطلوبة", "Services needed"), ({ transport: txt("تنقلات", "Transport"), accommodation: txt("إقامة", "Accommodation"), activities: txt("أنشطة وجولات", "Activities and tours"), all: txt("تنسيق الرحلة بالكامل", "Full trip coordination") } as Record<string, string>)[services]] as Row] : []),
     ...(notes.trim() ? [[txt("تفاصيل الرحلة", "Trip details"), notes.trim()] as Row] : []),
   ];
-  return <RequestCard lang={lang} canReview={!!tripType && !!destination.trim()} title={txt("صمّم رحلتك السياحية", "Shape your travel plans")}
+  return <RequestCard lang={lang} serviceCode="tourism" canReview={!!tripType && !!destination.trim()} title={txt("صمّم رحلتك السياحية", "Shape your travel plans")}
     intro={txt("شاركنا الوجهة وطبيعة الرحلة والخدمات التي تهمك، وسنساعدك في ترتيب الخيارات المناسبة.", "Tell us where you want to go, what kind of trip you have in mind and which arrangements matter to you.")}
     serviceName={txt("السياحة والرحلات", "tourism and trips")} rows={rows}
     note={txt("تُراجع البرامج والأسعار والتوافر قبل تأكيد أي ترتيب.", "Itineraries, prices and availability are confirmed before any arrangements are finalized.")}>
