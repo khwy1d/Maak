@@ -2104,4 +2104,6 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 .maak-passport-saved small { color:var(--muted); font-size:.78rem; }
 .maak-passport-saved .btn { min-height:40px; padding-inline:14px; font-size:.84rem; }
 .maak-passport-manage-upload { width:100%; min-height:44px; border-radius:12px; }
-.maak-passport-manage-upload input { display:none; }
+.maak-passport-manage-upload { position:relative; }
+.maak-passport-manage-upload input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.maak-passport-manage-upload:focus-within { outline:3px solid var(--focus); outline-offset:3px; }
