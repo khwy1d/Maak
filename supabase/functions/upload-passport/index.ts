@@ -28,7 +28,7 @@ Deno.serve(async request => {
       "access-control-allow-headers": "authorization, apikey, content-type, x-client-info",
       "access-control-max-age": "86400",
     });
-    if (origin && allowedOrigins.includes(origin)) {
+    if (origin && allowedOrigins.has(origin)) {
       headers.set("access-control-allow-origin", origin);
       headers.set("vary", "Origin");
     }
@@ -44,7 +44,6 @@ Deno.serve(async request => {
     const uploadToken = String(form.get("uploadToken") ?? "");
     const passengerIndex = Number(form.get("passengerIndex"));
     const passengerName = String(form.get("passengerName") ?? "").trim();
-    const linkToAccount = form.get("linkToAccount") === "true";
     const file = form.get("file");
     if (!/^[0-9a-f-]{36}$/i.test(orderId) || !/^[0-9a-f-]{36}$/i.test(uploadToken)
       || !Number.isInteger(passengerIndex) || passengerIndex < 0 || passengerIndex > 29
@@ -96,10 +95,15 @@ Deno.serve(async request => {
     } else if (requestData.passport_upload_token !== uploadToken && !alreadyUploadedForToken) {
       return json({ error: "Guest upload authorization is invalid or expired." }, 403, origin);
     }
-    if (linkToAccount && (!userId || order.customer_id !== userId
-      || !Array.isArray(formData?.account_linked_passenger_indices)
-      || !(formData.account_linked_passenger_indices as unknown[]).includes(passengerIndex))) {
-      return json({ error: "Only the signed-in account holder can link a passport to this account." }, 403, origin);
+    let linkToAccount = false;
+    if (userId && order.customer_id === userId) {
+      const { data: ownerProfile, error: ownerProfileError } = await admin.from("profiles")
+        .select("full_name").eq("id", userId).maybeSingle();
+      if (ownerProfileError) throw ownerProfileError;
+      const normalizeName = (value: string) => value.normalize("NFKC").toLocaleLowerCase()
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, "").trim().replace(/\s+/g, " ");
+      linkToAccount = !!ownerProfile?.full_name
+        && normalizeName(ownerProfile.full_name) === normalizeName(passengerName);
     }
 
     const ownerFolder = userId ?? "guest";
