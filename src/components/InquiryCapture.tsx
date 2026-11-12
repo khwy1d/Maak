@@ -142,7 +142,6 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         const orderId = typeof savedRecord?.id === "string" ? savedRecord.id : "";
         const formData = pending.requestData.form_data as Record<string, unknown> | undefined;
         const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
-        const linkedIndices = Array.isArray(formData?.account_linked_passenger_indices) ? formData.account_linked_passenger_indices : [];
         if (!orderId || passengerNames.length !== passportFiles.length || !supabase) {
           throw new Error(ar ? "حُفظ الطلب، لكن تعذر تجهيز مرفقات الجواز. أعد المحاولة." : "The request was saved, but passport attachments could not be prepared. Please retry.");
         }
@@ -156,7 +155,6 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
           upload.append("uploadToken", pending.passportUploadToken);
           upload.append("passengerIndex", String(index));
           upload.append("passengerName", passengerName.trim());
-          upload.append("linkToAccount", String(linkedIndices.includes(index)));
           upload.append("file", passportFiles[index], passportFiles[index].name);
           const { error: uploadError } = await supabase.functions.invoke("upload-passport", { body: upload });
           if (uploadError) throw uploadError;
