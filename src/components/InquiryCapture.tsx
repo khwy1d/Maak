@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { submitInquiry, type InquiryService } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
-import { getPassportFiles, clearPassportFiles } from "../lib/passportUploads";
+import { getPassportFiles, clearPassportFiles, getOrCreatePassportUploadToken } from "../lib/passportUploads";
 
 type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown>; passportUploadKey: string; passportUploadToken: string };
 
@@ -101,7 +101,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         setError(ar ? "تعذر قراءة تفاصيل الطلب. أعد المحاولة." : "Could not read request details. Please try again.");
         return;
       }
-      setPending({ service, message, url: link.href, requestData, passportUploadKey: link.dataset.passportUploadKey ?? "", passportUploadToken: crypto.randomUUID() });
+      setPending({ service, message, url: link.href, requestData, passportUploadKey: link.dataset.passportUploadKey ?? "", passportUploadToken: getOrCreatePassportUploadToken(link.dataset.passportUploadKey ?? "") });
       setName(accountName);
       setError("");
       if (client) {
