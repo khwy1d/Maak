@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Users, BedDouble, MapPin, X, Search, ChevronDown } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { buildWhatsAppUrl } from "../lib/whatsapp";
 
 type Lang = "ar" | "en";
 const countries = [
@@ -29,7 +30,6 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const today = new Date().toISOString().slice(0, 10);
   const locationComplete = !!country && !!city.trim();
   const datesValid = (!checkIn || checkIn >= today) && (!checkOut || checkOut >= today) && (!checkIn || !checkOut || checkOut > checkIn);
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const selectedCountry = countries.find(c => c[1] === country);
   const countryOptions = countries.filter(c => !countrySearch.trim() || c[0].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()) || c[1].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()));
   const citySuggestions = [["عدن","Aden"],["صنعاء","Sanaa"],["جدة","Jeddah"],["مكة المكرمة","Makkah"],["الرياض","Riyadh"],["المدينة المنورة","Madinah"],["دبي","Dubai"],["أبوظبي","Abu Dhabi"],["القاهرة","Cairo"],["عمّان","Amman"],["مسقط","Muscat"],["الدوحة","Doha"],["إسطنبول","Istanbul"],["لندن","London"],["باريس","Paris"],["نيويورك","New York"],["كوالالمبور","Kuala Lumpur"],["جاكرتا","Jakarta"]] as const;
@@ -48,7 +48,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const message = txt("مرحبًا فريق معك، أود الاستفسار عن حجز إقامة.\n", "Hello MAAK team, I'd like to enquire about accommodation.\n")
     + (body || txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن خيارات الإقامة المتاحة.", "No details specified yet; I'd like to enquire about available accommodation options."))
     + "\n" + txt("يرجى تزويدي بالخيارات والأسعار والتوافر قبل تأكيد أي حجز.", "Please share available options, prices and availability before any booking is confirmed.");
-  const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
+  const waUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
   return <div className={`inquiry-form flight-booking-form hotel-booking-form maak-service-flow maak-flight-flow step-${step}${desktopForm ? " desktop-flow" : ""}${summary ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب حجز إقامة", "Accommodation request")}</h2></div></header>
     <div className="flight-group" data-step="1">
