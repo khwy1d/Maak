@@ -29,10 +29,21 @@ begin
     )
     or p_request_data is null
     or jsonb_typeof(p_request_data) <> 'object'
+    or not (p_request_data ? 'message')
     or jsonb_typeof(p_request_data -> 'message') <> 'string'
     or char_length(p_request_data ->> 'message') not between 1 and 8000
     or octet_length(p_request_data::text) > 20000 then
     raise exception 'Invalid order data' using errcode = '22023';
+  end if;
+
+  if trim(p_service) = 'accommodation' then
+    if nullif(trim(p_request_data ->> 'country'), '') is null
+      or char_length(trim(p_request_data ->> 'country')) > 80
+      or nullif(trim(p_request_data ->> 'city'), '') is null
+      or char_length(trim(p_request_data ->> 'city')) > 120
+      or char_length(coalesce(p_request_data ->> 'area', '')) > 120 then
+      raise exception 'Invalid accommodation destination' using errcode = '22023';
+    end if;
   end if;
 
   -- Every service form sends ISO date values separately from its display message.
