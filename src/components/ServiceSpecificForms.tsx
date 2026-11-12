@@ -5,6 +5,8 @@ import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
 import { useAccountName } from "../hooks/useAccountName";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
+import { supabase } from "../lib/supabase";
+import { registerPassportFiles } from "../lib/passportUploads";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -38,7 +40,7 @@ function Select({ value, onChange, placeholder, options, id, required }: {
 }
 
 function RequestCard({
-  lang, title, intro, serviceName, serviceCode, rows, formData, children, note, canReview = true,
+  lang, title, intro, serviceName, serviceCode, rows, formData, children, note, canReview = true, passportUploadKey,
 }: {
   lang: Lang;
   title: string;
@@ -50,6 +52,7 @@ function RequestCard({
   children: ReactNode;
   note: string;
   canReview?: boolean;
+  passportUploadKey?: string;
 }) {
   const [step, setStep] = useState(0);
   const accountName = useAccountName();
@@ -92,7 +95,7 @@ function RequestCard({
       <p className="flight-disclaimer">{note}</p>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: formData })} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
+        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: formData })} data-passport-upload-key={passportUploadKey} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وإرساله عبر واتساب", "Confirm request and send via WhatsApp")}</a>
       </div>
     </section>}
   </div>;
@@ -199,6 +202,10 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [travellers, setTravellers] = useState(1);
   const [passengerNames, setPassengerNames] = useState<string[]>([""]);
   const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
+  const [passportAccountLinked, setPassportAccountLinked] = useState<number[]>([]);
+  const [hasAuthenticatedAccount, setHasAuthenticatedAccount] = useState(false);
+  const [passportUploadKey] = useState(() => crypto.randomUUID());
+  useEffect(() => { void supabase?.auth.getUser().then(({ data }) => setHasAuthenticatedAccount(!!data.user)); }, []);
   const [altPhone, setAltPhone] = useState("");
   const [details, setDetails] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
@@ -217,14 +224,14 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     ] as Row),
     ...(altPhone.trim() ? [[txt("رقم هاتف بديل", "Alternative phone number"), altPhone.trim()] as Row] : []),
     ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
-    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), passportFiles.filter(Boolean).map(file => file!.name).join(", ") + ". " + txt("يرجى إرفاق الملفات يدويًا في محادثة واتساب.", "Please attach the files manually in WhatsApp.")] as Row] : []),
+    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), passportFiles.filter(Boolean).map(file => file!.name).join(", ") + ". " + txt("سيتم رفع الملفات بأمان إلى نظام معك مع الطلب.", "The files will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
   const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
-    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }}
-    note={txt("راجع تفاصيل الطلب قبل إرساله. أرفق صور الجوازات يدويًا في محادثة واتساب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Review the request before sending. Attach passport images manually in WhatsApp; sending the request does not mean a visa has been issued or a booking confirmed.")}>
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean), account_linked_passenger_indices: passportAccountLinked }} passportUploadKey={passportUploadKey}
+    note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Passport images are uploaded to private, secure storage and linked to the request; sending the request does not mean a visa has been issued or a booking confirmed.")}>
     <div className="flight-group">
       <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
       <Field required title={<><CalendarDays size={16} />{txt("موعد العمرة", "Umrah date")}</>}>
@@ -251,8 +258,9 @@ export function UmrahForm({ lang }: ServiceFormProps) {
           </div>
           <label className="maak-passport-upload">
             <span>{txt("صورة الجواز", "Passport image")} *</span>
-            <input required type="file" accept="image/*,.pdf" onChange={event => setPassportFiles(files => files.map((file, i) => i === index ? event.target.files?.[0] || null : file))} />
+            <input required type="file" accept="image/*,.pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
             <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
+            {hasAuthenticatedAccount && <label className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [...current, index] : current.filter(value => value !== index))} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</label>}
           </label>
         </div>)}
       </div>
