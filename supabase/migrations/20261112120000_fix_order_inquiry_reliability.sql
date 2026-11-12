@@ -90,6 +90,15 @@ begin
     raise exception 'Invalid wallet payment' using errcode = '22023';
   end if;
 
+  select * into o
+  from public.orders
+  where id = p_order_id and customer_id = auth.uid()
+  for update;
+
+  if not found then
+    raise exception 'Order not found' using errcode = 'P0002';
+  end if;
+
   select * into existing_debit
   from public.wallet_transactions
   where idempotency_key = debit_key;
@@ -102,24 +111,10 @@ begin
       raise exception 'Idempotency key was already used for a different wallet debit' using errcode = '22023';
     end if;
 
-    select * into o
-    from public.orders
-    where id = p_order_id and customer_id = auth.uid();
-
-    if not found then
-      raise exception 'Order not found' using errcode = 'P0002';
-    end if;
-
     return to_jsonb(o) - 'admin_note' - 'idempotency_key';
   end if;
 
-  select * into o
-  from public.orders
-  where id = p_order_id and customer_id = auth.uid()
-  for update;
-
-  if not found
-    or o.total_amount is null
+  if o.total_amount is null
     or o.payment_status <> 'unpaid'
     or o.status in ('completed', 'cancelled') then
     raise exception 'Order cannot accept wallet payment' using errcode = '22023';
