@@ -156,7 +156,8 @@ begin
     end if;
     if jsonb_array_length(form_data -> 'passenger_names') <> passenger_count
       or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
-        where char_length(trim(n.value)) not between 2 and 120)
+        where jsonb_typeof(n.value) is distinct from 'string'
+          or char_length(trim(n.value #>> '{}')) not between 2 and 120)
       or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <>
         case when form_data ->> 'trip_type' = 'return' then 2 else 1 end
       or (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'departure_date')
@@ -213,7 +214,8 @@ begin
     traveller_count := (form_data ->> 'travellers')::integer;
     if jsonb_array_length(form_data -> 'passenger_names') <> traveller_count
       or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
-        where char_length(trim(n.value)) not between 2 and 120) then
+        where jsonb_typeof(n.value) is distinct from 'string'
+          or char_length(trim(n.value #>> '{}')) not between 2 and 120) then
       raise exception 'Invalid Umrah passenger details' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'real_estate' then
