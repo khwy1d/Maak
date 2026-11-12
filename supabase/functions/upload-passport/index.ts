@@ -98,7 +98,7 @@ Deno.serve(async request => {
     let linkToAccount = false;
     if (userId && order.customer_id === userId) {
       const { data: ownerProfile, error: ownerProfileError } = await admin.from("profiles")
-        .select("full_name").eq("id", userId).maybeSingle();
+        .select("full_name,passport_storage_path").eq("id", userId).maybeSingle();
       if (ownerProfileError) throw ownerProfileError;
       const normalizeName = (value: string) => value.normalize("NFKC").toLocaleLowerCase()
         .replace(/[\u064B-\u065F\u0670\u0640]/g, "").trim().replace(/\s+/g, " ");
