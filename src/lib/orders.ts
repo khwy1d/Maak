@@ -9,7 +9,7 @@ export interface InquiryOrder {
 }
 
 export async function submitInquiry(order: InquiryOrder) {
-  if (!supabase) throw new Error("الحفظ غير متاح الآن؛ يُرجى التواصل عبر واتساب مباشرة.");
+  if (!supabase) throw new Error("الحفظ غير متاح الآن؛ يُرجى المحاولة لاحقًا.");
   const { data, error } = await supabase.rpc("create_order", {
     p_idempotency_key: order.idempotencyKey,
     p_customer_name: order.customerName.trim(),
