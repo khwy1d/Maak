@@ -272,7 +272,8 @@ begin
     if coalesce(form_data ->> 'date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'
       or (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'date')
       or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> 1
-      or coalesce(form_data ->> 'travellers', '') !~ '^(?:[1-9]|1[0-2]) is distinct from 'array'
+      or coalesce(form_data ->> 'travellers', '') !~ '^(?:[1-9]|1[0-2])$'
+      or jsonb_typeof(form_data -> 'passenger_names') is distinct from 'array'
       or form_data ->> 'passport_files_attached' is distinct from 'true' then
       raise exception 'Invalid Umrah request fields' using errcode = '22023';
     end if;
