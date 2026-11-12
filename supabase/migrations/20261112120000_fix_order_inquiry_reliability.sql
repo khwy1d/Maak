@@ -164,8 +164,10 @@ begin
       or exists (select 1 from jsonb_array_elements(form_data -> 'passenger_names') as n(value)
         where jsonb_typeof(n.value) is distinct from 'string'
           or char_length(trim(n.value #>> '{}')) not between 2 and 120)
-      or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <>
-        case when form_data ->> 'trip_type' = 'return' then 2 else 1 end
+      or (form_data ->> 'trip_type' = 'return'
+        and jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> 2)
+      or (form_data ->> 'trip_type' = 'oneway'
+        and jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> 1)
       or (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'departure_date')
       or (form_data ->> 'trip_type' = 'return' and coalesce(form_data ->> 'return_date', '') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
       or (form_data ->> 'trip_type' = 'return' and (p_request_data -> 'date_values' ->> 1) is distinct from (form_data ->> 'return_date'))
