@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowLeftRight, Bus, CalendarDays, MessageCircle, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { buildWhatsAppUrl } from "../lib/whatsapp";
 
 type Lang = "ar" | "en";
 type Country = "" | "YE" | "SA";
@@ -31,7 +32,6 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const today = new Date().toISOString().slice(0, 10);
   const dateValid = !date || date >= today;
   const routeComplete = !!departure.country && !!departure.region && !!destination.country && !!destination.region;
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
 
   const locationName = (side: Side) => {
     if (!side.country) return "";
@@ -75,7 +75,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     : txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن النقل البري بين اليمن والسعودية.", "No details specified yet; I'd like to enquire about ground transport between Yemen and Saudi Arabia.");
   const waMessage = txt("مرحبًا فريق معك، أود الاستفسار عن حجز باص أو نقل بري.\n", "Hello MAAK team, I'd like to enquire about a bus ticket or ground transport.\n")
     + message + "\n" + txt("يرجى تأكيد المسار والمواعيد والتكلفة والتوافر قبل تأكيد الحجز.", "Please confirm the route, schedule, price and availability before any booking is confirmed.");
-  const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(waMessage);
+  const waUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, waMessage);
 
   return <div className={`inquiry-form flight-booking-form ground-transport-form maak-service-flow maak-flight-flow step-${step}${desktopForm ? " desktop-flow" : ""}${summary ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب نقل بري", "Ground transport request")}</h2></div></header>
