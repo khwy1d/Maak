@@ -213,18 +213,19 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     const count = Math.max(1, Math.min(9, next));
     setTravellers(count);
     setPassengerNames(names => [...names, ...Array(Math.max(0, count - names.length)).fill("")].slice(0, count));
-    setPassportFiles(files => [...files, ...Array(Math.max(0, count - files.length)).fill(null)].slice(0, count));
+    setPassportFiles(files => { const next = [...files, ...Array(Math.max(0, count - files.length)).fill(null)].slice(0, count); registerPassportFiles(passportUploadKey, next); return next; });
+    setPassportAccountLinked(indices => indices.filter(index => index < count));
   };
   const rows: Row[] = [
     ...(date ? [[txt("تاريخ العمرة", "Umrah date"), date] as Row] : []),
     [txt("عدد المعتمرين", "Number of pilgrims"), String(travellers)],
     ...passengerNames.slice(0, travellers).map((name, index) => [
       txt("اسم المعتمر", "Pilgrim name") + " " + (index + 1),
-      (name.trim() || txt("لم يحدد بعد", "Not provided")) + " — " + txt("صورة الجواز", "Passport image") + ": " + (passportFiles[index]?.name || txt("لم ترفق", "Not attached"))
+      (name.trim() || txt("لم يحدد بعد", "Not provided")) + " — " + txt("سيتم رفع صورة الجواز بأمان مع الطلب", "passport image will be securely uploaded with the request")
     ] as Row),
     ...(altPhone.trim() ? [[txt("رقم هاتف بديل", "Alternative phone number"), altPhone.trim()] as Row] : []),
     ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
-    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), passportFiles.filter(Boolean).map(file => file!.name).join(", ") + ". " + txt("سيتم رفع الملفات بأمان إلى نظام معك مع الطلب.", "The files will be securely uploaded to MAAK with your request.")] as Row] : []),
+    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
   const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
@@ -258,7 +259,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
           </div>
           <label className="maak-passport-upload">
             <span>{txt("صورة الجواز", "Passport image")} *</span>
-            <input required type="file" accept="image/*,.pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
+            <input required type="file" accept="image/jpeg,image/png,application/pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
             <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
             {hasAuthenticatedAccount && <span className="maak-passport-account-link"><input type="checkbox" checked={passportAccountLinked.includes(index)} onChange={event => setPassportAccountLinked(current => event.target.checked ? [...current, index] : current.filter(value => value !== index))} />{txt("هذا المعتمر هو صاحب حسابي", "This pilgrim is me (link to my account)")}</span>}
           </label>
