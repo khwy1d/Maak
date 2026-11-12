@@ -27,4 +27,4 @@ enabled = true
 verify_jwt = false
 
 [functions.manage-passport]
-verify_jwt = false
+verify_jwt = true
