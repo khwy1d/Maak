@@ -87,7 +87,7 @@ begin
         if parsed_date < current_date then
           raise exception 'Travel dates cannot be in the past' using errcode = '22023';
         end if;
-        if previous_date is not null and parsed_date <= previous_date then
+        if previous_date is not null and (parsed_date < previous_date or (parsed_date = previous_date and trim(p_service) <> 'flight')) then
           raise exception 'Travel dates must be in chronological order' using errcode = '22023';
         end if;
         previous_date := parsed_date;
