@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Users, BedDouble, MapPin, X, Search, ChevronDown } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
-import { buildWhatsAppUrl } from "../lib/whatsapp";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 
 type Lang = "ar" | "en";
 const countries = [
