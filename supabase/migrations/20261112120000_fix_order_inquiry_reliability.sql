@@ -155,7 +155,7 @@ begin
       raise exception 'Invalid flight passenger list' using errcode = '22023';
     end if;
     if jsonb_array_length(form_data -> 'passenger_names') <> passenger_count
-      or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
+      or exists (select 1 from jsonb_array_elements(form_data -> 'passenger_names') as n(value)
         where jsonb_typeof(n.value) is distinct from 'string'
           or char_length(trim(n.value #>> '{}')) not between 2 and 120)
       or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <>
@@ -213,7 +213,7 @@ begin
     end if;
     traveller_count := (form_data ->> 'travellers')::integer;
     if jsonb_array_length(form_data -> 'passenger_names') <> traveller_count
-      or exists (select 1 from jsonb_array_elements_text(form_data -> 'passenger_names') as n(value)
+      or exists (select 1 from jsonb_array_elements(form_data -> 'passenger_names') as n(value)
         where jsonb_typeof(n.value) is distinct from 'string'
           or char_length(trim(n.value #>> '{}')) not between 2 and 120) then
       raise exception 'Invalid Umrah passenger details' using errcode = '22023';
