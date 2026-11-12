@@ -8,6 +8,19 @@ import { siteConfig } from "../config/site";
 
 type Row = Record<string, any>;
 
+function getWalletDebitKey(orderId: string, amount: number) {
+  const storageKey = `maak-wallet-debit:${orderId}:${amount.toFixed(2)}`;
+  try {
+    const existing = sessionStorage.getItem(storageKey);
+    if (existing) return { key: existing, storageKey };
+    const key = crypto.randomUUID();
+    sessionStorage.setItem(storageKey, key);
+    return { key, storageKey };
+  } catch {
+    return { key: crypto.randomUUID(), storageKey: null };
+  }
+}
+
 export default function Account({ adminOnly = false, initialTab = "profile", initialMode = "login" }: { adminOnly?: boolean; initialTab?: string; initialMode?: "login" | "signup" }) {
   const { lang, theme, toggleLang, toggleTheme } = useApp();
   const ar = lang === "ar";
@@ -223,9 +236,13 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     const amount = Math.min(balance, due);
     if (amount <= 0) return;
     setBusy(true);
+    const debitIntent = getWalletDebitKey(order.id, amount);
     try {
-      const { error } = await supabase.rpc("apply_wallet_to_order", { p_order_id: order.id, p_amount: amount, p_idempotency_key: crypto.randomUUID() });
+      const { error } = await supabase.rpc("apply_wallet_to_order", { p_order_id: order.id, p_amount: amount, p_idempotency_key: debitIntent.key });
       if (error) throw error;
+      if (debitIntent.storageKey) {
+        try { sessionStorage.removeItem(debitIntent.storageKey); } catch { /* storage may be unavailable */ }
+      }
       await refresh();
       setMessage(t("تم تطبيق الرصيد على الطلب.", "Wallet balance applied to the order."));
     } catch (error) { setMessage(formatApiError(error)); }
