@@ -79,6 +79,7 @@ function RequestCard({
 
   return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
+    <p className="maak-request-intro">{intro}</p>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
     {!reviewing && <div className="flight-group maak-requester-name"><Field title={label(lang, "اسم صاحب الطلب", "Contact name")}><input autoComplete="name" value={requesterName} onChange={event => setRequesterName(event.target.value)} placeholder={label(lang, "اختياري", "Optional")} /></Field></div>}
