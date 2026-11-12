@@ -35,7 +35,7 @@ Deno.serve(async request => {
     return new Response("", { status: 204, headers });
   }
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405, origin);
-  if (origin && !allowedOrigins.includes(origin)) return json({ error: "Origin not allowed" }, 403, origin);
+  if (origin && !allowedOrigins.has(origin)) return json({ error: "Origin not allowed" }, 403, origin);
 
   try {
     if (![supabaseUrl, anonKey, serviceRoleKey].every(Boolean)) return json({ error: "Passport storage is not configured." }, 503, origin);
@@ -132,9 +132,15 @@ Deno.serve(async request => {
     if (updateError) throw updateError;
 
     if (linkToAccount && userId) {
+      const accountPath = `${userId}/account/passport-${crypto.randomUUID()}.${extension}`;
+      const { error: copyError } = await admin.storage.from(bucket).copy(storagePath, accountPath);
+      if (copyError) throw copyError;
       const { error: profileError } = await admin.from("profiles")
-        .update({ passport_storage_path: storagePath }).eq("id", userId);
-      if (profileError) throw profileError;
+        .update({ passport_storage_path: accountPath }).eq("id", userId);
+      if (profileError) {
+        await admin.storage.from(bucket).remove([accountPath]);
+        throw profileError;
+      }
     }
 
     return json({ ok: true, storagePath, passengerIndex }, 200, origin);
