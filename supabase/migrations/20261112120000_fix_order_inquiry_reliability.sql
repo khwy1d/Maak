@@ -16,6 +16,7 @@ declare
   phone_value text := regexp_replace(coalesce(p_customer_phone, ''), '[^0-9+]', '', 'g');
   date_text text;
   parsed_date date;
+  previous_date date;
 begin
   if p_idempotency_key is null
     or p_customer_name is null
@@ -37,11 +38,14 @@ begin
   -- Every service form sends ISO date values separately from its display message.
   -- Reject malformed, impossible, or past dates at the API boundary.
   if p_request_data ? 'date_values' then
-    if jsonb_typeof(p_request_data -> 'date_values') <> 'array'
-      or jsonb_array_length(p_request_data -> 'date_values') > 12 then
+    if jsonb_typeof(p_request_data -> 'date_values') <> 'array' then
       raise exception 'Invalid date values' using errcode = '22023';
     end if;
+    if jsonb_array_length(p_request_data -> 'date_values') > 12 then
+      raise exception 'Too many date values' using errcode = '22023';
+    end if;
     begin
+      previous_date := null;
       for date_text in
         select jsonb_array_elements_text(p_request_data -> 'date_values')
       loop
@@ -460,6 +464,10 @@ grant execute on function public.apply_wallet_to_order(uuid, numeric, uuid) to a
         if parsed_date < current_date then
           raise exception 'Travel dates cannot be in the past' using errcode = '22023';
         end if;
+        if previous_date is not null and parsed_date <= previous_date then
+          raise exception 'Travel dates must be in chronological order' using errcode = '22023';
+        end if;
+        previous_date := parsed_date;
       end loop;
     exception when invalid_datetime_format or datetime_field_overflow then
       raise exception 'Invalid date value' using errcode = '22023';
