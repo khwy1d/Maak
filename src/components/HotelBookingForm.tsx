@@ -28,7 +28,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
   const locationComplete = !!country && !!city.trim();
-  const digits = siteConfig.whatsappNumber.replace(/\\D/g, "");
+  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
   const selectedCountry = countries.find(c => c[1] === country);
   const countryOptions = countries.filter(c => !countrySearch.trim() || c[0].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()) || c[1].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()));
   const citySuggestions = [["عدن","Aden"],["صنعاء","Sanaa"],["جدة","Jeddah"],["مكة المكرمة","Makkah"],["الرياض","Riyadh"],["المدينة المنورة","Madinah"],["دبي","Dubai"],["أبوظبي","Abu Dhabi"],["القاهرة","Cairo"],["عمّان","Amman"],["مسقط","Muscat"],["الدوحة","Doha"],["إسطنبول","Istanbul"],["لندن","London"],["باريس","Paris"],["نيويورك","New York"],["كوالالمبور","Kuala Lumpur"],["جاكرتا","Jakarta"]] as const;
