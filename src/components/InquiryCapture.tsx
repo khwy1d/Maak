@@ -4,6 +4,13 @@ import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
 type PendingInquiry = { service: string; message: string; url: string; requestData: Record<string, unknown> };
+
+function normalizeInternationalPhone(value: string): string | null {
+  let digits = value.replace(/\\D/g, "");
+  if (digits.startsWith("00")) digits = digits.slice(2);
+  if (!/^[1-9][0-9]{6,14}$/.test(digits)) return null;
+  return "+" + digits;
+}
 const fallbackIdempotencyKeys = new Map<string, string>();
 
 async function getOrCreateIdempotencyKey(service: string, payload: unknown) {
@@ -108,13 +115,18 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!pending) return;
+    const normalizedPhone = normalizeInternationalPhone(phone);
+    if (!normalizedPhone) {
+      setError(ar ? "أدخل رقمًا دوليًا صحيحًا مع رمز الدولة." : "Enter a valid international phone number with its country code.");
+      return;
+    }
     setBusy(true); setError("");
     const whatsapp = window.open("about:blank", "_blank");
     if (whatsapp) whatsapp.opener = null;
     try {
       const orderPayload = {
         customerName: name,
-        customerPhone: phone,
+        customerPhone: normalizedPhone,
         service: pending.service,
         requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
       };
