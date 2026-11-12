@@ -18,7 +18,7 @@ begin
   if p_idempotency_key is null
     or p_customer_name is null
     or char_length(trim(p_customer_name)) not between 1 and 120
-    or phone_value !~ '^\\+[1-9][0-9]{6,14}$'
+    or phone_value !~ '^\+[1-9][0-9]{6,14}$'
     or p_service is null
     or trim(p_service) not in (
       'flight', 'ground_transport', 'accommodation', 'car_rental',
@@ -46,7 +46,7 @@ begin
         check_out := (p_request_data ->> 'check_out_date')::date;
       end if;
       if (p_request_data ? 'check_in_date' and p_request_data ->> 'check_in_date' is not null
-            and (p_request_data ->> 'check_in_date') !~ '^\\d{4}-\\d{2}-\\d{2}
+            and (p_request_data ->> 'check_in_date') !~ '^\d{4}-\d{2}-\d{2}
     select 1 from public.profiles where id = actor and phone = phone_value
   ) then
     raise exception 'Phone does not match authenticated profile' using errcode = '42501';
@@ -173,7 +173,7 @@ grant execute on function public.create_order(uuid, text, text, text, jsonb, tex
 grant execute on function public.apply_wallet_to_order(uuid, numeric, uuid) to authenticated;
 )
         or (p_request_data ? 'check_out_date' and p_request_data ->> 'check_out_date' is not null
-            and (p_request_data ->> 'check_out_date') !~ '^\\d{4}-\\d{2}-\\d{2}
+            and (p_request_data ->> 'check_out_date') !~ '^\d{4}-\d{2}-\d{2}
     select 1 from public.profiles where id = actor and phone = phone_value
   ) then
     raise exception 'Phone does not match authenticated profile' using errcode = '42501';
