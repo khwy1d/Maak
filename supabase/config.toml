@@ -25,3 +25,6 @@ enabled = true
 
 [functions.upload-passport]
 verify_jwt = false
+
+[functions.manage-passport]
+verify_jwt = false
