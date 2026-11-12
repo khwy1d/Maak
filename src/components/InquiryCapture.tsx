@@ -4,40 +4,42 @@ import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
 type PendingInquiry = { service: string; message: string; url: string; requestData: Record<string, unknown> };
-const fallbackIdempotencyKeys = new Map<string, { fingerprint: string; key: string }>();
+const fallbackIdempotencyKeys = new Map<string, string>();
 
-function getOrCreateIdempotencyKey(service: string, payload: unknown): string {
-  const fingerprint = JSON.stringify(payload);
-  const storageKey = `maak-inquiry-idempotency:${service}`;
+async function getOrCreateIdempotencyKey(service: string, payload: unknown) {
+  const serialized = JSON.stringify(payload);
+  let fingerprint = serialized;
   try {
-    const stored = localStorage.getItem(storageKey);
-    if (stored) {
-      const parsed = JSON.parse(stored) as { fingerprint?: string; key?: string };
-      if (parsed.fingerprint === fingerprint && parsed.key) return parsed.key;
-    }
-    const key = globalThis.crypto.randomUUID();
-    localStorage.setItem(storageKey, JSON.stringify({ fingerprint, key }));
-    fallbackIdempotencyKeys.set(service, { fingerprint, key });
-    return key;
+    const digest = await globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(serialized));
+    fingerprint = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, "0")).join("");
   } catch {
-    const previous = fallbackIdempotencyKeys.get(service);
-    if (previous?.fingerprint === fingerprint) return previous.key;
+    // The serialized payload remains a deterministic fallback fingerprint.
+  }
+  const storageKey = `maak-inquiry-idempotency:${service}:${fingerprint}`;
+  try {
+    const existing = localStorage.getItem(storageKey);
+    if (existing) return { key: existing, storageKey, fallbackKey: null };
     const key = globalThis.crypto.randomUUID();
-    fallbackIdempotencyKeys.set(service, { fingerprint, key });
-    return key;
+    localStorage.setItem(storageKey, key);
+    return { key, storageKey, fallbackKey: null };
+  } catch {
+    const fallbackKey = storageKey;
+    const existing = fallbackIdempotencyKeys.get(fallbackKey);
+    if (existing) return { key: existing, storageKey: null, fallbackKey };
+    const key = globalThis.crypto.randomUUID();
+    fallbackIdempotencyKeys.set(fallbackKey, key);
+    return { key, storageKey: null, fallbackKey };
   }
 }
 
-function clearIdempotencyKey(service: string, key: string) {
-  fallbackIdempotencyKeys.delete(service);
-  try {
-    const storageKey = `maak-inquiry-idempotency:${service}`;
-    const stored = localStorage.getItem(storageKey);
-    if (stored && (JSON.parse(stored) as { key?: string }).key === key) {
-      localStorage.removeItem(storageKey);
+function clearIdempotencyKey(intent: { key: string; storageKey: string | null; fallbackKey: string | null }) {
+  if (intent.fallbackKey) fallbackIdempotencyKeys.delete(intent.fallbackKey);
+  if (intent.storageKey) {
+    try {
+      if (localStorage.getItem(intent.storageKey) === intent.key) localStorage.removeItem(intent.storageKey);
+    } catch {
+      // A confirmed save can still complete when browser storage is unavailable.
     }
-  } catch {
-    // The in-memory key is still cleared after a confirmed save.
   }
 }
 
@@ -116,9 +118,9 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         service: pending.service,
         requestData: { ...pending.requestData, message: pending.message, source_path: window.location.pathname },
       };
-      const idempotencyKey = getOrCreateIdempotencyKey(pending.service, orderPayload);
-      await submitInquiry({ ...orderPayload, idempotencyKey });
-      clearIdempotencyKey(pending.service, idempotencyKey);
+      const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
+      await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+      clearIdempotencyKey(idempotencyIntent);
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
