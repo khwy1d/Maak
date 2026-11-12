@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Users, BedDouble, MapPin, X, Search, ChevronDown } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 
 type Lang = "ar" | "en";
 const countries = [
@@ -28,7 +29,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
   const locationComplete = !!country && !!city.trim();
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
+  const datesValid = (!checkIn || checkIn >= today) && (!checkOut || checkOut >= today) && (!checkIn || !checkOut || checkOut > checkIn);
   const selectedCountry = countries.find(c => c[1] === country);
   const countryOptions = countries.filter(c => !countrySearch.trim() || c[0].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()) || c[1].toLocaleLowerCase().includes(countrySearch.trim().toLocaleLowerCase()));
   const citySuggestions = [["عدن","Aden"],["صنعاء","Sanaa"],["جدة","Jeddah"],["مكة المكرمة","Makkah"],["الرياض","Riyadh"],["المدينة المنورة","Madinah"],["دبي","Dubai"],["أبوظبي","Abu Dhabi"],["القاهرة","Cairo"],["عمّان","Amman"],["مسقط","Muscat"],["الدوحة","Doha"],["إسطنبول","Istanbul"],["لندن","London"],["باريس","Paris"],["نيويورك","New York"],["كوالالمبور","Kuala Lumpur"],["جاكرتا","Jakarta"]] as const;
@@ -47,7 +48,7 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
   const message = txt("مرحبًا فريق معك، أود الاستفسار عن حجز إقامة.\n", "Hello MAAK team, I'd like to enquire about accommodation.\n")
     + (body || txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن خيارات الإقامة المتاحة.", "No details specified yet; I'd like to enquire about available accommodation options."))
     + "\n" + txt("يرجى تزويدي بالخيارات والأسعار والتوافر قبل تأكيد أي حجز.", "Please share available options, prices and availability before any booking is confirmed.");
-  const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
+  const waUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
   return <div className={`inquiry-form flight-booking-form hotel-booking-form maak-service-flow maak-flight-flow step-${step}${desktopForm ? " desktop-flow" : ""}${summary ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب حجز إقامة", "Accommodation request")}</h2></div></header>
     <div className="flight-group" data-step="1">
@@ -76,8 +77,8 @@ export default function HotelBookingForm({ lang }: { lang: Lang }) {
     </div>
     <div className="flight-group" data-step="4"><h4>{txt("٤. تفاصيل إضافية", "4. Additional details")}</h4><div className="inquiry-field flight-field"><label>{txt("طلبات أو ملاحظات", "Requests or notes")} <small className="field-requirement">{txt("(اختياري)", "(optional)")}</small></label><textarea rows={3} value={notes} onChange={e=>setNotes(e.target.value)} placeholder={txt("مثلاً: ميزانية تقريبية أو احتياجات خاصة", "e.g. approximate budget or special requirements")} /></div></div>
     
-    {step === 5 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب","Request summary")}><div className="flight-summary-head"><h4>{txt("راجع طلبك","Review your request")}</h4><button type="button" onClick={()=>{setSummary(false);setStep(4);}} aria-label={txt("إغلاق","Close")}><X size={20}/></button></div><p>{txt("تأكد من التفاصيل قبل تأكيد الحجز.", "Please review the details before confirming your booking.")}</p><dl>{rows.length?rows.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>):<div><dt>{txt("الطلب","Request")}</dt><dd>{txt("استفسار عام عن خيارات الإقامة", "General accommodation enquiry")}</dd></div>}</dl><div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(4);}}>{txt("العودة للتعديل","Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19}/>{txt("تأكيد الحجز وإرسال الطلب","Confirm booking and send")}</a></div></section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
-    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {step === 5 && summary && <section className="flight-summary" aria-label={txt("ملخص الطلب","Request summary")}><div className="flight-summary-head"><h4>{txt("راجع طلبك","Review your request")}</h4><button type="button" onClick={()=>{setSummary(false);setStep(4);}} aria-label={txt("إغلاق","Close")}><X size={20}/></button></div><p>{txt("تأكد من التفاصيل قبل تأكيد الحجز.", "Please review the details before confirming your booking.")}</p><dl>{rows.length?rows.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>):<div><dt>{txt("الطلب","Request")}</dt><dd>{txt("استفسار عام عن خيارات الإقامة", "General accommodation enquiry")}</dd></div>}</dl><div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={()=>{setSummary(false);setStep(4);}}>{txt("العودة للتعديل","Back to edit")}</button><a className="btn btn-primary" href={waUrl} data-save-inquiry="true" data-inquiry-service="accommodation" data-request-data={JSON.stringify({ country, city: city.trim(), area: area.trim(), check_in_date: checkIn || null, check_out_date: checkOut || null, form_data: { country, city: city.trim() } })} target="_blank" rel="noopener noreferrer"><MessageCircle size={19}/>{txt("تأكيد الحجز وإرسال الطلب","Confirm booking and send")}</a></div></section>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!locationComplete || !datesValid} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!locationComplete || !datesValid} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }

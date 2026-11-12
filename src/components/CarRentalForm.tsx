@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, CalendarDays, Car, Clock3, MapPin, MessageCircle, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 
 type Lang = "ar" | "en";
 type Country = "" | "YE" | "EG";
@@ -33,7 +34,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const today = new Date().toISOString().slice(0, 10);
   const locationComplete = !!country && !!city.trim();
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
+  const datesValid = (!pickupDate || pickupDate >= today) && (!returnDate || returnDate >= today) && (!pickupDate || !returnDate || returnDate > pickupDate);
   const selectedCountry = countries.find(item => item.code === country);
   const vehicleName: Record<string, [string, string]> = {
     any: ["أي سيارة مناسبة", "Any suitable vehicle"], economy: ["اقتصادية", "Economy"], sedan: ["سيدان", "Sedan"], suv: ["دفع رباعي / SUV", "SUV / 4x4"], van: ["عائلية أو فان", "Family car / van"], luxury: ["فاخرة", "Luxury"],
@@ -60,7 +61,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
   const request = rows.length ? rows.map(([label, value]) => label + ": " + value).join("\n") : txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن تأجير سيارة.", "No details specified yet; I'd like to enquire about car rental.");
   const message = txt("مرحبًا فريق معك، أود الاستفسار عن تأجير سيارة.\n", "Hello MAAK team, I'd like to enquire about car rental.\n")
     + request + "\n" + txt("يرجى تأكيد السعر والتوافر والشروط قبل تأكيد أي حجز.", "Please confirm price, availability and terms before any rental is confirmed.");
-  const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(message);
+  const waUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
 
   return <div className={`inquiry-form flight-booking-form car-rental-form maak-service-flow maak-flight-flow step-${step}${desktopForm ? " desktop-flow" : ""}${summary ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب تأجير سيارة", "Car rental request")}</h2></div></header>
@@ -122,9 +123,9 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
       <div className="flight-summary-head"><h4>{txt("راجع طلبك", "Review your request")}</h4><button type="button" onClick={() => {setSummary(false);setStep(4);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
       <p>{txt("تأكد من التفاصيل قبل تأكيد الحجز.", "Please review the details before confirming your booking.")}</p>
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن تأجير السيارات", "General car rental enquiry")}</dd></div>}</dl>
-      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(4);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
+      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(4);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} data-save-inquiry="true" data-inquiry-service="car_rental" data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: { country, pickup_city: city.trim(), pickup_date: pickupDate || null, return_date: returnDate || null } })} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
-    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!locationComplete} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!locationComplete || !datesValid} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!locationComplete || !datesValid} onClick={()=>{setSummary(true);setStep(5);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }

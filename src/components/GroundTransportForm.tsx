@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowLeftRight, Bus, CalendarDays, MessageCircle, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 
 type Lang = "ar" | "en";
 type Country = "" | "YE" | "SA";
@@ -29,8 +30,8 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const desktopForm = useDesktopFormLayout();
   const today = new Date().toISOString().slice(0, 10);
+  const dateValid = !date || date >= today;
   const routeComplete = !!departure.country && !!departure.region && !!destination.country && !!destination.region;
-  const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
 
   const locationName = (side: Side) => {
     if (!side.country) return "";
@@ -74,7 +75,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
     : txt("لا توجد تفاصيل محددة حتى الآن؛ أود الاستفسار عن النقل البري بين اليمن والسعودية.", "No details specified yet; I'd like to enquire about ground transport between Yemen and Saudi Arabia.");
   const waMessage = txt("مرحبًا فريق معك، أود الاستفسار عن حجز باص أو نقل بري.\n", "Hello MAAK team, I'd like to enquire about a bus ticket or ground transport.\n")
     + message + "\n" + txt("يرجى تأكيد المسار والمواعيد والتكلفة والتوافر قبل تأكيد الحجز.", "Please confirm the route, schedule, price and availability before any booking is confirmed.");
-  const waUrl = "https://wa.me/" + digits + "?text=" + encodeURIComponent(waMessage);
+  const waUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, waMessage);
 
   return <div className={`inquiry-form flight-booking-form ground-transport-form maak-service-flow maak-flight-flow step-${step}${desktopForm ? " desktop-flow" : ""}${summary ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 1 ? window.history.back() : setStep(s => s - 1)} aria-label={txt("رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{txt("معك للسفر", "MAAK TRAVEL")}</span><h2>{txt("طلب نقل بري", "Ground transport request")}</h2></div></header>
@@ -99,9 +100,9 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
       <div className="flight-summary-head"><h4>{txt("راجع طلبك", "Review your request")}</h4><button type="button" onClick={() => {setSummary(false);setStep(2);}} aria-label={txt("إغلاق", "Close")}><X size={20} /></button></div>
       <p>{txt("تأكد من التفاصيل قبل تأكيد الحجز.", "Please review the details before confirming your booking.")}</p>
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن حجز الباصات والنقل البري", "General bus and ground transport enquiry")}</dd></div>}</dl>
-      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
+      <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} data-save-inquiry="true" data-inquiry-service="ground_transport" data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: { departure_country: departure.country, departure_region: departure.region, destination_country: destination.country, destination_region: destination.region, travel_date: date || null } })} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
-    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!routeComplete || !dateValid} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!routeComplete || !dateValid} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }
