@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, ArrowLeftRight, CalendarDays, Check, ChevronDown
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useAccountName } from "../hooks/useAccountName";
-import { buildWhatsAppUrl } from "../lib/whatsapp";
+import { buildWhatsAppUrl } from "../utils/whatsapp";
 import "./FlightBookingForm.css";
 type Lang="ar"|"en";
 type City={country:string;ar:string;en:string;airportAr?:string;airportEn?:string};
