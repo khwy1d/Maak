@@ -24,4 +24,4 @@ jobs:
       - name: Build site
         run: npm run build
       - name: Type-check passport upload Edge Function
-        run: deno check supabase/functions/upload-passport/index.ts
+        run: deno check --node-modules-dir=auto supabase/functions/upload-passport/index.ts
