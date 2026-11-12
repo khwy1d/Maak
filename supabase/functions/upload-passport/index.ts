@@ -81,7 +81,7 @@ Deno.serve(async request => {
     const requestData = order.request_data as Record<string, unknown>;
     const formData = requestData.form_data as Record<string, unknown> | undefined;
     const names = formData?.passenger_names;
-    if (!["flight", "umrah"].includes(order.service) || !Array.isArray(names)
+    if (!["flight", "umrah"].includes(order.service) || formData?.passport_consent !== true || !Array.isArray(names)
       || names[passengerIndex] !== passengerName) return json({ error: "Passenger does not match this request." }, 400, origin);
 
     const documents = Array.isArray(formData?.passport_documents) ? formData.passport_documents as Array<Record<string, unknown>> : [];
@@ -121,7 +121,7 @@ Deno.serve(async request => {
     };
     const nextDocuments = [...documents.filter(item => item.passenger_index !== passengerIndex), metadata]
       .sort((a, b) => Number(a.passenger_index) - Number(b.passenger_index));
-    const nextFormData = { ...formData, passport_documents: nextDocuments };
+    const nextFormData = { ...formData, passport_documents: nextDocuments, passport_consent_recorded_at: formData?.passport_consent_recorded_at ?? new Date().toISOString() };
     const nextRequestData: Record<string, unknown> = { ...requestData, form_data: nextFormData };
     if (nextDocuments.length >= names.length) delete nextRequestData.passport_upload_token;
     const { error: updateError } = await admin.from("orders").update({ request_data: nextRequestData }).eq("id", orderId);
