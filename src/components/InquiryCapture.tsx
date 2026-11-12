@@ -121,7 +121,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       <p>{ar ? "سنحفظ طلبك في النظام قبل فتح واتساب. لا يُعد ذلك تأكيدًا للحجز." : "We will save your request before opening WhatsApp. This does not confirm a booking."}</p>
       <form className="account-form" onSubmit={submit}>
         <label>{ar ? "الاسم" : "Name"}<input required minLength={2} maxLength={120} value={name} onChange={event => setName(event.target.value)} autoComplete="name"/></label>
-        <label>{ar ? "رقم الهاتف بصيغة دولية" : "Phone number in international format"}<input required type="tel" minLength={7} maxLength={18} value={phone} onChange={event => setPhone(event.target.value.replace(/[^+\d]/g, ""))} placeholder="+967…" autoComplete="tel"/></label>
+        <label>{ar ? "رقم الهاتف بصيغة دولية" : "Phone number in international format"}<input required type="tel" minLength={7} maxLength={16} pattern="\\+[1-9][0-9]{6,14}" title={ar ? "أدخل رقمًا دوليًا بصيغة + ورمز الدولة والرقم" : "Enter an international number with +, country code and number"} value={phone} onChange={event => setPhone(event.target.value.replace(/[^+\d]/g, ""))} placeholder="+967…" autoComplete="tel"/></label>
         {error && <p className="account-message" role="alert">{error}</p>}
         <button className="btn btn-primary" disabled={busy}>{busy ? (ar ? "جارٍ حفظ الطلب…" : "Saving request…") : (ar ? "حفظ الطلب والمتابعة إلى واتساب" : "Save request and continue to WhatsApp")}</button>
       </form>
