@@ -24,6 +24,7 @@ jobs:
         with:
           version: 3.1.0
 
+
       - name: Start isolated local Supabase stack
         run: supabase start
 

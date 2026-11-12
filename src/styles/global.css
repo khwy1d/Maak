@@ -2095,3 +2095,15 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 .auth-social-facebook { color:#1877f2; }
 .auth-social-instagram { color:#c13584; }
 .auth-social-whatsapp { color:#25a45a; }
+
+.maak-documents-panel { display:grid; gap:12px; padding:10px 4px 14px; border-bottom:1px solid var(--border); }
+.maak-passport-saved { display:flex; align-items:center; flex-wrap:wrap; gap:9px; padding:12px; border:1px solid var(--border); border-radius:14px; background:var(--bg); }
+.maak-passport-saved > div { flex:1 1 100%; display:grid; gap:2px; }
+.maak-passport-preview { width:100%; max-height:240px; object-fit:contain; border:1px solid var(--border); border-radius:12px; background:var(--bg); }
+.maak-passport-saved strong { font-size:.92rem; }
+.maak-passport-saved small { color:var(--muted); font-size:.78rem; }
+.maak-passport-saved .btn { min-height:40px; padding-inline:14px; font-size:.84rem; }
+.maak-passport-manage-upload { width:100%; min-height:44px; border-radius:12px; }
+.maak-passport-manage-upload { position:relative; }
+.maak-passport-manage-upload input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+.maak-passport-manage-upload:focus-within { outline:3px solid var(--focus); outline-offset:3px; }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, Settings, ShieldCheck, Sun, TicketPercent, UserRound, Wallet } from "lucide-react";
+import { Bell, Bus, CalendarDays, Car, Check, ChevronLeft, Copy, Facebook, FileText, Gift, Hotel, Info, Instagram, Languages, LockKeyhole, LogOut, MessageCircle, Moon, Phone, Plane, RefreshCw, Settings, ShieldCheck, Sun, TicketPercent, UserRound, Wallet, Eye, Trash2, Upload } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
@@ -45,6 +45,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const [pendingPhone, setPendingPhone] = useState("");
   const [balance, setBalance] = useState(0);
   const [profile, setProfile] = useState<Row | null>(null);
+  const [passportSignedUrl, setPassportSignedUrl] = useState("");
+  const [passportBusy, setPassportBusy] = useState(false);
   const [orders, setOrders] = useState<Row[]>([]);
   const [transactions, setTransactions] = useState<Row[]>([]);
   const [referrals, setReferrals] = useState<Row[]>([]);
@@ -70,6 +72,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         refreshRequestRef.current += 1;
         setIsAdmin(false);
         setProfile(null);
+        setPassportSignedUrl("");
+        setAccountPanel(null);
         setOrders([]);
         setTransactions([]);
         setReferrals([]);
@@ -102,7 +106,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     try {
       const user = session.user;
       const [{ data: profileRow, error: profileError }, { data: orderRows, error: orderError }, { data: walletRows, error: walletError }, { data: referralRows, error: referralError }, { data: role }, { data: settings }] = await Promise.all([
-        supabase.from("profiles").select("id,full_name,phone,referral_code,created_at").eq("id", user.id).single(),
+        supabase.from("profiles").select("id,full_name,phone,referral_code,passport_storage_path,created_at").eq("id", user.id).single(),
         supabase.from("orders").select("id,customer_id,customer_name,customer_phone,service,request_data,referral_code,status,payment_status,total_amount,wallet_used,currency,created_at,updated_at").order("created_at", { ascending: false }),
         supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }),
         supabase.from("referrals").select("*").order("created_at", { ascending: false }),
@@ -145,6 +149,15 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   };
 
   useEffect(() => { if (session) void refresh(); }, [session?.user.id]);
+  useEffect(() => {
+    let active = true;
+    const path = profile?.passport_storage_path;
+    if (!supabase || !path || !session) { setPassportSignedUrl(""); return; }
+    void supabase.storage.from("customer-passports").createSignedUrl(path, 3600).then(({ data, error }) => {
+      if (active) setPassportSignedUrl(error ? "" : data?.signedUrl ?? "");
+    });
+    return () => { active = false; };
+  }, [profile?.passport_storage_path, session?.user.id]);
 
   const normalizePhone = (value: string) => {
     const localized = value.trim().replace(/[٠-٩۰-۹]/g, digit => {
@@ -229,6 +242,40 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     finally { setBusy(false); }
   };
 
+  const savePassportDocument = async (file?: File) => {
+    if (!file || !supabase || !session) return;
+    if (!["image/jpeg", "image/png", "application/pdf"].includes(file.type) || file.size < 1 || file.size > 10 * 1024 * 1024) {
+      setMessage(t("اختر صورة JPG أو PNG أو ملف PDF لا يتجاوز 10 ميغابايت.", "Choose a JPG, PNG, or PDF file up to 10 MB."));
+      return;
+    }
+    setPassportBusy(true); setMessage("");
+    try {
+      const form = new FormData();
+      form.append("action", "upload");
+      form.append("file", file, file.name);
+      const { data, error } = await supabase.functions.invoke("manage-passport", { body: form });
+      if (error) throw error;
+      if (!data?.storagePath) throw new Error(t("تعذر حفظ الوثيقة.", "Could not save the document."));
+      setProfile(current => current ? { ...current, passport_storage_path: data.storagePath } : current);
+      setMessage(t("تم حفظ وثيقة الجواز في حسابك.", "Your passport document has been saved to your account."));
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setPassportBusy(false); }
+  };
+  const deletePassportDocument = async () => {
+    if (!supabase || !session || !profile?.passport_storage_path) return;
+    if (!window.confirm(t("هل تريد حذف صورة الجواز من حسابك؟", "Delete the passport document from your account?"))) return;
+    setPassportBusy(true); setMessage("");
+    try {
+      const form = new FormData();
+      form.append("action", "delete");
+      const { error } = await supabase.functions.invoke("manage-passport", { body: form });
+      if (error) throw error;
+      setProfile(current => current ? { ...current, passport_storage_path: null } : current);
+      setPassportSignedUrl("");
+      setMessage(t("تم حذف وثيقة الجواز من حسابك.", "Your passport document has been deleted from your account."));
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setPassportBusy(false); }
+  };
   const signOut = async () => { await supabase?.auth.signOut(); setSession(null); setIsAdmin(false); };
   const inviteUrl = useMemo(() => profile ? `${window.location.origin}/?ref=${encodeURIComponent(profile.referral_code)}` : "", [profile]);
   const copyInvite = async () => { try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرابط. يمكنك نسخه يدويًا.", "Could not copy the link. You can copy it manually.")); } };
@@ -462,7 +509,17 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "settings" ? null : "settings")}><span className="maak-settings-icon"><Settings size={22}/></span><strong>{t("إعدادات الحساب", "Account settings")}</strong><ChevronLeft size={20}/></button>
           {accountPanel === "settings" && <p className="maak-settings-note">{t("رقم الهاتف هو وسيلة تسجيل الدخول إلى حسابك.", "Your phone number is the sign-in method for your account.")}</p>}
           <button type="button" className="maak-settings-row" onClick={() => setAccountPanel(value => value === "documents" ? null : "documents")}><span className="maak-settings-icon"><FileText size={22}/></span><strong>{t("وثائقي", "My documents")}</strong><ChevronLeft size={20}/></button>
-          {accountPanel === "documents" && <p className="maak-settings-note">{t("لا توجد وثائق محفوظة في الحساب حاليًا.", "There are no documents saved to this account yet.")}</p>}
+          {accountPanel === "documents" && <div className="maak-documents-panel">
+            {profile?.passport_storage_path ? <div className="maak-passport-saved">
+              <div><strong>{t("جواز السفر", "Passport")}</strong><small>{t("محفوظ في مساحة خاصة بحسابك", "Saved in your private account storage")}</small></div>
+              {passportSignedUrl ? <><a className="btn btn-ghost" href={passportSignedUrl} target="_blank" rel="noopener noreferrer"><Eye size={17}/>{t("عرض", "View")}</a>{!profile.passport_storage_path.toLowerCase().endsWith(".pdf") && <img className="maak-passport-preview" src={passportSignedUrl} alt={t("صورة جواز السفر المحفوظة", "Saved passport document")}/>}</> : <span className="maak-settings-note">{t("جارٍ تجهيز رابط العرض الآمن…", "Preparing secure view link…")}</span>}
+              <button type="button" className="btn btn-ghost" disabled={passportBusy} onClick={() => void deletePassportDocument()}><Trash2 size={17}/>{t("حذف", "Delete")}</button>
+            </div> : <p className="maak-settings-note">{t("لا توجد وثيقة جواز محفوظة في حسابك حاليًا.", "No passport document is saved to your account yet.")}</p>}
+            <label className="btn btn-primary maak-passport-manage-upload"><Upload size={18}/>{passportBusy ? t("جارٍ الحفظ…", "Saving…") : profile?.passport_storage_path ? t("استبدال صورة الجواز", "Replace passport document") : t("إضافة صورة الجواز", "Add passport document")}
+              <input type="file" accept="image/jpeg,image/png,application/pdf" disabled={passportBusy} onChange={event => { void savePassportDocument(event.target.files?.[0]); event.currentTarget.value = ""; }}/>
+            </label>
+            <p className="maak-settings-note">{t("يمكنك عرض الوثيقة أو استبدالها أو حذفها في أي وقت. لا يستطيع غيرك الوصول إليها.", "You can view, replace, or delete this document at any time. It is not publicly accessible.")}</p>
+          </div>}
         </div>
       </section>
       <section className="maak-profile-group maak-app-settings">
