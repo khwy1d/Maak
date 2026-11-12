@@ -232,7 +232,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
-    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean), account_linked_passenger_indices: passportAccountLinked }} passportUploadKey={passportUploadKey}
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean), account_linked_passenger_indices: passportAccountLinked, passport_consent: passportConsent }} passportUploadKey={passportUploadKey}
     note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Passport images are uploaded to private, secure storage and linked to the request; sending the request does not mean a visa has been issued or a booking confirmed.")}>
     <div className="flight-group">
       <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
