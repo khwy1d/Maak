@@ -89,9 +89,9 @@ begin
   from public.wallet_transactions
   where idempotency_key = 'debit:' || wallet_key::text;
 
-  select wallet_used into wallet_used
-  from public.orders
-  where id = wallet_order_id;
+  select o.wallet_used into wallet_used
+  from public.orders as o
+  where o.id = wallet_order_id;
 
   if debit_count <> 1 or wallet_used <> 25 then
     raise exception 'M07 failure: wallet retry applied more than one debit';
