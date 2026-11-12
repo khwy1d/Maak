@@ -77,10 +77,14 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       const target = event.target;
       if (!(target instanceof Element)) return;
       const link = target.closest<HTMLAnchorElement>('a[data-save-inquiry="true"]');
-      const service = serviceNames[window.location.pathname.replace(/\/+$/, "")];
-      if (!link || !service) return;
+      if (!link) return;
       event.preventDefault();
       event.stopImmediatePropagation();
+      const service = link.dataset.inquiryService as InquiryService | undefined;
+      if (!service || !allowedServices.has(service)) {
+        setError(ar ? "نوع الخدمة غير صالح." : "Invalid service type.");
+        return;
+      }
       const parsed = new URL(link.href);
       if (parsed.protocol !== "https:" || parsed.hostname !== "wa.me" || !/^\d+$/.test(parsed.pathname.slice(1))) {
         setError(ar ? "رابط واتساب غير صالح." : "Invalid WhatsApp link.");
