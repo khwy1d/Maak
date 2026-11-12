@@ -29,6 +29,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
   const [step, setStep] = useState(1);
   const desktopForm = useDesktopFormLayout();
   const today = new Date().toISOString().slice(0, 10);
+  const dateValid = !date || date >= today;
   const routeComplete = !!departure.country && !!departure.region && !!destination.country && !!destination.region;
   const digits = siteConfig.whatsappNumber.replace(/\D/g, "");
 
@@ -101,7 +102,7 @@ export default function GroundTransportForm({ lang }: { lang: Lang }) {
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن حجز الباصات والنقل البري", "General bus and ground transport enquiry")}</dd></div>}</dl>
       <div className="flight-summary-actions"><button type="button" className="btn btn-ghost" onClick={() => {setSummary(false);setStep(2);}}>{txt("العودة للتعديل", "Back to edit")}</button><a className="btn btn-primary" href={waUrl} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|date/i.test(field)).map(([, value]) => value).filter(Boolean) })} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} />{txt("تأكيد الحجز وإرسال الطلب", "Confirm booking and send")}</a></div>
     </section>}
-    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
+    {!desktopForm && !summary && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!routeComplete || !dateValid} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
     {desktopForm && !summary && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!routeComplete} onClick={()=>{setSummary(true);setStep(3);window.scrollTo({top:0,behavior:"smooth"})}}>{txt("حجز","Book")}<ArrowLeft size={19}/></button></div>}
   </div>;
 }
