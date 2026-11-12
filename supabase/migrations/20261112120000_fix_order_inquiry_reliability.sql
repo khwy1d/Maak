@@ -1,7 +1,9 @@
 -- M07/M08: make order creation retry-safe and validate service input at the database boundary.
 -- The migration is intentionally separate from deployment; apply it in staging first.
 
-create or replace function public.create_order(
+drop function if exists public.create_order(uuid, text, text, text, jsonb, text);
+
+create function public.create_order(
   p_idempotency_key uuid,
   p_customer_name text,
   p_customer_phone text,
@@ -16,6 +18,8 @@ as $$
 declare
   created public.orders;
   created_new boolean;
+  owner_id uuid;
+  code_value text := nullif(upper(trim(p_referral_code)), '');
   actor uuid := auth.uid();
   phone_value text := regexp_replace(coalesce(p_customer_phone, ''), '[^0-9+]', '', 'g');
   date_text text;
@@ -310,7 +314,7 @@ begin
   )
   values (
     p_idempotency_key, actor, trim(p_customer_name), phone_value,
-    trim(p_service), p_request_data, null
+    trim(p_service), p_request_data, code_value
   )
   on conflict (idempotency_key) do nothing
   returning * into created;
@@ -332,13 +336,30 @@ begin
     end if;
   end if;
 
+  if created_new and code_value is not null then
+    select id into owner_id
+    from public.profiles
+    where referral_code = code_value and id is distinct from actor;
+
+    if owner_id is not null and not exists (
+      select 1 from public.orders
+      where customer_phone = phone_value and id <> created.id
+    ) then
+      insert into public.referrals(referrer_id, referred_user_id, referred_phone, referral_code)
+      values (owner_id, actor, phone_value, code_value)
+      on conflict do nothing;
+    end if;
+  end if;
+
   return to_jsonb(created) - 'admin_note' - 'idempotency_key';
 end;
-$$;
+$;
 
 -- M07: replaying the same wallet debit returns the committed order without
 -- inserting a second ledger entry or deducting the balance again.
-create or replace function public.apply_wallet_to_order(
+drop function if exists public.apply_wallet_to_order(uuid, numeric, uuid);
+
+create function public.apply_wallet_to_order(
   p_order_id uuid,
   p_amount numeric,
   p_idempotency_key uuid
