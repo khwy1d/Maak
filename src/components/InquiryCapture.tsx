@@ -3,7 +3,11 @@ import { submitInquiry } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 
-type PendingInquiry = { service: string; message: string; url: string; requestData: Record<string, unknown> };
+type InquiryService =
+  | "flight" | "ground_transport" | "accommodation" | "car_rental"
+  | "medical_travel" | "security_clearance" | "umrah" | "real_estate" | "tourism";
+
+type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown> };
 
 function normalizeInternationalPhone(value: string): string | null {
   let digits = value.replace(/\D/g, "");
@@ -50,11 +54,10 @@ function clearIdempotencyKey(intent: { key: string; storageKey: string | null; f
   }
 }
 
-const serviceNames: Record<string, string> = {
-  "/flights": "flight", "/transport": "ground_transport", "/hotels": "accommodation",
-  "/car-rental": "car_rental", "/medical-tourism": "medical_travel", "/security-clearance-egypt": "security_clearance",
-  "/umrah": "umrah", "/real-estate": "real_estate", "/tourism": "tourism",
-};
+const allowedServices = new Set<InquiryService>([
+  "flight", "ground_transport", "accommodation", "car_rental",
+  "medical_travel", "security_clearance", "umrah", "real_estate", "tourism",
+]);
 
 export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   const ar = lang === "ar";
