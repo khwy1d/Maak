@@ -1,15 +1,19 @@
 import { supabase, getReferralCode } from "./supabase";
 
+export type InquiryService =
+  | "flight" | "ground_transport" | "accommodation" | "car_rental"
+  | "medical_travel" | "security_clearance" | "umrah" | "real_estate" | "tourism";
+
 export interface InquiryOrder {
   customerName: string;
   customerPhone: string;
-  service: string;
+  service: InquiryService;
   requestData: Record<string, unknown>;
   idempotencyKey: string;
 }
 
-export async function createInquiryOrder(order: InquiryOrder) {
-  if (!supabase) throw new Error("الحفظ غير متاح الآن؛ يُرجى التواصل عبر واتساب مباشرة.");
+export async function submitInquiry(order: InquiryOrder) {
+  if (!supabase) throw new Error("الحفظ غير متاح الآن؛ يُرجى المحاولة لاحقًا.");
   const { data, error } = await supabase.rpc("create_order", {
     p_idempotency_key: order.idempotencyKey,
     p_customer_name: order.customerName.trim(),

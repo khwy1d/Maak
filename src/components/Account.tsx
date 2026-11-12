@@ -8,16 +8,22 @@ import { siteConfig } from "../config/site";
 
 type Row = Record<string, any>;
 
+const fallbackWalletDebitKeys = new Map<string, string>();
+
 function getWalletDebitKey(orderId: string, amount: number) {
   const storageKey = `maak-wallet-debit:${orderId}:${amount.toFixed(2)}`;
   try {
     const existing = sessionStorage.getItem(storageKey);
-    if (existing) return { key: existing, storageKey };
+    if (existing) return { key: existing, storageKey, fallbackKey: null };
     const key = crypto.randomUUID();
     sessionStorage.setItem(storageKey, key);
-    return { key, storageKey };
+    return { key, storageKey, fallbackKey: null };
   } catch {
-    return { key: crypto.randomUUID(), storageKey: null };
+    const existing = fallbackWalletDebitKeys.get(storageKey);
+    if (existing) return { key: existing, storageKey: null, fallbackKey: storageKey };
+    const key = crypto.randomUUID();
+    fallbackWalletDebitKeys.set(storageKey, key);
+    return { key, storageKey: null, fallbackKey: storageKey };
   }
 }
 
@@ -243,6 +249,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       if (debitIntent.storageKey) {
         try { sessionStorage.removeItem(debitIntent.storageKey); } catch { /* storage may be unavailable */ }
       }
+      if (debitIntent.fallbackKey) fallbackWalletDebitKeys.delete(debitIntent.fallbackKey);
       await refresh();
       setMessage(t("تم تطبيق الرصيد على الطلب.", "Wallet balance applied to the order."));
     } catch (error) { setMessage(formatApiError(error)); }
@@ -392,6 +399,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
     if (tab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
       <header className="maak-page-heading"><h1>{t("حجوزاتي", "My bookings")}</h1><button type="button" className="maak-notification-button" onClick={() => setOrderFilter("active")} aria-label={t("الطلبات النشطة", "Active bookings")}><Bell size={22}/>{activeOrderCount > 0 && <span>{activeOrderCount}</span>}</button></header>
+      {message && <p className="account-message" role="status">{message}</p>}
       <nav className="maak-filter-tabs" aria-label={t("تصفية الحجوزات", "Filter bookings")}>{bookingFilters.map(([key, title]) => <button type="button" key={key} className={orderFilter === key ? "active" : ""} aria-pressed={orderFilter === key} onClick={() => setOrderFilter(key)}>{title}</button>)}</nav>
       <section className="maak-booking-list" aria-live="polite">
         {busy && !orders.length && <p className="maak-empty-state">{t("جارٍ تحميل الحجوزات…", "Loading bookings…")}</p>}
@@ -414,6 +422,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
     if (tab === "referrals") return <main className="maak-app-page maak-rewards-page" dir={ar ? "rtl" : "ltr"}>
       <header className="maak-page-heading"><h1>{t("المكافآت", "Rewards")}</h1></header>
+      {message && <p className="account-message" role="status">{message}</p>}
       <section className="maak-rewards-balance">
         <h2>{t("رصيد المكافآت", "Rewards balance")}</h2>
         <strong>{balance.toLocaleString()} <small>{t("ر.ي", "YER")}</small></strong>
