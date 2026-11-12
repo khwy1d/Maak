@@ -23,6 +23,10 @@ declare
   previous_date date;
   check_in date;
   check_out date;
+  rental_pickup date;
+  rental_return date;
+  service_date date;
+  expected_date_count integer;
   form_data jsonb := p_request_data -> 'form_data';
   passenger_count integer;
   traveller_count integer;
@@ -175,6 +179,25 @@ begin
       or char_length(trim(form_data ->> 'destination_region')) > 120 then
       raise exception 'Invalid ground transport route' using errcode = '22023';
     end if;
+
+    if nullif(form_data ->> 'travel_date', '') is not null then
+      begin
+        if (form_data ->> 'travel_date') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' then
+          raise exception 'Invalid ground transport date' using errcode = '22023';
+        end if;
+        service_date := (form_data ->> 'travel_date')::date;
+      exception
+        when invalid_datetime_format or datetime_field_overflow then
+          raise exception 'Invalid ground transport date' using errcode = '22023';
+      end;
+      if service_date < current_date
+        or jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> 1
+        or (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'travel_date') then
+        raise exception 'Invalid ground transport date' using errcode = '22023';
+      end if;
+    elsif jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> 0 then
+      raise exception 'Invalid ground transport date' using errcode = '22023';
+    end if;
   elsif trim(p_service) = 'accommodation' then
     if nullif(trim(form_data ->> 'country'), '') is null
       or char_length(trim(form_data ->> 'country')) > 80
@@ -189,6 +212,47 @@ begin
       or nullif(trim(form_data ->> 'pickup_city'), '') is null
       or char_length(trim(form_data ->> 'pickup_city')) > 120 then
       raise exception 'Invalid car rental location' using errcode = '22023';
+    end if;
+
+    begin
+      rental_pickup := null;
+      rental_return := null;
+      if nullif(form_data ->> 'pickup_date', '') is not null then
+        if (form_data ->> 'pickup_date') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' then
+          raise exception 'Invalid car rental pickup date' using errcode = '22023';
+        end if;
+        rental_pickup := (form_data ->> 'pickup_date')::date;
+      end if;
+      if nullif(form_data ->> 'return_date', '') is not null then
+        if (form_data ->> 'return_date') !~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}$' then
+          raise exception 'Invalid car rental return date' using errcode = '22023';
+        end if;
+        rental_return := (form_data ->> 'return_date')::date;
+      end if;
+    exception
+      when invalid_datetime_format or datetime_field_overflow then
+        raise exception 'Invalid car rental dates' using errcode = '22023';
+    end;
+
+    if (rental_pickup is not null and rental_pickup < current_date)
+      or (rental_return is not null and rental_return < current_date)
+      or (rental_pickup is not null and rental_return is not null and rental_return <= rental_pickup) then
+      raise exception 'Invalid car rental dates' using errcode = '22023';
+    end if;
+
+    expected_date_count := 0;
+    if rental_pickup is not null then expected_date_count := expected_date_count + 1; end if;
+    if rental_return is not null then expected_date_count := expected_date_count + 1; end if;
+    if jsonb_array_length(coalesce(p_request_data -> 'date_values', '[]'::jsonb)) <> expected_date_count then
+      raise exception 'Invalid car rental date values' using errcode = '22023';
+    end if;
+    if rental_pickup is not null then
+      if (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'pickup_date')
+        or (rental_return is not null and (p_request_data -> 'date_values' ->> 1) is distinct from (form_data ->> 'return_date')) then
+        raise exception 'Car rental dates do not match request dates' using errcode = '22023';
+      end if;
+    elsif rental_return is not null and (p_request_data -> 'date_values' ->> 0) is distinct from (form_data ->> 'return_date') then
+      raise exception 'Car rental dates do not match request dates' using errcode = '22023';
     end if;
   elsif trim(p_service) = 'medical_travel' then
     if nullif(trim(form_data ->> 'purpose'), '') is null
