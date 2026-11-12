@@ -18,6 +18,12 @@ declare
   parsed_date date;
   previous_date date;
 begin
+  if phone_value like '00%' then
+    phone_value := '+' || substr(phone_value, 3);
+  elsif phone_value !~ '^\\+' then
+    phone_value := '+' || phone_value;
+  end if;
+
   if p_idempotency_key is null
     or p_customer_name is null
     or char_length(trim(p_customer_name)) not between 1 and 120
