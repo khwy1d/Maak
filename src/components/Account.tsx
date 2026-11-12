@@ -246,11 +246,11 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     try {
       const { error } = await supabase.rpc("apply_wallet_to_order", { p_order_id: order.id, p_amount: amount, p_idempotency_key: debitIntent.key });
       if (error) throw error;
+      await refresh();
       if (debitIntent.storageKey) {
         try { sessionStorage.removeItem(debitIntent.storageKey); } catch { /* storage may be unavailable */ }
       }
       if (debitIntent.fallbackKey) fallbackWalletDebitKeys.delete(debitIntent.fallbackKey);
-      await refresh();
       setMessage(t("تم تطبيق الرصيد على الطلب.", "Wallet balance applied to the order."));
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
