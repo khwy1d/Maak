@@ -45,7 +45,7 @@ Deno.serve(async request => {
       .select("passport_storage_path").eq("id", userId).single();
     if (profileError) throw profileError;
     const oldPath = typeof profile.passport_storage_path === "string" ? profile.passport_storage_path : null;
-    if (oldPath && !oldPath.startsWith(userId + "/")) return respond({ error: "Invalid passport ownership path." }, 403, origin);
+    if (oldPath && !oldPath.startsWith(userId + "/account/")) return respond({ error: "Invalid account document path." }, 403, origin);
 
     if (action === "delete") {
       if (oldPath) {
