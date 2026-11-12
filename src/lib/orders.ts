@@ -1,9 +1,13 @@
 import { supabase, getReferralCode } from "./supabase";
 
+export type InquiryService =
+  | "flight" | "ground_transport" | "accommodation" | "car_rental"
+  | "medical_travel" | "security_clearance" | "umrah" | "real_estate" | "tourism";
+
 export interface InquiryOrder {
   customerName: string;
   customerPhone: string;
-  service: string;
+  service: InquiryService;
   requestData: Record<string, unknown>;
   idempotencyKey: string;
 }
