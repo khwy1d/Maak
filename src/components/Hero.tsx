@@ -27,7 +27,7 @@ export default function Hero() {
   return (
     <section id="home" className="hero">
       <div className="hero-watermark" aria-hidden="true" />
-      <div className={`container hero-grid${currentBanner ? " has-banners" : ""}`}>
+      <div className="container hero-grid">
         <div className="hero-copy">
           <h1>{t.hero.title.split("{{brand}}")[0]}<span className="hero-brand">{t.brand}</span>{t.hero.title.split("{{brand}}")[1]}</h1>
           <p className="lead">{lang === "ar" ? "نصمّم رحلتك بعناية، ونرافقك في كل تفصيلة — من التخطيط إلى الوصول." : "We shape your journey with care and accompany every detail — from planning to arrival."}</p>
@@ -37,18 +37,14 @@ export default function Hero() {
           </div>
           <a className="btn btn-primary mobile-services-cta" href="/services"><Compass size={22} aria-hidden="true" /> {lang === "ar" ? "عرض خدماتنا" : "Explore Our Services"}</a>
         </div>
-        <div className="hero-banner-panel" aria-label={lang === "ar" ? "صور العروض" : "Featured banners"}>
-          <img
-            src={currentBanner?.url ?? "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=85"}
-            alt={currentBanner?.alt ?? ""}
-            fetchPriority="high"
-          />
+        {currentBanner && <div className="hero-banner-panel" aria-label={lang === "ar" ? "صور العروض" : "Featured banners"}>
+          <img src={currentBanner.url} alt={currentBanner.alt} fetchPriority="high" />
           {banners.length > 1 && <div className="hero-banner-controls">
             <button type="button" onClick={() => moveBanner(-1)} aria-label={lang === "ar" ? "الصورة السابقة" : "Previous banner"}><ChevronRight size={19}/></button>
             <div>{banners.map((banner, index) => <button key={banner.id} type="button" className={index === bannerIndex ? "active" : ""} onClick={() => setBannerIndex(index)} aria-label={lang === "ar" ? `الصورة ${index + 1}` : `Banner ${index + 1}`}/>)}</div>
             <button type="button" onClick={() => moveBanner(1)} aria-label={lang === "ar" ? "الصورة التالية" : "Next banner"}><ChevronLeft size={19}/></button>
           </div>}
-        </div>
+        </div>}
       </div>
     </section>
   );
