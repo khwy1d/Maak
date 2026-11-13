@@ -37,14 +37,18 @@ export default function Hero() {
           </div>
           <a className="btn btn-primary mobile-services-cta" href="/services"><Compass size={22} aria-hidden="true" /> {lang === "ar" ? "عرض خدماتنا" : "Explore Our Services"}</a>
         </div>
-        {currentBanner && <div className="hero-banner-panel" aria-label={lang === "ar" ? "صور العروض" : "Featured banners"}>
-          <img src={currentBanner.url} alt={currentBanner.alt} fetchPriority="high" />
+        <div className="hero-banner-panel" aria-label={lang === "ar" ? "صور العروض" : "Featured banners"}>
+          <img
+            src={currentBanner?.url ?? "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=85"}
+            alt={currentBanner?.alt ?? ""}
+            fetchPriority="high"
+          />
           {banners.length > 1 && <div className="hero-banner-controls">
             <button type="button" onClick={() => moveBanner(-1)} aria-label={lang === "ar" ? "الصورة السابقة" : "Previous banner"}><ChevronRight size={19}/></button>
             <div>{banners.map((banner, index) => <button key={banner.id} type="button" className={index === bannerIndex ? "active" : ""} onClick={() => setBannerIndex(index)} aria-label={lang === "ar" ? `الصورة ${index + 1}` : `Banner ${index + 1}`}/>)}</div>
             <button type="button" onClick={() => moveBanner(1)} aria-label={lang === "ar" ? "الصورة التالية" : "Next banner"}><ChevronLeft size={19}/></button>
           </div>}
-        </div>}
+        </div>
       </div>
     </section>
   );
