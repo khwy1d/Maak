@@ -1,18 +1,22 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
 import { useApp } from "./context/AppContext";
 import Header from "./components/Header";
 import MobileHeader from "./components/MobileHeader";
 import MobileDock from "./components/MobileDock";
 import Hero from "./components/Hero";
-import Services from "./components/Services";
-import Pages from "./components/Pages";
-import { About, Contact, Footer, How, Why } from "./components/Sections";
-import SocialFollow from "./components/SocialFollow";
 import GlassBackground from "./components/GlassBackground";
-import Account from "./components/Account";
 import InquiryCapture from "./components/InquiryCapture";
 import { getReferralCode } from "./lib/supabase";
+
+const Services = lazy(() => import("./components/Services"));
+const Pages = lazy(() => import("./components/Pages"));
+const Account = lazy(() => import("./components/Account"));
+const SocialFollow = lazy(() => import("./components/SocialFollow"));
+const About = lazy(() => import("./components/Sections").then((module) => ({ default: module.About })));
+const How = lazy(() => import("./components/Sections").then((module) => ({ default: module.How })));
+const Why = lazy(() => import("./components/Sections").then((module) => ({ default: module.Why })));
+const Footer = lazy(() => import("./components/Sections").then((module) => ({ default: module.Footer })));
 
 function currentPath() {
   const path = window.location.pathname.replace(/\/+$/, "");
@@ -83,7 +87,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      {path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
           <div className="mobile-home-banner-copy">
@@ -95,8 +99,8 @@ export default function App() {
         <div className="home-desktop-only"><About /></div>
         <div className="home-desktop-only"><Why /></div>
         <div className="home-desktop-only"><How /><SocialFollow /></div>
-      </main> : <Pages path={path} />}
-      <Footer />
+      </main> : <Pages path={path} />}</Suspense>
+      <Suspense fallback={null}><Footer /></Suspense>
       {path !== "/admin" && path !== "/login" && path !== "/signup" && <MobileDock path={path} />}
       </div>
     </>

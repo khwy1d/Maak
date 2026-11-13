@@ -1,3 +1,4 @@
+import "../styles/service-grid.css";
 import { Building2, Bus, Car, Compass, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
