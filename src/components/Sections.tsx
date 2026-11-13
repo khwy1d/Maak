@@ -3,6 +3,7 @@ import { useState } from "react";
 import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
+import { publicPathForKey } from "../config/seo";
 import Logo from "./Logo";
 import WhatsAppButton from "./WhatsAppButton";
 
@@ -102,7 +103,7 @@ export function Footer() {
         <nav aria-label={t.footer.links}><h2 className="footer-heading">{t.footer.links}</h2>
           <a href="/">{t.nav.home}</a><a href="/services">{t.nav.services}</a><a href="/about">{t.nav.about}</a><a href="/contact">{t.nav.contact}</a></nav>
         <nav aria-label={t.footer.services}><h2 className="footer-heading">{t.footer.services}</h2>
-          {t.services.items.map((s) => <a key={s.key} href={s.key === "flight" ? "/flights" : s.key === "visa" ? "/visas" : s.key === "hotel" ? "/hotels" : "/car-rental"}>{lang === "ar" ? s.ar : s.en}</a>)}
+          {t.services.items.filter((s) => s.key !== "visa").map((s) => <a key={s.key} href={publicPathForKey(s.key)}>{lang === "ar" ? s.ar : s.en}</a>)}
           <a href="/tourism">{lang === "ar" ? "السياحة والرحلات" : "Tourism and trips"}</a></nav>
       </div>
       <div className="container copy">© {new Date().getFullYear()} {t.brand}. {t.footer.rights}</div>

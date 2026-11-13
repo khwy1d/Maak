@@ -68,8 +68,261 @@
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "source": "/ar",
+      "destination": "/ar/index.html"
+    },
+    {
+      "source": "/ar/",
+      "destination": "/ar/index.html"
+    },
+    {
+      "source": "/ar/services",
+      "destination": "/ar/services/index.html"
+    },
+    {
+      "source": "/ar/flights",
+      "destination": "/ar/flights/index.html"
+    },
+    {
+      "source": "/ar/transport",
+      "destination": "/ar/transport/index.html"
+    },
+    {
+      "source": "/ar/hotels",
+      "destination": "/ar/hotels/index.html"
+    },
+    {
+      "source": "/ar/security-clearance-egypt",
+      "destination": "/ar/security-clearance-egypt/index.html"
+    },
+    {
+      "source": "/ar/umrah",
+      "destination": "/ar/umrah/index.html"
+    },
+    {
+      "source": "/ar/medical-tourism",
+      "destination": "/ar/medical-tourism/index.html"
+    },
+    {
+      "source": "/ar/car-rental",
+      "destination": "/ar/car-rental/index.html"
+    },
+    {
+      "source": "/ar/tourism",
+      "destination": "/ar/tourism/index.html"
+    },
+    {
+      "source": "/ar/real-estate",
+      "destination": "/ar/real-estate/index.html"
+    },
+    {
+      "source": "/ar/about",
+      "destination": "/ar/about/index.html"
+    },
+    {
+      "source": "/ar/contact",
+      "destination": "/ar/contact/index.html"
+    },
+    {
+      "source": "/ar/account",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ar/bookings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ar/rewards",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ar/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ar/signup",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/ar/admin",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en",
+      "destination": "/en/index.html"
+    },
+    {
+      "source": "/en/",
+      "destination": "/en/index.html"
+    },
+    {
+      "source": "/en/services",
+      "destination": "/en/services/index.html"
+    },
+    {
+      "source": "/en/flights",
+      "destination": "/en/flights/index.html"
+    },
+    {
+      "source": "/en/transport",
+      "destination": "/en/transport/index.html"
+    },
+    {
+      "source": "/en/hotels",
+      "destination": "/en/hotels/index.html"
+    },
+    {
+      "source": "/en/security-clearance-egypt",
+      "destination": "/en/security-clearance-egypt/index.html"
+    },
+    {
+      "source": "/en/umrah",
+      "destination": "/en/umrah/index.html"
+    },
+    {
+      "source": "/en/medical-tourism",
+      "destination": "/en/medical-tourism/index.html"
+    },
+    {
+      "source": "/en/car-rental",
+      "destination": "/en/car-rental/index.html"
+    },
+    {
+      "source": "/en/tourism",
+      "destination": "/en/tourism/index.html"
+    },
+    {
+      "source": "/en/real-estate",
+      "destination": "/en/real-estate/index.html"
+    },
+    {
+      "source": "/en/about",
+      "destination": "/en/about/index.html"
+    },
+    {
+      "source": "/en/contact",
+      "destination": "/en/contact/index.html"
+    },
+    {
+      "source": "/en/account",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en/bookings",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en/rewards",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en/signup",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/en/admin",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/ar",
+      "permanent": true
+    },
+    {
+      "source": "/services",
+      "destination": "/ar/services",
+      "permanent": true
+    },
+    {
+      "source": "/flights",
+      "destination": "/ar/flights",
+      "permanent": true
+    },
+    {
+      "source": "/transport",
+      "destination": "/ar/transport",
+      "permanent": true
+    },
+    {
+      "source": "/hotels",
+      "destination": "/ar/hotels",
+      "permanent": true
+    },
+    {
+      "source": "/security-clearance-egypt",
+      "destination": "/ar/security-clearance-egypt",
+      "permanent": true
+    },
+    {
+      "source": "/umrah",
+      "destination": "/ar/umrah",
+      "permanent": true
+    },
+    {
+      "source": "/medical-tourism",
+      "destination": "/ar/medical-tourism",
+      "permanent": true
+    },
+    {
+      "source": "/car-rental",
+      "destination": "/ar/car-rental",
+      "permanent": true
+    },
+    {
+      "source": "/tourism",
+      "destination": "/ar/tourism",
+      "permanent": true
+    },
+    {
+      "source": "/real-estate",
+      "destination": "/ar/real-estate",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/ar/about",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/ar/contact",
+      "permanent": true
+    },
+    {
+      "source": "/account",
+      "destination": "/ar/account",
+      "permanent": true
+    },
+    {
+      "source": "/bookings",
+      "destination": "/ar/bookings",
+      "permanent": true
+    },
+    {
+      "source": "/rewards",
+      "destination": "/ar/rewards",
+      "permanent": true
+    },
+    {
+      "source": "/login",
+      "destination": "/ar/login",
+      "permanent": true
+    },
+    {
+      "source": "/signup",
+      "destination": "/ar/signup",
+      "permanent": true
+    },
+    {
+      "source": "/admin",
+      "destination": "/ar/admin",
+      "permanent": true
     }
   ]
 }

@@ -2,6 +2,7 @@ import { ArrowUpRight, Building2, Bus, Car, Compass, FileCheck, HeartPulse, Hote
 import { useState } from "react";
 import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
+import { publicPathForKey } from "../config/seo";
 import type { WaTopic } from "../utils/whatsapp";
 import WhatsAppButton from "./WhatsAppButton";
 import SocialFollow from "./SocialFollow";
@@ -13,15 +14,16 @@ import { MedicalTravelForm, RealEstateForm, SecurityClearanceForm, TourismForm, 
 import { About as AboutIntro, Why } from "./Sections";
 
 const routes = [
-  { path: "/services", key: "services", icon: Compass },
-  { path: "/flights", key: "flight", topic: "flight" as WaTopic, icon: Plane },
-  { path: "/transport", key: "bus", icon: Bus },
-  { path: "/hotels", key: "hotel", topic: "hotel" as WaTopic, icon: Hotel },
-  { path: "/security-clearance-egypt", key: "security", icon: ShieldCheck },
-  { path: "/umrah", key: "umrah", icon: Moon },
-  { path: "/medical-tourism", key: "medical", icon: HeartPulse },
-  { path: "/car-rental", key: "car", topic: "car" as WaTopic, icon: Car },
-  { path: "/tourism", key: "tourism", icon: MapPinned },
+  { path: publicPathForKey("services"), key: "services", icon: Compass },
+  { path: publicPathForKey("flight"), key: "flight", topic: "flight" as WaTopic, icon: Plane },
+  { path: publicPathForKey("bus"), key: "bus", icon: Bus },
+  { path: publicPathForKey("hotel"), key: "hotel", topic: "hotel" as WaTopic, icon: Hotel },
+  { path: publicPathForKey("security"), key: "security", icon: ShieldCheck },
+  { path: publicPathForKey("umrah"), key: "umrah", icon: Moon },
+  { path: publicPathForKey("medical"), key: "medical", icon: HeartPulse },
+  { path: publicPathForKey("car"), key: "car", topic: "car" as WaTopic, icon: Car },
+  { path: publicPathForKey("realEstate"), key: "realEstate", icon: Building2 },
+  { path: publicPathForKey("tourism"), key: "tourism", icon: MapPinned },
 ];
 
 type PageCopy = { title: string; intro: string; bullets?: string[] };

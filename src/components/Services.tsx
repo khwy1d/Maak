@@ -2,23 +2,13 @@ import "../styles/service-grid.css";
 import { Building2, Bus, Car, Compass, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
+import { publicPathForKey } from "../config/seo";
 
 const icons = { flight: Plane, hotel: Hotel, car: Car, medical: HeartPulse, security: ShieldCheck, umrah: Moon, bus: Bus, realEstate: Building2 };
-const routes: Record<string, string> = {
-  flight: "/flights",
-  hotel: "/hotels",
-  car: "/car-rental",
-  medical: "/medical-tourism",
-  security: "/security-clearance-egypt",
-  umrah: "/umrah",
-  bus: "/transport",
-  realEstate: "/real-estate",
-};
-
 export default function Services() {
   const { t, lang } = useApp();
   const ref = useReveal<HTMLDivElement>();
-  const featuredKeys = ["flight", "hotel", "bus", "car", "security", "umrah", "medical"];
+  const featuredKeys = ["flight", "hotel", "bus", "car", "security", "umrah", "medical", "realEstate"];
   const featuredServices = featuredKeys.map((key) => t.services.items.find((item) => item.key === key)).filter((item) => item !== undefined);
   return (
     <section id="services" className="section home-services-section">
@@ -28,7 +18,7 @@ export default function Services() {
           {featuredServices.map((s) => {
             const Icon = icons[s.key as keyof typeof icons];
             return (
-              <a key={s.key} className="service service-card-link glass glass-card" href={routes[s.key] || "/services"} aria-label={lang === "ar" ? `عرض خدمة ${s.ar}` : `View ${s.en} service`}>
+              <a key={s.key} className="service service-card-link glass glass-card" href={publicPathForKey(s.key)} aria-label={lang === "ar" ? `عرض خدمة ${s.ar}` : `View ${s.en} service`}>
                 <span className="service-icon"><Icon size={26} aria-hidden="true" /></span>
                 <h3>{lang === "ar" ? s.ar : s.en}</h3>
                 <p className="service-sub" lang={lang === "ar" ? "en" : "ar"}>{lang === "ar" ? s.en : s.ar}</p>

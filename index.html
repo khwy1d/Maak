@@ -7,6 +7,8 @@
     <meta name="description" content="MAAK معك للسفر والسياحة — استفسر عن حجز تذاكر الطيران، الفنادق، تأجير السيارات، التأشيرات وخدمات السفر، مع تواصل مباشر عبر واتساب." />
     <meta name="google-site-verification" content="LQxnny5CJzHQD2cSqeY8NO2BZNRCNLV8Jc6jbNaCO64" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="twitter:title" content="معك | MAAK — دائمًا معك" />
+    <meta name="twitter:description" content="خدمات السفر والسياحة: الطيران، الفنادق، تأجير السيارات وخدمات السفر. دائمًا معك." />
     <meta name="application-name" content="MAAK معك للسفر والسياحة" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -26,20 +28,35 @@
     <meta property="og:image:height" content="512" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:image" content="https://maaktravel.vercel.app/web-app-manifest-512x512.png" />
-    <link rel="canonical" href="https://maaktravel.vercel.app/" />
+    <link rel="canonical" href="https://maaktravel.vercel.app/ar" />
+    <link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar" />
+    <link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en" />
+    <link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar" />
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "TravelAgency",
+        "@id": "https://maaktravel.vercel.app/#organization",
         "name": "MAAK معك للسفر والسياحة",
         "alternateName": "MAAK Travel",
-        "url": "https://maaktravel.vercel.app/",
+        "url": "https://maaktravel.vercel.app/ar",
         "logo": "https://maaktravel.vercel.app/web-app-manifest-512x512.png",
-        "description": "خدمات السفر والسياحة، الاستفسار عن حجز الطيران والفنادق وتأجير السيارات وخدمات السفر.",
-        "areaServed": ["Yemen", "Middle East"],
-        "availableLanguage": ["Arabic", "English"]
+        "description": "خدمات السفر والسياحة والاستفسار عن الطيران والفنادق والنقل البري وتأجير السيارات وخدمات السفر.",
+        "areaServed": [
+          { "@type": "Country", "name": "Yemen" },
+          { "@type": "Country", "name": "Saudi Arabia" },
+          { "@type": "Country", "name": "Egypt" }
+        ],
+        "availableLanguage": ["Arabic", "English"],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "customer service",
+          "url": "https://wa.me/967776002190",
+          "availableLanguage": ["Arabic", "English"]
+        },
+        "knowsAbout": ["Flight bookings", "Hotel reservations", "Car rental", "Ground transport", "Medical travel", "Umrah travel", "Tourism"]
       }
     </script>
     <link rel="preload" as="image" href="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&amp;fit=crop&amp;w=1600&amp;q=85" fetchpriority="high" />
@@ -50,7 +67,8 @@
     <script>
       try {
         var d = document.documentElement;
-        var l = localStorage.getItem("maak-lang");
+        var localeMatch = window.location.pathname.match(/^\/(ar|en)(?:\/|$)/);
+        var l = localeMatch ? localeMatch[1] : localStorage.getItem("maak-lang");
         if (l !== "ar" && l !== "en") l = "ar";
         var t = localStorage.getItem("maak-theme");
         if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";

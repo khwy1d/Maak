@@ -1,11 +1,16 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { translations, type Lang } from "../i18n/translations";
+import { localizedPath } from "../config/seo";
 
 type Theme = "light" | "dark";
 interface Ctx { lang: Lang; theme: Theme; t: typeof translations.ar; toggleLang: () => void; toggleTheme: () => void; }
 const AppContext = createContext<Ctx | null>(null);
 
 const readLang = (): Lang => {
+  if (typeof window !== "undefined") {
+    const prefix = window.location.pathname.match(/^\/(ar|en)(?:\/|$)/)?.[1];
+    if (prefix === "ar" || prefix === "en") return prefix;
+  }
   try {
     const value = localStorage.getItem("maak-lang");
     return value === "ar" || value === "en" ? value : "ar";
@@ -28,8 +33,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const d = document.documentElement;
     d.lang = lang; d.dir = lang === "ar" ? "rtl" : "ltr";
-    document.title = translations[lang].meta.title;
-    document.querySelector('meta[name="description"]')?.setAttribute("content", translations[lang].meta.description);
     write("maak-lang", lang);
   }, [lang]);
 
@@ -37,7 +40,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<Ctx>(() => ({
     lang, theme, t: translations[lang],
-    toggleLang: () => setLang((l) => (l === "ar" ? "en" : "ar")),
+    toggleLang: () => setLang((l) => {
+      const next: Lang = l === "ar" ? "en" : "ar";
+      const nextPath = localizedPath(window.location.pathname, next);
+      window.history.pushState({}, "", `${nextPath}${window.location.search}${window.location.hash}`);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      return next;
+    }),
     toggleTheme: () => setTheme((x) => (x === "dark" ? "light" : "dark")),
   }), [lang, theme]);
 
