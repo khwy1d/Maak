@@ -8,6 +8,8 @@ export default function Header() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [hidden, setHidden] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
+  const pathname = window.location.pathname.replace(/\/+$/, "");
+  const pageTitle = pathname.endsWith("/notifications") ? (lang === "ar" ? "الإشعارات" : "Notifications") : pathname.endsWith("/bookings") ? (lang === "ar" ? "حجوزاتي" : "My bookings") : pathname.endsWith("/rewards") ? (lang === "ar" ? "المكافآت" : "Rewards") : pathname.endsWith("/account") ? (lang === "ar" ? "حسابي" : "My account") : null;
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
@@ -40,7 +42,7 @@ export default function Header() {
   return (
     <header ref={headerRef} onFocusCapture={() => setHidden(false)} className={`header desktop-header${hidden ? " header-hidden" : ""}`}>
       <div className="nav glass">
-        <a href="/" className="nav-logo" aria-label={t.nav.home}><Logo size={40} /></a>
+        {pageTitle ? <a href="/" className="nav-page-title" aria-label={t.nav.home}>{pageTitle}</a> : <a href="/" className="nav-logo" aria-label={t.nav.home}><Logo size={40} /></a>}
         <nav id="main-nav" className="nav-links" aria-label={t.a11y.nav}>
           {links.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
