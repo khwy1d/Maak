@@ -2155,5 +2155,5 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 
 /* Clearance below the fixed shared header on account subpages. */
 .maak-app-page {
-  padding-top: 60px;
+  padding-top: 70px;
 }
