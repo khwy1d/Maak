@@ -214,6 +214,29 @@ export default function AdminPanel() {
     finally { setBusy(false); }
   };
 
+  const replaceBannerImage = async (banner: Row, file?: File) => {
+    if (!supabase || !isAdmin || !file) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type) || file.size > 5 * 1024 * 1024) {
+      setMessage("اختر صورة JPG أو PNG أو WebP لا يتجاوز حجمها 5 ميغابايت."); return;
+    }
+    setBusy(true); setMessage("");
+    const path = `home/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+    try {
+      const { error: uploadError } = await supabase.storage.from("home-banners").upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+      const { error: updateError } = await supabase.from("home_banners").update({ storage_path: path }).eq("id", banner.id);
+      if (updateError) {
+        await supabase.storage.from("home-banners").remove([path]);
+        throw updateError;
+      }
+      const { error: oldFileError } = await supabase.storage.from("home-banners").remove([banner.storage_path]);
+      if (oldFileError) setMessage("تم استبدال الصورة، لكن تعذر حذف الملف السابق من التخزين.");
+      else setMessage("تم استبدال صورة البنر.");
+      await load(session);
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setBusy(false); }
+  };
+
   const toggleBanner = async (banner: Row) => {
     if (!supabase || !isAdmin) return;
     setBusy(true);
@@ -311,7 +334,7 @@ export default function AdminPanel() {
         <label>وصف الصورة<input value={bannerAlt} onChange={event => setBannerAlt(event.target.value)} maxLength={180} placeholder="وصف مختصر للصورة"/></label>
         <button className="btn btn-primary" disabled={busy || !bannerFile}><ImagePlus size={17}/> إضافة إلى الصفحة الرئيسية</button>
       </form>
-      <div className="maak-admin-banner-list">{banners.map(banner => <article className="maak-admin-banner-row" key={banner.id}><img src={publicBannerUrl(banner.storage_path)} alt={banner.alt_text || "بنر معك"}/><div><strong>{banner.alt_text || "بنر بدون وصف"}</strong><small>{banner.is_active ? "ظاهر في الصفحة الرئيسية" : "مخفي مؤقتًا"}</small><div className="maak-admin-banner-actions"><button className="btn btn-ghost" disabled={busy} onClick={() => void editBannerText(banner)}>تعديل الوصف</button><button className="btn btn-ghost" disabled={busy} onClick={() => void toggleBanner(banner)}>{banner.is_active ? "إخفاء" : "إظهار"}</button><button className="btn btn-ghost danger" disabled={busy} onClick={() => void deleteBanner(banner)}>حذف</button></div></div></article>)}</div>
+      <div className="maak-admin-banner-list">{banners.map(banner => <article className="maak-admin-banner-row" key={banner.id}><img src={publicBannerUrl(banner.storage_path)} alt={banner.alt_text || "بنر معك"}/><div><strong>{banner.alt_text || "بنر بدون وصف"}</strong><small>{banner.is_active ? "ظاهر في الصفحة الرئيسية" : "مخفي مؤقتًا"}</small><div className="maak-admin-banner-actions"><button className="btn btn-ghost" disabled={busy} onClick={() => void editBannerText(banner)}>تعديل الوصف</button><label className="btn btn-ghost maak-admin-replace-image">استبدال الصورة<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { void replaceBannerImage(banner, event.target.files?.[0]); event.currentTarget.value = ""; }}/></label><button className="btn btn-ghost" disabled={busy} onClick={() => void toggleBanner(banner)}>{banner.is_active ? "إخفاء" : "إظهار"}</button><button className="btn btn-ghost danger" disabled={busy} onClick={() => void deleteBanner(banner)}>حذف</button></div></div></article>)}</div>
     </section>}
   </main>;
 }
