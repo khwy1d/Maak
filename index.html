@@ -67,7 +67,7 @@
     <script>
       try {
         var d = document.documentElement;
-        var localeMatch = window.location.pathname.match(/^\\/(ar|en)(?:\\/|$)/);
+        var localeMatch = window.location.pathname.match(/^\/(ar|en)(?:\/|$)/);
         var l = localeMatch ? localeMatch[1] : localStorage.getItem("maak-lang");
         if (l !== "ar" && l !== "en") l = "ar";
         var t = localStorage.getItem("maak-theme");
