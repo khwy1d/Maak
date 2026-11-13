@@ -13,6 +13,7 @@ import { getSeoPage, localizedPath } from "./config/seo";
 const Services = lazy(() => import("./components/Services"));
 const Pages = lazy(() => import("./components/Pages"));
 const Account = lazy(() => import("./components/Account"));
+const AdminPanel = lazy(() => import("./components/AdminPanel"));
 const SocialFollow = lazy(() => import("./components/SocialFollow"));
 const About = lazy(() => import("./components/Sections").then((module) => ({ default: module.About })));
 const How = lazy(() => import("./components/Sections").then((module) => ({ default: module.How })));
@@ -161,7 +162,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialTab="auth" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialTab="auth" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialTab="auth" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialTab="auth" initialMode="signup" /> : path === "/admin" ? <AdminPanel /> : isHome ? <main className="home-intro">
         <Hero />
         <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
           <div className="mobile-home-banner-copy">
