@@ -33,8 +33,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const d = document.documentElement;
     d.lang = lang; d.dir = lang === "ar" ? "rtl" : "ltr";
-    document.title = translations[lang].meta.title;
-    document.querySelector('meta[name="description"]')?.setAttribute("content", translations[lang].meta.description);
     write("maak-lang", lang);
   }, [lang]);
 
