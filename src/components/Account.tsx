@@ -32,6 +32,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const ar = lang === "ar";
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStaff, setIsStaff] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -73,6 +74,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         activeUserIdRef.current = nextUserId;
         refreshRequestRef.current += 1;
         setIsAdmin(false);
+        setIsStaff(false);
         setProfile(null);
         setPassportSignedUrl("");
         setAccountPanel(null);
@@ -141,10 +143,11 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       setProfile(profileRow);
       setName(profileRow.full_name ?? "");
       setPhone(profileRow.phone ?? user.phone ?? "");
-      setOrders(orderRows ?? []);
+      setOrders(role?.role === "staff" ? (orderRows ?? []).filter((order: Row) => order.customer_id === user.id) : orderRows ?? []);
       setTransactions(walletRows ?? []);
       setReferrals(referralRows ?? []);
       setIsAdmin(role?.role === "admin");
+      setIsStaff(role?.role === "admin" || role?.role === "staff");
       setCommission(String(settings?.value?.amount ?? 0));
       const { data: walletBalance, error: balanceError } = await supabase.rpc("current_wallet_balance");
       if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
@@ -582,12 +585,12 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           {accountPanel === "info" && <p className="maak-settings-note">{t("معك للسفر والسياحة — دائمًا معك في كل رحلة.", "MAAK Travel and Tourism — with you on every journey.")}</p>}
         </div>
       </section>
-      {isAdmin && <a className="btn btn-ghost maak-admin-link" href="/admin">{t("لوحة الإدارة", "Admin panel")}</a>}
+      {isStaff && <a className="btn btn-ghost maak-admin-link" href="/admin">{t("لوحة الإدارة", "Admin panel")}</a>}
       <button type="button" className="maak-sign-out" onClick={signOut}><LogOut size={20}/>{t("تسجيل الخروج", "Sign out")}</button>
     </main>;
   }
 
-  return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-dashboard"><header className="account-top"><div><span>{t("مرحبًا", "Welcome")}</span><h1>{profile?.full_name ?? name}</h1><p>{profile?.phone}</p></div><div className="account-top-actions">{isAdmin && <a className="btn btn-ghost" href={adminOnly ? "/account" : "/admin"}>{t("لوحة الإدارة", "Admin panel")}</a>}<button className="btn btn-ghost" onClick={() => void refresh()} disabled={busy}><RefreshCw size={16}/>{t("تحديث", "Refresh")}</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={16}/>{t("خروج", "Sign out")}</button></div></header>
+  return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-dashboard"><header className="account-top"><div><span>{t("مرحبًا", "Welcome")}</span><h1>{profile?.full_name ?? name}</h1><p>{profile?.phone}</p></div><div className="account-top-actions">{isStaff && <a className="btn btn-ghost" href={adminOnly ? "/account" : "/admin"}>{t("لوحة الإدارة", "Admin panel")}</a>}<button className="btn btn-ghost" onClick={() => void refresh()} disabled={busy}><RefreshCw size={16}/>{t("تحديث", "Refresh")}</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={16}/>{t("خروج", "Sign out")}</button></div></header>
     {message && <p className="account-message" role="status">{message}</p>}
     {!showAdmin && <div className="account-overview"><article><Wallet/><span>{t("رصيد المحفظة", "Wallet balance")}</span><strong>{balance.toLocaleString()} {t("ر.ي", "YER")}</strong></article><article><span>{t("رمز دعوتك", "Your referral code")}</span><strong>{profile?.referral_code}</strong><button className="btn btn-ghost" onClick={copyInvite}>{copied ? <Check size={16}/> : <Copy size={16}/>} {copied ? t("نُسخ", "Copied") : t("نسخ رابط الدعوة", "Copy invite link")}</button></article></div>}
     <nav className="account-tabs">{(showAdmin ? ["admin-orders", "admin-customers", "admin-referrals", "admin-finance"] : ["orders", "wallet", "referrals"]).map(key => <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{labels[key]}</button>)}</nav>
