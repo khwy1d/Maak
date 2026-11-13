@@ -113,6 +113,22 @@ export default function App() {
     let xDefault = document.querySelector<HTMLLinkElement>('link[rel="alternate"][hreflang="x-default"]');
     if (!xDefault) { xDefault = document.createElement("link"); xDefault.rel = "alternate"; xDefault.hreflang = "x-default"; document.head.appendChild(xDefault); }
     xDefault.href = `${window.location.origin}/ar${path === "/" ? "" : path}`;
+    let pageSchema = document.querySelector<HTMLScriptElement>("#maak-page-schema");
+    const serviceKeys = ["flight", "bus", "hotel", "security", "umrah", "medical", "car", "tourism", "realEstate"];
+    if (page && serviceKeys.includes(page.key)) {
+      if (!pageSchema) { pageSchema = document.createElement("script"); pageSchema.id = "maak-page-schema"; pageSchema.type = "application/ld+json"; document.head.appendChild(pageSchema); }
+      pageSchema.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": title,
+        "description": description,
+        "provider": { "@id": "https://maaktravel.vercel.app/#organization" },
+        "areaServed": ["Yemen", "Saudi Arabia", "Egypt"],
+        "availableChannel": { "@type": "ServiceChannel", "serviceUrl": canonicalUrl }
+      });
+    } else {
+      pageSchema?.remove();
+    }
   }, [path, lang]);
 
   const handleInstall = async () => {
