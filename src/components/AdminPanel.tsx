@@ -105,13 +105,14 @@ export default function AdminPanel() {
   }, [load]);
 
   useEffect(() => {
-    if (!session || !isStaff || !supabase) return;
-    const channel = supabase.channel("maak-staff-admin-panel")
+    const client = supabase;
+    if (!session || !isStaff || !client) return;
+    const channel = client.channel("maak-staff-admin-panel")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load(session))
       .subscribe();
     const refreshId = window.setInterval(() => void load(session), 30000);
-    return () => { window.clearInterval(refreshId); void supabase.removeChannel(channel); };
+    return () => { window.clearInterval(refreshId); void client.removeChannel(channel); };
   }, [session?.user.id, isStaff, load]);
 
   useEffect(() => {
