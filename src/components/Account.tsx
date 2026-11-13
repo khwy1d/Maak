@@ -182,6 +182,11 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     return () => { active = false; };
   }, [profile?.passport_storage_path, session?.user.id]);
 
+  const goToHomeAfterAuth = () => {
+    window.history.replaceState({}, "", `/${lang}`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
+
   const normalizePhone = (value: string) => {
     const localized = value.trim().replace(/[٠-٩۰-۹]/g, digit => {
       const code = digit.charCodeAt(0);
@@ -226,6 +231,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       if (authResult.error) throw authResult.error;
       setSession(authResult.data.session);
       setPassword("");
+      goToHomeAfterAuth();
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -267,6 +273,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       setOtp("");
       setPassword("");
       setConfirmPassword("");
+      goToHomeAfterAuth();
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
