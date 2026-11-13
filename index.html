@@ -67,7 +67,8 @@
     <script>
       try {
         var d = document.documentElement;
-        var l = localStorage.getItem("maak-lang");
+        var localeMatch = window.location.pathname.match(/^\\/(ar|en)(?:\\/|$)/);
+        var l = localeMatch ? localeMatch[1] : localStorage.getItem("maak-lang");
         if (l !== "ar" && l !== "en") l = "ar";
         var t = localStorage.getItem("maak-theme");
         if (t !== "light" && t !== "dark") t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
