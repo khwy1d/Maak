@@ -26,3 +26,7 @@ export function getSeoPage(path: string) {
   const clean = path.replace(/^\/(?:ar|en)(?=\/|$)/, "") || "/";
   return publicSeoPages.find((page) => page.path === clean) ?? null;
 }
+
+export function publicPathForKey(key: string): string {
+  return publicSeoPages.find((page) => page.key === key)?.path ?? "/services";
+}
