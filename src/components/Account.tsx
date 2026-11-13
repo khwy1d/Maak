@@ -493,7 +493,6 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     ];
 
     if (tab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
-      <div className="maak-booking-filter-shortcut"><button type="button" className="btn btn-ghost" onClick={() => setOrderFilter("active")}>{t("النشطة", "Active")}{activeOrderCount > 0 ? ` (${activeOrderCount})` : ""}</button></div>
       {message && <p className="account-message" role="status">{message}</p>}
       <nav className="maak-filter-tabs" aria-label={t("تصفية الحجوزات", "Filter bookings")}>{bookingFilters.map(([key, title]) => <button type="button" key={key} className={orderFilter === key ? "active" : ""} aria-pressed={orderFilter === key} onClick={() => setOrderFilter(key)}>{title}</button>)}</nav>
       <section className="maak-booking-list" aria-live="polite">
@@ -516,7 +515,6 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     </main>;
 
     if (tab === "referrals") return <main className="maak-app-page maak-rewards-page" dir={ar ? "rtl" : "ltr"}>
-      <header className="maak-page-heading"><h1>{t("المكافآت", "Rewards")}</h1></header>
       {message && <p className="account-message" role="status">{message}</p>}
       <section className="maak-rewards-balance">
         <h2>{t("رصيد المكافآت", "Rewards balance")}</h2>
@@ -542,7 +540,6 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     </main>;
 
     return <main className="maak-app-page maak-profile-page" dir={ar ? "rtl" : "ltr"}>
-      <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1><span className="maak-account-notification" aria-hidden="true"><Bell size={27}/></span></header>
       <section className="maak-profile-hero"><span className="maak-avatar"><UserRound size={66}/></span><h2>{profile?.full_name ?? name}</h2></section>
       <section className="maak-contact-card">
         <div className="maak-account-phone"><strong dir="ltr">{profile?.phone ?? phone}</strong><Phone size={20}/><small>{t("رقم الهاتف", "Phone number")}</small></div>
