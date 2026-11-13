@@ -9,6 +9,8 @@ export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
+  const pathname = window.location.pathname.replace(/\/+$/, "");
+  const pageTitle = pathname.endsWith("/notifications") ? (lang === "ar" ? "الإشعارات" : "Notifications") : pathname.endsWith("/bookings") ? (lang === "ar" ? "حجوزاتي" : "My bookings") : pathname.endsWith("/rewards") ? (lang === "ar" ? "المكافآت" : "Rewards") : pathname.endsWith("/account") ? (lang === "ar" ? "حسابي" : "My account") : null;
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
@@ -49,7 +51,7 @@ export default function MobileHeader() {
   return (
     <header className={`header mobile-header${hidden && !open ? " header-hidden" : ""}`} aria-hidden={hidden && !open ? true : undefined}>
       <div className="nav glass">
-        <a href="/" className="nav-logo" aria-label={t.nav.home} onClick={() => setOpen(false)}><Logo size={40} /></a>
+        {pageTitle ? <a href="/" className="nav-page-title" aria-label={t.nav.home} onClick={() => setOpen(false)}>{pageTitle}</a> : <a href="/" className="nav-logo" aria-label={t.nav.home} onClick={() => setOpen(false)}><Logo size={40} /></a>}
         <nav id="mobile-main-nav" className={`nav-links ${open ? "open" : ""}`} aria-label={t.a11y.nav}>
           {links.map(([href, label]) => <a key={href} href={href} onClick={() => setOpen(false)}>{label}</a>)}
           <div className="nav-wa-mobile"><WhatsAppButton /></div>
