@@ -22,7 +22,9 @@ function localizedPrerender(): Plugin {
   return {
     name: "maak-localized-prerender",
     apply: "build",
-    generateBundle(_options, bundle) {
+    generateBundle: {
+      order: "post",
+      handler(_options, bundle) {
       const index = bundle["index.html"];
       if (!index || index.type !== "asset") throw new Error("MAAK prerender: built index.html asset is missing.");
       const template = typeof index.source === "string" ? index.source : new TextDecoder().decode(index.source);
@@ -75,6 +77,7 @@ function localizedPrerender(): Plugin {
           this.emitFile({ type: "asset", fileName, source: html });
         }
       }
+      },
     },
   };
 }
