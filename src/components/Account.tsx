@@ -363,6 +363,28 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
 
 
+  if (!session && !adminOnly && ["orders", "referrals", "profile"].includes(initialTab)) {
+    const loginButton = <a className="btn btn-primary" href="/login">{t("تسجيل الدخول", "Sign in")}</a>;
+    if (initialTab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("حجوزاتي", "My bookings")}</h1><span className="maak-notification-button" aria-hidden="true"><Bell size={22}/></span></header>
+      <nav className="maak-filter-tabs" aria-label={t("تصفية الحجوزات", "Filter bookings")}>{[[ "all", t("الكل", "All") ], [ "active", t("النشطة", "Active") ], [ "completed", t("المكتملة", "Completed") ], [ "cancelled", t("الملغاة", "Cancelled") ]].map(([key, label]) => <button type="button" key={key} className={key === "all" ? "active" : ""} disabled>{label}</button>)}</nav>
+      <section className="maak-booking-list"><div className="maak-empty-state"><CalendarDays size={34}/><strong>{t("سجّل الدخول لعرض حجوزاتك", "Sign in to view your bookings")}</strong><p>{t("يمكنك تصفح هذه الصفحة الآن، وستظهر هنا حجوزاتك ومتابعة حالتها بعد تسجيل الدخول.", "You can browse this page now. Your bookings and their status will appear here after you sign in.")}</p>{loginButton}</div></section>
+    </main>;
+    if (initialTab === "referrals") return <main className="maak-app-page maak-rewards-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("المكافآت", "Rewards")}</h1></header>
+      <section className="maak-rewards-balance"><h2>{t("رصيد المكافآت", "Rewards balance")}</h2><strong>— <small>{t("ر.ي", "YER")}</small></strong><div className="maak-rewards-summary"><div><span>{t("مكتسبة", "Earned")}</span><b>—</b></div><div><span>{t("معلقة", "Pending")}</span><b>—</b></div></div></section>
+      <section className="maak-invite-card"><span className="maak-invite-icon"><Gift size={26}/></span><h2>{t("ادعُ أصدقاءك", "Invite your friends")}</h2><p>{t("سجّل الدخول للحصول على رمز الدعوة ومشاركة رابطك وكسب المكافآت عند إكمال حجوزات أصدقائك.", "Sign in to get your invitation code, share your link, and earn rewards when your friends complete their bookings.")}</p>{loginButton}</section>
+      <section className="maak-reward-stats" aria-label={t("إحصائيات الدعوات", "Invitation statistics")}><article><span>{t("عدد الدعوات", "Invitations")}</span><strong>—</strong></article><article><span>{t("المكتملة", "Completed")}</span><strong>—</strong></article><article><span>{t("قيد الانتظار", "Pending")}</span><strong>—</strong></article></section>
+      <section className="maak-reward-ledger"><h2>{t("سجل الحركات", "Activity")}</h2><p className="maak-empty-inline">{t("سجّل الدخول لعرض سجل مكافآتك وحركات الرصيد.", "Sign in to view your rewards and wallet activity.")}</p>{loginButton}</section>
+    </main>;
+    return <main className="maak-app-page maak-profile-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1><span className="maak-account-notification" aria-hidden="true"><Bell size={27}/></span></header>
+      <section className="maak-profile-hero"><span className="maak-avatar"><UserRound size={66}/></span><h2>{t("مرحبًا بك في معك", "Welcome to MAAK")}</h2></section>
+      <section className="maak-contact-card"><div className="maak-account-phone"><strong>—</strong><Phone size={20}/><small>{t("رقم الهاتف", "Phone number")}</small></div><div className="maak-account-code"><strong>—</strong><small>{t("رمز الحساب", "Account code")}</small></div></section>
+      <section className="maak-profile-group"><h2>{t("حسابي", "My account")}</h2><div className="maak-settings-card"><p className="maak-settings-note">{t("سجّل الدخول للوصول إلى ملفك الشخصي وإعدادات حسابك ووثائقك المحفوظة.", "Sign in to access your personal profile, account settings, and saved documents.")}</p>{loginButton}</div></section>
+    </main>;
+  }
+
   if (!session) return <main className="account-page account-auth-page" dir={ar ? "rtl" : "ltr"}>
     <section className="account-auth-shell">
       <header className="account-auth-top"><button type="button" className="account-auth-language" onClick={toggleLang} aria-label={t("تغيير اللغة", "Change language")}><Languages size={20}/></button><h1>{t("مرحبًا", "Welcome")}</h1></header>
