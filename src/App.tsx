@@ -87,15 +87,15 @@ export default function App() {
 
   useEffect(() => {
     const page = getSeoPage(path);
-    const title = page ? page[lang][0] : (lang === "ar" ? "الصفحة غير موجودة | معك" : "Page not found | MAAK");
-    const description = page ? page[lang][1] : (lang === "ar" ? "لم نعثر على الصفحة المطلوبة." : "The requested page could not be found.");
+    const title = path === "/notifications" ? (lang === "ar" ? "الإشعارات | معك" : "Notifications | MAAK") : page ? page[lang][0] : (lang === "ar" ? "الصفحة غير موجودة | معك" : "Page not found | MAAK");
+    const description = path === "/notifications" ? (lang === "ar" ? "تابع إشعارات وتحديثات حجوزاتك وطلباتك في معك." : "Follow your MAAK booking notifications and request updates.") : page ? page[lang][1] : (lang === "ar" ? "لم نعثر على الصفحة المطلوبة." : "The requested page could not be found.");
     const canonicalUrl = `${window.location.origin}${localizedPath(path, lang)}`;
     document.title = title;
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     const setMeta = (selector: string, value: string) => document.querySelector(selector)?.setAttribute("content", value);
     setMeta('meta[name="description"]', description);
-    setMeta('meta[name="robots"]', page ? "index, follow, max-image-preview:large" : "noindex, nofollow");
+    setMeta('meta[name="robots"]', page && path !== "/notifications" ? "index, follow, max-image-preview:large" : "noindex, nofollow");
     setMeta('meta[property="og:title"]', title);
     setMeta('meta[property="og:description"]', description);
     setMeta('meta[property="og:url"]', canonicalUrl);
@@ -161,7 +161,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
           <div className="mobile-home-banner-copy">
