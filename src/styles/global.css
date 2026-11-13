@@ -2153,7 +2153,7 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 .maak-booking-filter-shortcut { display:flex; justify-content:flex-start; margin: 0 0 16px; }
 
 
-/* Compact clearance below the fixed shared header on account subpages. */
+/* Clearance below the fixed shared header on account subpages. */
 .maak-app-page {
-  padding-top: 24px;
+  padding-top: 60px;
 }
