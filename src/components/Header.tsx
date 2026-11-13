@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Languages, Moon, Sun } from "lucide-react";
+import { Bell, Languages, Moon, Sun } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import WhatsAppButton from "./WhatsAppButton";
@@ -45,6 +45,7 @@ export default function Header() {
           {links.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
         <div className="nav-tools">
+          <a className="icon-btn notification-header-btn" href="/notifications" aria-label={lang === "ar" ? "الإشعارات" : "Notifications"} title={lang === "ar" ? "الإشعارات" : "Notifications"}><Bell size={19} aria-hidden="true" /></a>
           <button className="icon-btn lang-btn" onClick={toggleLang} aria-label={t.a11y.lang}>
             <Languages size={18} aria-hidden="true" /><span>{t.langLabel}</span>
           </button>
