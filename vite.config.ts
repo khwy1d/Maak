@@ -54,13 +54,6 @@ function localizedPrerender(): Plugin {
             `<link rel="alternate" hreflang="x-default" href="${alternateAr}" />`,
           ].join("\n    ");
           html = html.replace("</head>", `    ${alternates}\n  </head>`);
-          const nav = publicSeoPages.map((item) => {
-            const itemPath = `/${lang}${item.path === "/" ? "" : item.path}`;
-            const label = item[lang][0];
-            return `<a href="${itemPath}">${escapeHtml(label)}</a>`;
-          }).join(" ");
-          const staticContent = `<main class="seo-prerender" lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}"><h1>${escapeHtml(title)}</h1><p>${escapeHtml(description)}</p><nav aria-label="${lang === "ar" ? "صفحات الموقع" : "Site pages"}">${nav}</nav></main>`;
-          html = html.replace('<div id="root"></div>', `<div id="root">${staticContent}</div>`);
           if (serviceKeys.has(page.key)) {
             const schema = {
               "@context": "https://schema.org",
