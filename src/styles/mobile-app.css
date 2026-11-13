@@ -204,13 +204,7 @@
 }
 
 
-/* Share one phone header across the home and every service route. */
-.desktop-header { display: none; }
-.mobile-header { display: block; }
-@media (min-width: 960px) {
-  .desktop-header { display: block; }
-  .mobile-header { display: none; }
-}
+/* Header visibility is defined in global.css so it applies at every viewport. */
 
 
 /* The shared dock uses the same glass treatment on every phone route. */
