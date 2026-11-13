@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Languages, Moon, Sun } from "lucide-react";
+import { Bell, Languages, Moon, Sun } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import WhatsAppButton from "./WhatsAppButton";
@@ -8,6 +8,8 @@ export default function Header() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [hidden, setHidden] = useState(false);
   const headerRef = useRef<HTMLElement | null>(null);
+  const pathname = window.location.pathname.replace(/\/+$/, "");
+  const pageTitle = pathname.endsWith("/notifications") ? (lang === "ar" ? "الإشعارات" : "Notifications") : pathname.endsWith("/bookings") ? (lang === "ar" ? "حجوزاتي" : "My bookings") : pathname.endsWith("/rewards") ? (lang === "ar" ? "المكافآت" : "Rewards") : pathname.endsWith("/account") ? (lang === "ar" ? "حسابي" : "My account") : null;
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
@@ -40,11 +42,12 @@ export default function Header() {
   return (
     <header ref={headerRef} onFocusCapture={() => setHidden(false)} className={`header desktop-header${hidden ? " header-hidden" : ""}`}>
       <div className="nav glass">
-        <a href="/" className="nav-logo" aria-label={t.nav.home}><Logo size={40} /></a>
+        {pageTitle ? <a href="/" className="nav-page-title" aria-label={t.nav.home}>{pageTitle}</a> : <a href="/" className="nav-logo" aria-label={t.nav.home}><Logo size={40} /></a>}
         <nav id="main-nav" className="nav-links" aria-label={t.a11y.nav}>
           {links.map(([href, label]) => <a key={href} href={href}>{label}</a>)}
         </nav>
         <div className="nav-tools">
+          <a className="icon-btn notification-header-btn" href="/notifications" aria-label={lang === "ar" ? "الإشعارات" : "Notifications"} title={lang === "ar" ? "الإشعارات" : "Notifications"}><Bell size={19} aria-hidden="true" /></a>
           <button className="icon-btn lang-btn" onClick={toggleLang} aria-label={t.a11y.lang}>
             <Languages size={18} aria-hidden="true" /><span>{t.langLabel}</span>
           </button>
