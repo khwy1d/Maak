@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Languages, Menu, Moon, Sun, X } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
@@ -8,6 +8,7 @@ export default function MobileHeader() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
@@ -33,7 +34,8 @@ export default function MobileHeader() {
       window.requestAnimationFrame(() => {
         const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastY;
-        if (open || currentY < 24) setHidden(false);
+        const focusInsideHeader = !!headerRef.current?.contains(document.activeElement);
+        if (open || focusInsideHeader || currentY < 24) setHidden(false);
         else if (delta > 4 && currentY > 80) setHidden(true);
         else if (delta < -2) setHidden(false);
         lastY = currentY;

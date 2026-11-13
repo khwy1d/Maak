@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Languages, Moon, Sun } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
@@ -7,6 +7,7 @@ import WhatsAppButton from "./WhatsAppButton";
 export default function Header() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [hidden, setHidden] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
@@ -24,7 +25,8 @@ export default function Header() {
       window.requestAnimationFrame(() => {
         const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastY;
-        if (currentY < 24) setHidden(false);
+        const focusInsideHeader = !!headerRef.current?.contains(document.activeElement);
+        if (focusInsideHeader || currentY < 24) setHidden(false);
         else if (delta > 4 && currentY > 80) setHidden(true);
         else if (delta < -2) setHidden(false);
         lastY = currentY;
@@ -36,7 +38,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className={`header desktop-header${hidden ? " header-hidden" : ""}`} aria-hidden={hidden ? true : undefined}>
+    <header ref={headerRef} onFocusCapture={() => setHidden(false)} className={`header desktop-header${hidden ? " header-hidden" : ""}`}>
       <div className="nav glass">
         <a href="/" className="nav-logo" aria-label={t.nav.home}><Logo size={40} /></a>
         <nav id="main-nav" className="nav-links" aria-label={t.a11y.nav}>

@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { submitInquiry, type InquiryService } from "../lib/orders";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
@@ -64,8 +64,27 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => { if (pending && accountName) setName(current => current || accountName); }, [accountName, pending]);
+
+  useEffect(() => {
+    if (!pending) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (!dialog.open) dialog.showModal();
+    closeButtonRef.current?.focus();
+    return () => {
+      if (dialog.open) dialog.close();
+      const target = returnFocusRef.current;
+      requestAnimationFrame(() => {
+        if (target?.isConnected) target.focus();
+        returnFocusRef.current = null;
+      });
+    };
+  }, [pending]);
 
   useEffect(() => {
     const client = supabase;
@@ -101,6 +120,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         setError(ar ? "تعذر قراءة تفاصيل الطلب. أعد المحاولة." : "Could not read request details. Please try again.");
         return;
       }
+      returnFocusRef.current = link;
       setPending({ service, message, url: link.href, requestData, passportUploadKey: link.dataset.passportUploadKey ?? "", passportUploadToken: getOrCreatePassportUploadToken(link.dataset.passportUploadKey ?? "") });
       setName(accountName);
       setError("");
@@ -175,9 +195,11 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   };
 
   if (!pending) return null;
-  return <div className="account-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !busy) setPending(null); }}>
-    <section className="account-card inquiry-contact-modal" role="dialog" aria-modal="true" aria-labelledby="inquiry-capture-title" dir={ar ? "rtl" : "ltr"}>
-      <button type="button" className="account-modal-close" onClick={() => setPending(null)} aria-label={ar ? "إغلاق" : "Close"}>×</button>
+  return <dialog ref={dialogRef} className="account-modal-backdrop" aria-labelledby="inquiry-capture-title" dir={ar ? "rtl" : "ltr"}
+    onCancel={event => { if (busy) event.preventDefault(); else setPending(null); }}
+    onClick={event => { if (event.target === event.currentTarget && !busy) setPending(null); }}>
+    <section className="account-card inquiry-contact-modal">
+      <button ref={closeButtonRef} type="button" className="account-modal-close" onClick={() => setPending(null)} aria-label={ar ? "إغلاق" : "Close"}>×</button>
       <h2 id="inquiry-capture-title">{ar ? "بيانات التواصل وحفظ الطلب" : "Contact details and save request"}</h2>
       <p>{ar ? "سنحفظ طلبك في النظام قبل فتح واتساب. لا يُعد ذلك تأكيدًا للحجز." : "We will save your request before opening WhatsApp. This does not confirm a booking."}</p>
       <form className="account-form" onSubmit={submit}>
@@ -187,5 +209,5 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         <button className="btn btn-primary" disabled={busy}>{busy ? (ar ? "جارٍ حفظ الطلب…" : "Saving request…") : (ar ? "حفظ الطلب والمتابعة إلى واتساب" : "Save request and continue to WhatsApp")}</button>
       </form>
     </section>
-  </div>;
+  </dialog>;
 }
