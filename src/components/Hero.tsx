@@ -27,7 +27,7 @@ export default function Hero() {
   return (
     <section id="home" className="hero">
       <div className="hero-watermark" aria-hidden="true" />
-      <div className="container hero-grid">
+      <div className={`container hero-grid${currentBanner ? " has-banners" : ""}`}>
         <div className="hero-copy">
           <h1>{t.hero.title.split("{{brand}}")[0]}<span className="hero-brand">{t.brand}</span>{t.hero.title.split("{{brand}}")[1]}</h1>
           <p className="lead">{lang === "ar" ? "نصمّم رحلتك بعناية، ونرافقك في كل تفصيلة — من التخطيط إلى الوصول." : "We shape your journey with care and accompany every detail — from planning to arrival."}</p>
