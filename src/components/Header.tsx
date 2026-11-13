@@ -6,7 +6,8 @@ import WhatsAppButton from "./WhatsAppButton";
 
 export default function Header() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
-  const [hidden, setHidden] = useState(false);\n  const headerRef = useRef<HTMLElement | null>(null);
+  const [hidden, setHidden] = useState(false);
+  const headerRef = useRef<HTMLElement | null>(null);
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
