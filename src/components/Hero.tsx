@@ -1,8 +1,28 @@
-import { Compass } from "lucide-react";
+import { Compass, ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 import { useApp } from "../context/AppContext";
 
 export default function Hero() {
   const { t, lang } = useApp();
+  const [banners, setBanners] = useState<Array<{ id: string; url: string; alt: string }>>([]);
+  const [bannerIndex, setBannerIndex] = useState(0);
+  useEffect(() => {
+    let active = true;
+    if (!supabase) return;
+    void supabase.from("home_banners").select("id,storage_path,alt_text").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => {
+      if (!active) return;
+      setBanners((data ?? []).map(item => ({ id: item.id, alt: item.alt_text || "MAAK", url: supabase.storage.from("home-banners").getPublicUrl(item.storage_path).data.publicUrl })));
+    });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
+    if (banners.length < 2) return;
+    const timer = window.setInterval(() => setBannerIndex(index => (index + 1) % banners.length), 6500);
+    return () => window.clearInterval(timer);
+  }, [banners.length]);
+  const currentBanner = banners[bannerIndex];
+  const moveBanner = (direction: number) => setBannerIndex(index => (index + direction + banners.length) % banners.length);
   return (
     <section id="home" className="hero">
       <div className="hero-watermark" aria-hidden="true" />
@@ -16,6 +36,14 @@ export default function Hero() {
           </div>
           <a className="btn btn-primary mobile-services-cta" href="/services"><Compass size={22} aria-hidden="true" /> {lang === "ar" ? "عرض خدماتنا" : "Explore Our Services"}</a>
         </div>
+        {currentBanner && <div className="hero-banner-panel" aria-label={lang === "ar" ? "صور العروض" : "Featured banners"}>
+          <img src={currentBanner.url} alt={currentBanner.alt} fetchPriority="high" />
+          {banners.length > 1 && <div className="hero-banner-controls">
+            <button type="button" onClick={() => moveBanner(-1)} aria-label={lang === "ar" ? "الصورة السابقة" : "Previous banner"}><ChevronRight size={19}/></button>
+            <div>{banners.map((banner, index) => <button key={banner.id} type="button" className={index === bannerIndex ? "active" : ""} onClick={() => setBannerIndex(index)} aria-label={lang === "ar" ? `الصورة ${index + 1}` : `Banner ${index + 1}`}/>)}</div>
+            <button type="button" onClick={() => moveBanner(1)} aria-label={lang === "ar" ? "الصورة التالية" : "Next banner"}><ChevronLeft size={19}/></button>
+          </div>}
+        </div>}
       </div>
     </section>
   );
