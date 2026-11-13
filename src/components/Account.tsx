@@ -213,9 +213,15 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
           "Enter a Yemeni number as 7… or 07…, or an international number with its country code."
         ));
       }
-      const { data, error } = await supabase.auth.signInWithPassword({ phone: normalizedPhone, password });
-      if (error) throw error;
-      setSession(data.session);
+      let authResult = await supabase.auth.signInWithPassword({ phone: normalizedPhone, password });
+      // Backward compatibility for existing Maak accounts created with the internal
+      // phone-derived email identity. New phone-based accounts still use phone auth.
+      if (authResult.error?.code === "invalid_credentials") {
+        const legacyEmail = `${internationalDigits}@auth.maak.invalid`;
+        authResult = await supabase.auth.signInWithPassword({ email: legacyEmail, password });
+      }
+      if (authResult.error) throw authResult.error;
+      setSession(authResult.data.session);
       setPassword("");
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
