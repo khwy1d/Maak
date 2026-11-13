@@ -393,7 +393,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   </main>;
 
   if (!session && !adminOnly && ["orders", "referrals", "profile"].includes(initialTab)) {
-    const loginButton = <a className="btn btn-primary" href="/login">{t("تسجيل الدخول", "Sign in")}</a>;
+    const loginButton = <a className="btn btn-primary" href={`/${lang}/login`} onClick={(event) => { event.preventDefault(); window.history.pushState({}, "", `/${lang}/login`); window.dispatchEvent(new PopStateEvent("popstate")); }}>{t("تسجيل الدخول", "Sign in")}</a>;
     if (initialTab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
       <nav className="maak-filter-tabs" aria-label={t("تصفية الحجوزات", "Filter bookings")}>{[[ "all", t("الكل", "All") ], [ "active", t("النشطة", "Active") ], [ "completed", t("المكتملة", "Completed") ], [ "cancelled", t("الملغاة", "Cancelled") ]].map(([key, label]) => <button type="button" key={key} className={key === "all" ? "active" : ""} disabled>{label}</button>)}</nav>
       <section className="maak-booking-list"><div className="maak-empty-state"><CalendarDays size={34}/><strong>{t("سجّل الدخول لعرض حجوزاتك", "Sign in to view your bookings")}</strong><p>{t("يمكنك تصفح هذه الصفحة الآن، وستظهر هنا حجوزاتك ومتابعة حالتها بعد تسجيل الدخول.", "You can browse this page now. Your bookings and their status will appear here after you sign in.")}</p>{loginButton}</div></section>

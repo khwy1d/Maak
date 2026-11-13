@@ -161,7 +161,7 @@ export default function App() {
           <button className="pwa-install-dismiss" onClick={dismissInstall} aria-label={lang === "ar" ? "إغلاق" : "Dismiss"}><X size={19} /></button>
         </aside>
       )}
-      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
+      <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialTab="auth" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialTab="auth" initialMode="signup" /> : path === "/admin" ? <Account adminOnly /> : isHome ? <main className="home-intro">
         <Hero />
         <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
           <div className="mobile-home-banner-copy">
