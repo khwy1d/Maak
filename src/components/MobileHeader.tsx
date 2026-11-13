@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Languages, Menu, Moon, Sun, X } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
@@ -7,7 +7,7 @@ import WhatsAppButton from "./WhatsAppButton";
 export default function MobileHeader() {
   const { t, lang, theme, toggleLang, toggleTheme } = useApp();
   const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  const [hidden, setHidden] = useState(false);\n  const headerRef = useRef<HTMLElement | null>(null);
   const links = [
     ["/", t.nav.home],
     ["/services", t.nav.services],
