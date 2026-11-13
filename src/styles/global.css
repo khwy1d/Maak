@@ -2153,13 +2153,7 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 .maak-booking-filter-shortcut { display:flex; justify-content:flex-start; margin: 0 0 16px; }
 
 
-/* Reserve space for the fixed shared header on account subpages.
-   Their page titles now live inside the header, so the page body must start below it. */
+/* Compact clearance below the fixed shared header on account subpages. */
 .maak-app-page {
-  padding-top: 112px;
-}
-@media (min-width: 768px) {
-  .maak-app-page {
-    padding-top: 104px;
-  }
+  padding-top: 24px;
 }
