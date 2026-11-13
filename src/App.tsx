@@ -8,6 +8,7 @@ import Hero from "./components/Hero";
 import GlassBackground from "./components/GlassBackground";
 import InquiryCapture from "./components/InquiryCapture";
 import { getReferralCode } from "./lib/supabase";
+import { getSeoPage, localizedPath } from "./config/seo";
 
 const Services = lazy(() => import("./components/Services"));
 const Pages = lazy(() => import("./components/Pages"));
@@ -19,8 +20,9 @@ const Why = lazy(() => import("./components/Sections").then((module) => ({ defau
 const Footer = lazy(() => import("./components/Sections").then((module) => ({ default: module.Footer })));
 
 function currentPath() {
-  const path = window.location.pathname.replace(/\/+$/, "");
-  return path || "/";
+  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+  const path = pathname.replace(/^\/(?:ar|en)(?=\/|$)/, "") || "/";
+  return path;
 }
 
 export default function App() {
