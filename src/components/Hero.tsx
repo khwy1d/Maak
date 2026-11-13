@@ -9,10 +9,11 @@ export default function Hero() {
   const [bannerIndex, setBannerIndex] = useState(0);
   useEffect(() => {
     let active = true;
-    if (!supabase) return;
-    void supabase.from("home_banners").select("id,storage_path,alt_text").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => {
+    const client = supabase;
+    if (!client) return;
+    void client.from("home_banners").select("id,storage_path,alt_text").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => {
       if (!active) return;
-      setBanners((data ?? []).map(item => ({ id: item.id, alt: item.alt_text || "MAAK", url: supabase.storage.from("home-banners").getPublicUrl(item.storage_path).data.publicUrl })));
+      setBanners((data ?? []).map(item => ({ id: item.id, alt: item.alt_text || "MAAK", url: client.storage.from("home-banners").getPublicUrl(item.storage_path).data.publicUrl })));
     });
     return () => { active = false; };
   }, []);
