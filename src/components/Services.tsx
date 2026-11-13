@@ -1,3 +1,4 @@
+import "../styles/service-grid.css";
 import { Building2, Bus, Car, Compass, HeartPulse, Hotel, Moon, Plane, ShieldCheck } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { useReveal } from "../hooks/useReveal";
@@ -37,9 +38,4 @@ export default function Services() {
           })}
         </div>
         <div className="services-all-wrap">
-          <a className="btn btn-ghost btn-glass services-all" href="/services"><Compass size={18} aria-hidden="true" /> {lang === "ar" ? "عرض جميع الخدمات" : "View all services"}</a>
-        </div>
-      </div>
-    </section>
-  );
-}
+          <a className="btn btn-ghost b...[truncated]
