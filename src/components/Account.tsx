@@ -363,7 +363,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
 
 
 
-  if (!session && !adminOnly && ["orders", "referrals", "profile"].includes(initialTab)) {
+  if (!session && !adminOnly && ["orders", "referrals", "profile", "notifications"].includes(initialTab)) {
     const loginButton = <a className="btn btn-primary" href="/login">{t("تسجيل الدخول", "Sign in")}</a>;
     if (initialTab === "orders") return <main className="maak-app-page" dir={ar ? "rtl" : "ltr"}>
       <header className="maak-page-heading"><h1>{t("حجوزاتي", "My bookings")}</h1><span className="maak-notification-button" aria-hidden="true"><Bell size={22}/></span></header>
@@ -376,6 +376,10 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       <section className="maak-invite-card"><span className="maak-invite-icon"><Gift size={26}/></span><h2>{t("ادعُ أصدقاءك", "Invite your friends")}</h2><p>{t("سجّل الدخول للحصول على رمز الدعوة ومشاركة رابطك وكسب المكافآت عند إكمال حجوزات أصدقائك.", "Sign in to get your invitation code, share your link, and earn rewards when your friends complete their bookings.")}</p>{loginButton}</section>
       <section className="maak-reward-stats" aria-label={t("إحصائيات الدعوات", "Invitation statistics")}><article><span>{t("عدد الدعوات", "Invitations")}</span><strong>—</strong></article><article><span>{t("المكتملة", "Completed")}</span><strong>—</strong></article><article><span>{t("قيد الانتظار", "Pending")}</span><strong>—</strong></article></section>
       <section className="maak-reward-ledger"><h2>{t("سجل الحركات", "Activity")}</h2><p className="maak-empty-inline">{t("سجّل الدخول لعرض سجل مكافآتك وحركات الرصيد.", "Sign in to view your rewards and wallet activity.")}</p>{loginButton}</section>
+    </main>;
+    if (initialTab === "notifications") return <main className="maak-app-page maak-notifications-page" dir={ar ? "rtl" : "ltr"}>
+      <header className="maak-page-heading"><h1>{t("الإشعارات", "Notifications")}</h1><span className="maak-notification-button" aria-hidden="true"><Bell size={22}/></span></header>
+      <section className="maak-empty-state maak-notifications-empty"><Bell size={36}/><strong>{t("ابقَ على اطلاع برحلتك", "Stay up to date with your journey")}</strong><p>{t("سجّل الدخول لمتابعة إشعارات حجوزاتك وتحديثات طلباتك.", "Sign in to follow your booking notifications and request updates.")}</p>{loginButton}</section>
     </main>;
     return <main className="maak-app-page maak-profile-page" dir={ar ? "rtl" : "ltr"}>
       <header className="maak-page-heading"><h1>{t("حسابي", "My account")}</h1><span className="maak-account-notification" aria-hidden="true"><Bell size={27}/></span></header>
@@ -417,6 +421,11 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         {authMode === "login" && !pendingPhone && <nav className="account-auth-social" aria-label={t("تابع معك", "Follow MAAK")}><a className="auth-social-facebook" href="https://www.facebook.com/share/1MxwiuHyvi/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Facebook size={25}/></a><a className="auth-social-instagram" href="https://www.instagram.com/maaktravel" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram size={25}/></a><a className="auth-social-whatsapp" href={"https://wa.me/" + siteConfig.whatsappNumber.replace(/\D/g, "")} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><MessageCircle size={25}/></a></nav>}
       </section>
     </section>
+  </main>;
+
+  if (session && !adminOnly && tab === "notifications") return <main className="maak-app-page maak-notifications-page" dir={ar ? "rtl" : "ltr"}>
+    <header className="maak-page-heading"><h1>{t("الإشعارات", "Notifications")}</h1><span className="maak-notification-button" aria-hidden="true"><Bell size={22}/></span></header>
+    <section className="maak-empty-state maak-notifications-empty"><Bell size={36}/><strong>{t("لا توجد إشعارات جديدة", "No new notifications")}</strong><p>{t("ستظهر هنا تحديثات حجوزاتك وطلباتك وأي تنبيهات مهمة من معك.", "Updates about your bookings, requests, and important MAAK announcements will appear here.")}</p></section>
   </main>;
 
   if (adminOnly && !isAdmin) return <main className="account-page" dir={ar ? "rtl" : "ltr"}><section className="account-card"><h1>{t("غير مصرح", "Access denied")}</h1><p>{t("هذه الصفحة مخصصة لفريق الإدارة.", "This page is for administrators only.")}</p><button className="btn btn-ghost" onClick={signOut}>{t("تسجيل الخروج", "Sign out")}</button></section></main>;
