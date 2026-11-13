@@ -148,11 +148,11 @@ export default function App() {
     <>
       <GlassBackground />
       <div className="site-content">
-      {path !== "/admin" && <>
+      <>
         <Header />
         <MobileHeader />
-        <InquiryCapture lang={lang} />
-      </>}
+        {path !== "/admin" && <InquiryCapture lang={lang} />}
+      </>
       {installPrompt && !installDismissed && (
         <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
           <div className="pwa-install-icon" aria-hidden="true"><Download size={22} /></div>
