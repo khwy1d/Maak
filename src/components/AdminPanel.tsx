@@ -108,9 +108,9 @@ export default function AdminPanel() {
     if (!session || !isStaff || !supabase) return;
     const channel = supabase.channel("maak-staff-admin-panel")
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load(session))
       .subscribe();
-    const refreshId = window.setInterval(() => void load(), 30000);
+    const refreshId = window.setInterval(() => void load(session), 30000);
     return () => { window.clearInterval(refreshId); void supabase.removeChannel(channel); };
   }, [session?.user.id, isStaff, load]);
 
@@ -139,7 +139,7 @@ export default function AdminPanel() {
       await load(session);
     } catch (error) {
       setMessage(formatApiError(error));
-      await load();
+      await load(session);
     } finally { setBusy(false); }
   };
 
@@ -161,7 +161,7 @@ export default function AdminPanel() {
       });
       if (error) throw error;
       setMessage("تم تحديث الطلب.");
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -170,7 +170,7 @@ export default function AdminPanel() {
     if (!supabase || item.read_at) return;
     const { error } = await supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", item.id);
     if (error) setMessage(formatApiError(error));
-    else await load();
+    else await load(session);
   };
 
   const setCustomerRole = async (customer: Row, nextRole: "staff" | "customer") => {
@@ -182,7 +182,7 @@ export default function AdminPanel() {
       const { error } = await supabase.rpc("admin_set_staff_role", { p_user_id: customer.id, p_role: nextRole });
       if (error) throw error;
       setMessage(nextRole === "staff" ? "تمت ترقية العميل إلى موظف." : "تم إلغاء صلاحية الموظف.");
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -208,7 +208,7 @@ export default function AdminPanel() {
       }
       setBannerFile(null); setBannerAlt("");
       setMessage("تمت إضافة البنر إلى الصفحة الرئيسية.");
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -219,7 +219,7 @@ export default function AdminPanel() {
     try {
       const { error } = await supabase.from("home_banners").update({ is_active: !banner.is_active }).eq("id", banner.id);
       if (error) throw error;
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -232,7 +232,7 @@ export default function AdminPanel() {
     try {
       const { error } = await supabase.from("home_banners").update({ alt_text: text.trim() }).eq("id", banner.id);
       if (error) throw error;
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -245,7 +245,7 @@ export default function AdminPanel() {
       if (rowError) throw rowError;
       const { error: fileError } = await supabase.storage.from("home-banners").remove([banner.storage_path]);
       if (fileError) setMessage("حُذف البنر من الموقع، لكن تعذر حذف ملف الصورة من التخزين.");
-      await load();
+      await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
   };
@@ -266,7 +266,7 @@ export default function AdminPanel() {
   return <main className="maak-admin-shell" dir="rtl">
     <header className="maak-admin-header">
       <div><span className="maak-admin-eyebrow">MAAK · WORKSPACE</span><h1>لوحة إدارة معك</h1><p>{profile?.full_name ?? "فريق معك"} · {isAdmin ? "مدير" : "موظف"}</p></div>
-      <div className="maak-admin-header-actions"><button className="btn btn-ghost" onClick={() => void load()} disabled={busy}><RefreshCw size={17}/> تحديث</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={17}/> خروج</button></div>
+      <div className="maak-admin-header-actions"><button className="btn btn-ghost" onClick={() => void load(session)} disabled={busy}><RefreshCw size={17}/> تحديث</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={17}/> خروج</button></div>
     </header>
     {message && <div className="maak-admin-message" role="status">{message}<button onClick={() => setMessage("")} aria-label="إغلاق"><X size={16}/></button></div>}
     <nav className="maak-admin-tabs">{tabs.map(item => <button key={item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}><item.icon size={18}/>{item.label}{item.id === "notifications" && unreadCount > 0 && <b>{unreadCount}</b>}</button>)}</nav>
