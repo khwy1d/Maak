@@ -2109,3 +2109,12 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
 .maak-passport-manage-upload input { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 .maak-passport-manage-upload:focus-within { outline:3px solid var(--focus); outline-offset:3px; }
 .maak-passport-upload:focus-within { outline:3px solid var(--focus); outline-offset:3px; border-radius:12px; }
+
+
+/* Choose exactly one header at every viewport; these rules must stay in the eagerly loaded stylesheet. */
+.desktop-header { display: none; }
+.mobile-header { display: block; }
+@media (min-width: 960px) {
+  .desktop-header { display: block; }
+  .mobile-header { display: none; }
+}
