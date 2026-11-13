@@ -1,6 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://maaktravel.vercel.app/</loc>
+    <loc>https://maaktravel.vercel.app/ar</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/services</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/services" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/services" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/services" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/services</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/services" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/services" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/services" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/flights</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/flights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/flights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/flights" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/flights</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/flights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/flights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/flights" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/transport</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/transport" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/transport" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/transport" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/transport</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/transport" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/transport" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/transport" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/hotels</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/hotels" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/hotels" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/hotels" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/hotels</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/hotels" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/hotels" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/hotels" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/security-clearance-egypt</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/security-clearance-egypt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/security-clearance-egypt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/security-clearance-egypt" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/security-clearance-egypt</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/security-clearance-egypt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/security-clearance-egypt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/security-clearance-egypt" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/umrah</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/umrah" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/umrah" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/umrah" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/umrah</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/umrah" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/umrah" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/umrah" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/medical-tourism</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/medical-tourism" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/medical-tourism" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/medical-tourism" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/medical-tourism</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/medical-tourism" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/medical-tourism" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/medical-tourism" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/car-rental</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/car-rental" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/car-rental" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/car-rental" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/car-rental</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/car-rental" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/car-rental" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/car-rental" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/tourism</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/tourism" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/tourism" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/tourism" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/tourism</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/tourism" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/tourism" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/tourism" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/real-estate</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/real-estate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/real-estate" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/real-estate" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/real-estate</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/real-estate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/real-estate" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/real-estate" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/about</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/about" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/about" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/ar/contact</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/contact" />
+  </url>
+  <url>
+    <loc>https://maaktravel.vercel.app/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://maaktravel.vercel.app/ar/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://maaktravel.vercel.app/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://maaktravel.vercel.app/ar/contact" />
   </url>
 </urlset>
