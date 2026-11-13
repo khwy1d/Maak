@@ -38,7 +38,7 @@ export default function AdminPanel() {
   const isAdmin = role === "admin";
   const isStaff = role === "staff" || isAdmin;
 
-  const load = useCallback(async (currentSession = session) => {
+  const load = useCallback(async (currentSession: Session | null) => {
     if (!supabase || !currentSession) return;
     setLoading(true);
     setMessage("");
@@ -84,7 +84,7 @@ export default function AdminPanel() {
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, []);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); setMessage("تعذر الاتصال بقاعدة البيانات."); return; }
@@ -107,7 +107,7 @@ export default function AdminPanel() {
   useEffect(() => {
     if (!session || !isStaff || !supabase) return;
     const channel = supabase.channel("maak-staff-admin-panel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load())
       .subscribe();
     const refreshId = window.setInterval(() => void load(), 30000);
@@ -136,7 +136,7 @@ export default function AdminPanel() {
       const { error } = await supabase.rpc("claim_order_review", { p_order_id: order.id });
       if (error) throw error;
       setExpandedOrder(order.id);
-      await load();
+      await load(session);
     } catch (error) {
       setMessage(formatApiError(error));
       await load();
@@ -146,9 +146,9 @@ export default function AdminPanel() {
   const updateOrder = async (order: Row) => {
     if (!supabase || order.review_assignee_id !== session?.user.id) return;
     const status = window.prompt("حالة الطلب: requested أو quoted أو in_progress أو completed أو cancelled", order.status);
-    if (!status || !Object.hasOwn(statusNames, status)) return;
+    if (!status || !Object.prototype.hasOwnProperty.call(statusNames, status)) return;
     const payment = window.prompt("حالة الدفع: unpaid أو paid أو refunded", order.payment_status);
-    if (!payment || !Object.hasOwn(paymentNames, payment)) return;
+    if (!payment || !Object.prototype.hasOwnProperty.call(paymentNames, payment)) return;
     const totalText = window.prompt("إجمالي المبلغ (اتركه فارغًا دون تغيير)", order.total_amount == null ? "" : String(order.total_amount));
     if (totalText === null) return;
     const note = window.prompt("ملاحظة داخلية (اختياري)", "");
