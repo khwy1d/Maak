@@ -35,7 +35,7 @@ function localizedPrerender(): Plugin {
           const alternateEn = `${siteUrl}/en${page.path === "/" ? "" : page.path}`;
           let html = template
             .replace(/<html[^>]*>/i, `<html lang="${lang}" dir="${lang === "ar" ? "rtl" : "ltr"}">`)
-            .replace(/<title>[\\s\\S]*?<\\/title>/i, `<title>${escapeHtml(title)}</title>`);
+            .replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
           html = replaceMeta(html, "name", "description", description);
           html = replaceMeta(html, "name", "robots", "index, follow, max-image-preview:large");
           html = replaceMeta(html, "property", "og:title", title);
@@ -44,14 +44,14 @@ function localizedPrerender(): Plugin {
           html = replaceMeta(html, "property", "og:locale", lang === "ar" ? "ar_AR" : "en_US");
           html = replaceMeta(html, "name", "twitter:title", title);
           html = replaceMeta(html, "name", "twitter:description", description);
-          html = html.replace(/<link\\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${canonical}" />`);
-          html = html.replace(/<link\\s+rel="alternate"\\s+hreflang="(?:ar|en|x-default)"[^>]*>\\s*/gi, "");
+          html = html.replace(/<link\s+rel="canonical"[^>]*>/i, `<link rel="canonical" href="${canonical}" />`);
+          html = html.replace(/<link\s+rel="alternate"\s+hreflang="(?:ar|en|x-default)"[^>]*>\s*/gi, "");
           const alternates = [
             `<link rel="alternate" hreflang="ar" href="${alternateAr}" />`,
             `<link rel="alternate" hreflang="en" href="${alternateEn}" />`,
             `<link rel="alternate" hreflang="x-default" href="${alternateAr}" />`,
-          ].join("\\n    ");
-          html = html.replace("</head>", `    ${alternates}\\n  </head>`);
+          ].join("\n    ");
+          html = html.replace("</head>", `    ${alternates}\n  </head>`);
           const nav = publicSeoPages.map((item) => {
             const itemPath = `/${lang}${item.path === "/" ? "" : item.path}`;
             const label = item[lang][0];
@@ -69,7 +69,7 @@ function localizedPrerender(): Plugin {
               areaServed: ["Yemen", "Saudi Arabia", "Egypt"],
               availableChannel: { "@type": "ServiceChannel", serviceUrl: canonical },
             };
-            html = html.replace("</head>", `    <script id="maak-page-schema" type="application/ld+json">${JSON.stringify(schema)}</script>\\n  </head>`);
+            html = html.replace("</head>", `    <script id="maak-page-schema" type="application/ld+json">${JSON.stringify(schema)}</script>\n  </head>`);
           }
           const fileName = `${lang}${page.path === "/" ? "/index.html" : `${page.path}/index.html`}`;
           this.emitFile({ type: "asset", fileName, source: html });
@@ -85,7 +85,7 @@ function generatedServiceWorker(): Plugin {
     apply: "build",
     generateBundle(_options, bundle) {
       const precache = Object.keys(bundle)
-        .filter((file) => file.startsWith("assets/") && /\\.(?:js|css|woff2?|svg|png|webp|avif)$/.test(file) &&
+        .filter((file) => file.startsWith("assets/") && /\.(?:js|css|woff2?|svg|png|webp|avif)$/.test(file) &&
           (bundle[file].type === "asset" || (bundle[file].type === "chunk" && bundle[file].code.trim().length > 0)))
         .map((file) => `/${file}`);
       const shell = [
@@ -95,7 +95,7 @@ function generatedServiceWorker(): Plugin {
         "/web-app-manifest-192x192.png", "/web-app-manifest-512x512.png",
         ...precache,
       ];
-      const version = createHash("sha256").update(precache.join("\\n")).digest("hex").slice(0, 16);
+      const version = createHash("sha256").update(precache.join("\n")).digest("hex").slice(0, 16);
       const source = [
         'const CACHE_PREFIX = "maak-shell-";',
         `const CACHE_NAME = CACHE_PREFIX + ${JSON.stringify(version)};`,
@@ -103,7 +103,7 @@ function generatedServiceWorker(): Plugin {
         'self.addEventListener("install", (event) => { event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())); });',
         'self.addEventListener("activate", (event) => { event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key.startsWith(CACHE_PREFIX) && key !== CACHE_NAME).map((key) => caches.delete(key)))).then(() => self.clients.claim())); });',
         'self.addEventListener("fetch", (event) => { const request = event.request; const url = new URL(request.url); if (request.method !== "GET" || url.origin !== self.location.origin) return; if (request.mode === "navigate") { event.respondWith(fetch(request).then((response) => { if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put("/index.html", response.clone())); return response; }).catch(async () => (await caches.match(request)) || (await caches.match("/index.html")))); return; } event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => { if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone())); return response; }))); });',
-      ].join("\\n");
+      ].join("\n");
       this.emitFile({ type: "asset", fileName: "sw.js", source });
     },
   };
