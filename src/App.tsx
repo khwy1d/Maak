@@ -148,9 +148,11 @@ export default function App() {
     <>
       <GlassBackground />
       <div className="site-content">
-      <Header />
-      <MobileHeader />
-      <InquiryCapture lang={lang} />
+      {path !== "/admin" && <>
+        <Header />
+        <MobileHeader />
+        <InquiryCapture lang={lang} />
+      </>}
       {installPrompt && !installDismissed && (
         <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
           <div className="pwa-install-icon" aria-hidden="true"><Download size={22} /></div>
@@ -175,7 +177,7 @@ export default function App() {
         <div className="home-desktop-only"><Why /></div>
         <div className="home-desktop-only"><How /><SocialFollow /></div>
       </main> : <Pages path={path} />}</Suspense>
-      <Suspense fallback={null}><Footer /></Suspense>
+      {path !== "/admin" && <Suspense fallback={null}><Footer /></Suspense>}
       {path !== "/admin" && path !== "/login" && path !== "/signup" && <MobileDock path={path} />}
       </div>
     </>
