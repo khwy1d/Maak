@@ -34,7 +34,8 @@ export default function MobileHeader() {
       window.requestAnimationFrame(() => {
         const currentY = Math.max(0, window.scrollY);
         const delta = currentY - lastY;
-        if (open || currentY < 24) setHidden(false);
+        const focusInsideHeader = !!headerRef.current?.contains(document.activeElement);
+        if (open || focusInsideHeader || currentY < 24) setHidden(false);
         else if (delta > 4 && currentY > 80) setHidden(true);
         else if (delta < -2) setHidden(false);
         lastY = currentY;
