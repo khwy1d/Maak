@@ -312,7 +312,14 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setPassportBusy(false); }
   };
-  const signOut = async () => { await supabase?.auth.signOut(); setSession(null); setIsAdmin(false); };
+  const signOut = async () => {
+    const { error } = await supabase?.auth.signOut() ?? { error: null };
+    if (error) { setMessage(formatApiError(error)); return; }
+    setSession(null);
+    setIsAdmin(false);
+    window.history.replaceState({}, "", `/${lang}/login`);
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  };
   const inviteUrl = useMemo(() => profile ? `${window.location.origin}/?ref=${encodeURIComponent(profile.referral_code)}` : "", [profile]);
   const copyInvite = async () => { try { await navigator.clipboard.writeText(inviteUrl); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرابط. يمكنك نسخه يدويًا.", "Could not copy the link. You can copy it manually.")); } };
   const copyReferralCode = async () => { const code = profile?.referral_code; if (!code) return; try { await navigator.clipboard.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1800); } catch { setMessage(t("تعذر نسخ الرمز.", "Could not copy the code.")); } };
