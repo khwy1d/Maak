@@ -175,7 +175,7 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
   ];
   const canReview = !!purpose && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
-  return <RequestCard lang={lang} serviceCode="security_clearance" canReview={canReview} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
+  return <RequestCard lang={lang} serviceCode="security_clearance" canReview={canReview} title={txt("الموافقات الأمنية لمصر", "Egypt Security Clearances")}
     intro={txt("أدخل معلومات السفر وبيانات كل مسافر، وأرفق صورة جوازه لاستكمال الاستفسار.", "Share your travel details and each traveller’s name, and attach their passport image to complete the enquiry.")}
     serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ purpose, passenger_count: travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
     note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ لا يمكن ضمان الموافقة أو مدة صدورها.", "Passport images are uploaded to private, secure storage and linked to the request; approval and processing times cannot be guaranteed.")}>
