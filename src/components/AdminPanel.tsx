@@ -381,7 +381,7 @@ export default function AdminPanel() {
       <div className="maak-admin-header-actions"><button className="btn btn-ghost" onClick={() => void load(session)} disabled={busy}><RefreshCw size={17}/> تحديث</button><button className="btn btn-ghost" onClick={signOut}><LogOut size={17}/> خروج</button></div>
     </header>
     {message && <div className="maak-admin-message" role="status">{message}<button onClick={() => setMessage("")} aria-label="إغلاق"><X size={16}/></button></div>}
-    <nav className="maak-admin-tabs">{tabs.map(item => <button key={item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}><item.icon size={18}/>{item.label}{item.id === "notifications" && unreadCount > 0 && <b>{unreadCount}</b>}</button>)}</nav>
+    <nav className="maak-admin-tabs">{tabs.map(item => <button key={item.id} className={tab === item.id ? "active" : ""} onClick={() => setTab(item.id)}><item.icon size={18}/>{item.label}{item.id === "notifications" && unreadCount > 0 && <b>{unreadCount}</b>}{item.id === "bookings" && bookings.filter(booking => booking.status === "pending").length > 0 && <b>{bookings.filter(booking => booking.status === "pending").length}</b>}</button>)}</nav>
 
     {tab === "orders" && <section className="maak-admin-section">
       <div className="maak-admin-section-heading"><div><h2>الطلبات والحجوزات</h2><p>افتح الطلب لاستلام مراجعته، وسيظهر اسم الموظف لجميع أعضاء الفريق.</p></div><span>{orders.length} طلب</span></div>

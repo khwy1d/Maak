@@ -52,9 +52,10 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
   });
   if (error) throw new Error(error.message || "تعذر حفظ الحجز. يرجى المحاولة مرة أخرى.");
 
+  const { data: authData } = await supabase.auth.getUser();
   return {
     id: id as string,
-    user_id: null,
+    user_id: authData.user?.id ?? null,
     customer_name: customerName,
     customer_phone: customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`,
     service_type: input.serviceType.trim(),
@@ -67,10 +68,12 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
   };
 }
 
-export async function getUserBookings(): Promise<Booking[]> {
+export async function getUserBookings(userId: string): Promise<Booking[]> {
   if (!supabase) throw new Error("خدمة الحجوزات غير متاحة حاليًا.");
+  if (!userId) return [];
   const { data, error } = await supabase.from("bookings")
     .select("id,user_id,customer_name,customer_phone,service_type,service_details,preferred_date,notes,status,created_at,updated_at")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message || "تعذر تحميل حجوزاتك.");
   return (data ?? []) as Booking[];
@@ -86,13 +89,18 @@ export async function getAllBookings(): Promise<Booking[]> {
 export async function updateBookingStatus(
   bookingId: string,
   status: BookingStatus,
-  adminNotes: string | null,
+  adminNotes?: string | null,
 ): Promise<Booking> {
   if (!supabase) throw new Error("خدمة الحجوزات غير متاحة حاليًا.");
+  if (status === "cancelled" && adminNotes === undefined) {
+    const { data, error } = await supabase.rpc("cancel_own_booking", { p_booking_id: bookingId });
+    if (error) throw new Error(error.message || "تعذر إلغاء الحجز.");
+    return data as Booking;
+  }
   const { data, error } = await supabase.rpc("admin_update_booking", {
     p_booking_id: bookingId,
     p_status: status,
-    p_admin_notes: adminNotes,
+    p_admin_notes: adminNotes ?? null,
   });
   if (error) throw new Error(error.message || "تعذر تحديث الحجز.");
   return data as Booking;

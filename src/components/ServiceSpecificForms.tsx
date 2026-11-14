@@ -54,6 +54,11 @@ function RequestCard({
   passportUploadKey?: string;
 }) {
   const [step, setStep] = useState(0);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savedBooking, setSavedBooking] = useState<{ reference: string; url: string } | null>(null);
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const reviewing = step === groups.length;
@@ -71,6 +76,24 @@ function RequestCard({
   const whatsappUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
   const dateValues = rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean);
   const datesValid = dateValues.every(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= today());
+  const confirmBooking = () => {
+    setSaveError("");
+    if (customerName.trim().length < 2) { setSaveError(label(lang, "يرجى إدخال الاسم بشكل صحيح.", "Please enter your name.")); return; }
+    const digits = customerPhone.replace(/[٠-٩۰-۹]/g, digit => {
+      const code = digit.charCodeAt(0);
+      return String(code >= 0x06f0 ? code - 0x06f0 : code - 0x0660);
+    }).replace(/\D/g, "");
+    const normalizedPhone = digits.startsWith("00") ? digits.slice(2) : digits;
+    if (!/^[1-9][0-9]{6,14}$/.test(normalizedPhone)) { setSaveError(label(lang, "أدخل رقم هاتف دوليًا صحيحًا مع رمز الدولة.", "Enter a valid international phone number with country code.")); return; }
+    setSaving(true);
+    window.dispatchEvent(new CustomEvent("maak:save-inquiry", { detail: {
+      service: serviceCode, message, requestData: { date_values: dateValues, form_data: formData },
+      passportUploadKey: passportUploadKey ?? "", customerName: customerName.trim(), customerPhone: customerPhone.trim(),
+      onSuccess: (result: { reference: string; url: string }) => { setSavedBooking(result); setSaving(false); setSaveError(""); },
+      onError: (error: string) => { setSaveError(error); setSaving(false); },
+    }}));
+  };
+
 
   return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
@@ -88,9 +111,16 @@ function RequestCard({
       <p>{label(lang, "تأكد من التفاصيل قبل تأكيد الطلب.", "Please review the details before confirming your request.")}</p>
       <dl>{requestRows.length ? requestRows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
+      <div className="flight-input-grid maak-booking-contact-fields">
+        <Field required title={label(lang, "الاسم", "Name")}><input value={customerName} onChange={event => setCustomerName(event.target.value)} minLength={2} maxLength={120} autoComplete="name" placeholder={label(lang, "الاسم الكامل", "Full name")}/></Field>
+        <Field required title={label(lang, "رقم الهاتف مع رمز الدولة", "Phone number with country code")}><input type="tel" value={customerPhone} onChange={event => setCustomerPhone(event.target.value.replace(/[^+٠-٩۰-۹0-9]/g, ""))} minLength={7} maxLength={18} autoComplete="tel" placeholder="+967…"/></Field>
+      </div>
+      {saveError && <p className="account-message" role="alert">{saveError}</p>}
+      {savedBooking && <p className="account-message" role="status">{label(lang, "تم تسجيل الحجز بنجاح. الرقم المرجعي:", "Booking saved successfully. Reference:")} <strong dir="ltr">{savedBooking.reference}</strong></p>}
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: formData })} data-passport-upload-key={passportUploadKey} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وحفظه", "Confirm request and save")}</a>
+        <button type="button" className="btn btn-primary" onClick={confirmBooking} disabled={saving || !!savedBooking}>{saving ? label(lang, "جارٍ تأكيد الطلب…", "Confirming…") : savedBooking ? label(lang, "تم تأكيد الطلب", "Request confirmed") : label(lang, "تأكيد الطلب", "Confirm request")}</button>
+        <a className="btn btn-ghost" href={savedBooking?.url ?? whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>{label(lang, "متابعة الطلب عبر واتساب", "Follow up via WhatsApp")}</a>
       </div>
     </section>}
   </div>;

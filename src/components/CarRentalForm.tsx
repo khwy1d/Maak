@@ -1,4 +1,5 @@
 import { useState } from "react";
+import BookingSubmitActions from "./BookingSubmitActions";
 import { ArrowLeft, MapPin, MessageCircle, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
@@ -77,7 +78,7 @@ export default function CarRentalForm({ lang }: { lang: Lang }) {
       <dl>{rows.length ? rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>) : <div><dt>{txt("الطلب", "Request")}</dt><dd>{txt("استفسار عام عن تأجير السيارات", "General car rental enquiry")}</dd></div>}</dl>
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setSummary(false)}>{txt("العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={waUrl} data-save-inquiry="true" data-inquiry-service="car_rental" data-request-data={JSON.stringify({ form_data: { country, pickup_city: city.trim(), pickup_area: pickupArea.trim(), return_city: dropoffCity.trim(), return_area: dropoffArea.trim() } })} target="_blank" rel="noopener noreferrer"><MessageCircle size={19}/>{txt("إرسال الطلب", "Send enquiry")}</a>
+        <BookingSubmitActions lang={lang} service="car_rental" whatsappUrl={waUrl} canSubmit={locationComplete} requestData={{ form_data: { country, pickup_city: city.trim(), pickup_area: pickupArea.trim(), return_city: dropoffCity.trim(), return_area: dropoffArea.trim() } }} />
       </div>
     </section>}
     {!summary && <div className={desktopForm ? "maak-desktop-actions" : "flight-step-nav maak-service-flow-nav maak-bottom-actions"}>
