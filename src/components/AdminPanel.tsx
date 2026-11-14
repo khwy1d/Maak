@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ChangeEvent } from "rea
 import { Bell, CheckCircle2, Clock3, ImagePlus, LogOut, RefreshCw, ShieldCheck, UserCog, Users, X, ClipboardList } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase, formatApiError } from "../lib/supabase";
+import { getAllBookings, updateBookingStatus, bookingRef, type Booking, type BookingStatus } from "../lib/bookings";
 
 type Row = Record<string, any>;
 type Role = "admin" | "staff" | "customer";
@@ -22,6 +23,8 @@ export default function AdminPanel() {
   const [role, setRole] = useState<Role | null>(null);
   const [profile, setProfile] = useState<Row | null>(null);
   const [orders, setOrders] = useState<Row[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookingFilter, setBookingFilter] = useState<"all" | BookingStatus>("all");
   const [notifications, setNotifications] = useState<Row[]>([]);
   const [customers, setCustomers] = useState<Row[]>([]);
   const [roles, setRoles] = useState<Record<string, Role>>({});
@@ -112,7 +115,7 @@ export default function AdminPanel() {
     const client = supabase;
     if (!session || !isStaff || !client) return;
     const channel = client.channel("maak-staff-admin-panel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))\n      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => void load(session))
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load(session))
       .subscribe();
     const refreshId = window.setInterval(() => void load(session), 30000);
@@ -178,7 +181,7 @@ export default function AdminPanel() {
     finally { setBusy(false); }
   };
 
-  const markNotificationRead = async (item: Row) => {
+  const saveBookingStatus = async (booking: Booking, status: BookingStatus, adminNotes: string | null) => {\n    if (!isAdmin) return;\n    setBusy(true); setMessage("");\n    try {\n      await updateBookingStatus(booking.id, status, adminNotes);\n      setMessage(`تم تحديث الحجز ${bookingRef(booking.id)}.`);\n      await load(session);\n    } catch (error) { setMessage(formatApiError(error)); }\n    finally { setBusy(false); }\n  };\n\n  const editBooking = async (booking: Booking) => {\n    const status = window.prompt("الحالة: pending أو confirmed أو in_progress أو completed أو cancelled", booking.status);\n    if (!status || !["pending", "confirmed", "in_progress", "completed", "cancelled"].includes(status)) return;\n    const notes = window.prompt("ملاحظات إدارية داخلية", booking.admin_notes ?? "");\n    if (notes === null) return;\n    await saveBookingStatus(booking, status as BookingStatus, notes.trim() || null);\n  };\n\n  const markNotificationRead = async (item: Row) => {
     if (!supabase || item.read_at) return;
     const { error } = await supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", item.id);
     if (error) setMessage(formatApiError(error));
@@ -331,7 +334,7 @@ export default function AdminPanel() {
   if (!isStaff) return <main className="maak-admin-shell" dir="rtl"><section className="maak-admin-empty"><ShieldCheck size={38}/><h1>غير مصرح بالدخول</h1><p>هذه اللوحة مخصصة للمدير والموظفين الذين عيّنهم المدير.</p><a className="btn btn-ghost" href="/account">العودة إلى حسابي</a></section></main>;
 
   const tabs = [
-    { id: "orders" as const, label: "الطلبات", icon: ClipboardList },
+    { id: "orders" as const, label: "الطلبات", icon: ClipboardList },\n    ...(isAdmin ? [{ id: "bookings" as const, label: "الحجوزات الداخلية", icon: ClipboardList }] : []),
     { id: "notifications" as const, label: "الإشعارات", icon: Bell },
     ...(isAdmin ? [{ id: "team" as const, label: "الموظفون", icon: Users }, { id: "banners" as const, label: "بنرات الرئيسية", icon: ImagePlus }] : []),
   ];
@@ -362,6 +365,17 @@ export default function AdminPanel() {
           {expandedOrder === order.id && <pre className="maak-admin-request-data">{JSON.stringify(order.request_data, null, 2)}</pre>}
         </article>;
       })}</div> : <div className="maak-admin-empty"><ClipboardList size={34}/><h3>لا توجد طلبات في هذا التصنيف</h3><p>ستظهر الطلبات الجديدة هنا فور إرسال العملاء لها.</p></div>}
+    </section>}
+
+    {tab === "bookings" && isAdmin && <section className="maak-admin-section">
+      <div className="maak-admin-section-heading"><div><h2>الحجوزات الداخلية</h2><p>طلبات العملاء المسجلة مباشرة في نظام الحجوزات.</p></div><span>{bookings.length} حجز</span></div>
+      <div className="maak-admin-filters">{[["all","الكل"],["pending","قيد المراجعة"],["confirmed","مؤكد"],["in_progress","قيد التنفيذ"],["completed","مكتمل"],["cancelled","ملغي"]].map(([key,label]) => <button key={key} className={bookingFilter === key ? "active" : ""} onClick={() => setBookingFilter(key as "all" | BookingStatus)}>{label}</button>)}</div>
+      {bookings.filter(item => bookingFilter === "all" || item.status === bookingFilter).length ? <div className="maak-admin-order-list">{bookings.filter(item => bookingFilter === "all" || item.status === bookingFilter).map(booking => <article className="maak-admin-order" key={booking.id}>
+        <div className="maak-admin-order-top"><div><span className="maak-admin-order-service">{serviceNames[booking.service_type] ?? booking.service_type}</span><h3>{booking.customer_name}</h3><a href={`tel:${booking.customer_phone}`} dir="ltr">{booking.customer_phone}</a><strong dir="ltr">{bookingRef(booking.id)}</strong></div><span className={`maak-admin-status ${booking.status}`}>{({pending:"قيد المراجعة",confirmed:"مؤكد",in_progress:"قيد التنفيذ",completed:"مكتمل",cancelled:"ملغي"} as Record<string,string>)[booking.status]}</span></div>
+        <div className="maak-admin-order-meta"><span>{new Date(booking.created_at).toLocaleString("ar")}</span><span>{booking.preferred_date ? `الموعد المفضل: ${booking.preferred_date}` : "لا يوجد موعد محدد"}</span></div>
+        <div className="maak-admin-order-actions"><button className="btn btn-ghost" onClick={() => setExpandedOrder(expandedOrder === booking.id ? null : booking.id)}>{expandedOrder === booking.id ? "إخفاء التفاصيل" : "تفاصيل الطلب"}</button><button className="btn btn-primary" disabled={busy} onClick={() => void editBooking(booking)}>تحديث الحالة والملاحظات</button></div>
+        {expandedOrder === booking.id && <><pre className="maak-admin-request-data">{JSON.stringify(booking.service_details, null, 2)}</pre>{booking.notes && <p>ملاحظات العميل: {booking.notes}</p>}{booking.admin_notes && <p>ملاحظات الإدارة: {booking.admin_notes}</p>}</>}
+      </article>)}</div> : <div className="maak-admin-empty"><ClipboardList size={34}/><h3>لا توجد حجوزات في هذا التصنيف</h3></div>}
     </section>}
 
     {tab === "notifications" && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>إشعارات الفريق</h2><p>تنبيهات الطلبات الجديدة المرسلة إلى حسابك.</p></div><span>{unreadCount} غير مقروء</span></div>
