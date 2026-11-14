@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import MobileHeader from "./components/MobileHeader";
 import MobileDock from "./components/MobileDock";
 import Hero from "./components/Hero";
+import MobileHomeBanner from "./components/MobileHomeBanner";
 import GlassBackground from "./components/GlassBackground";
 import InquiryCapture from "./components/InquiryCapture";
 import { getReferralCode } from "./lib/supabase";
@@ -166,12 +167,7 @@ export default function App() {
       )}
       <Suspense fallback={<div className="container" aria-live="polite" />}>{path === "/account" ? <Account key="account" initialTab="profile" /> : path === "/bookings" ? <Account key="bookings" initialTab="orders" /> : path === "/rewards" ? <Account key="rewards" initialTab="referrals" /> : path === "/notifications" ? <Account key="notifications" initialTab="notifications" /> : path === "/login" ? <Account key="login" initialTab="auth" initialMode="login" /> : path === "/signup" ? <Account key="signup" initialTab="auth" initialMode="signup" /> : path === "/admin" ? <AdminPanel /> : isHome ? <main className="home-intro">
         <Hero />
-        <section className="mobile-home-banner" aria-label={lang === "ar" ? "معك للسفر والسياحة" : "MAAK Travel and Tourism"}>
-          <div className="mobile-home-banner-copy">
-            <span>MAAK</span>
-            <strong>{lang === "ar" ? "دائمًا معك في كل رحلة" : "With you on every journey"}</strong>
-          </div>
-        </section>
+        <MobileHomeBanner />
         <div className="home-desktop-only home-services-mobile"><Services /></div>
         <div className="home-desktop-only"><About /></div>
         <div className="home-desktop-only"><Why /></div>
