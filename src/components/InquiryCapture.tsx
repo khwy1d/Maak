@@ -1,12 +1,12 @@
 import { useEffect } from "react";
-import { submitInquiry } from "../lib/orders";
+import { submitInquiry, type InquiryService } from "../lib/orders";
 import { createBooking, bookingRef } from "../lib/bookings";
 import { buildFollowUpMessage, buildWhatsAppUrl } from "../lib/whatsapp";
 import { formatApiError, supabase } from "../lib/supabase";
 import { getPassportFiles, clearPassportFiles, getOrCreatePassportUploadToken } from "../lib/passportUploads";
 
 type SaveInquiryDetail = {
-  service: string;
+  service: InquiryService;
   message: string;
   requestData: Record<string, unknown>;
   passportUploadKey: string;
