@@ -5,6 +5,7 @@ import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
 import { registerPassportFiles } from "../lib/passportUploads";
+import PassportUploadField from "./PassportUploadField";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -248,11 +249,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
             <label htmlFor={"umrah-name-" + index}>{txt("اسم المعتمر", "Pilgrim name")} {index + 1} *</label>
             <input id={"umrah-name-" + index} required value={passengerNames[index] || ""} onChange={event => setPassengerNames(names => names.map((name, i) => i === index ? event.target.value : name))} placeholder={txt("الاسم الكامل كما في الجواز", "Full name as in passport")} />
           </div>
-          <label className="maak-passport-upload">
-            <span>{txt("صورة الجواز", "Passport image")} *</span>
-            <input required type="file" accept="image/jpeg,image/png,application/pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
-            <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
-          </label>
+          <PassportUploadField id={"umrah-passport-" + index} title={txt("إدخال صورة الجواز", "Add passport document")} file={passportFiles[index] || null} language={lang} required onChange={file => { const next = passportFiles.map((current, i) => i === index ? file : current); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
         </div>)}
       </div>
     </div>
