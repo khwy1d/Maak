@@ -34,24 +34,34 @@ export function bookingRef(id: string): string {
 export async function createBooking(input: CreateBookingInput): Promise<Booking> {
   if (!supabase) throw new Error("خدمة الحجوزات غير متاحة حاليًا. حاول لاحقًا.");
   const customerName = input.customerName.trim();
-  const customerPhone = input.customerPhone.replace(/[^+\d]/g, "");
+  const customerPhone = input.customerPhone.replace(/[^+\\d]/g, "");
   if (customerName.length < 2) throw new Error("يرجى إدخال اسم صحيح.");
-  if (!/^\+?[1-9]\d{6,14}$/.test(customerPhone)) throw new Error("يرجى إدخال رقم هاتف دولي صحيح مع رمز الدولة.");
+  if (!/^\\+?[1-9]\\d{6,14}$/.test(customerPhone)) throw new Error("يرجى إدخال رقم هاتف دولي صحيح مع رمز الدولة.");
   if (!input.serviceType.trim()) throw new Error("نوع الخدمة غير محدد.");
 
-  const { data: authData } = await supabase.auth.getUser();
-  const { data, error } = await supabase.from("bookings").insert({
-    user_id: authData.user?.id ?? null,
+  const { data: id, error } = await supabase.rpc("create_booking", {
+    p_customer_name: customerName,
+    p_customer_phone: customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`,
+    p_service_type: input.serviceType.trim(),
+    p_service_details: input.serviceDetails ?? {},
+    p_preferred_date: input.preferredDate || null,
+    p_notes: input.notes?.trim() || null,
+  });
+  if (error) throw new Error(error.message || "تعذر حفظ الحجز. يرجى المحاولة مرة أخرى.");
+
+  return {
+    id: id as string,
+    user_id: null,
     customer_name: customerName,
-    customer_phone: customerPhone,
+    customer_phone: customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`,
     service_type: input.serviceType.trim(),
     service_details: input.serviceDetails ?? {},
     preferred_date: input.preferredDate || null,
     notes: input.notes?.trim() || null,
-  }).select("id,user_id,customer_name,customer_phone,service_type,service_details,preferred_date,notes,status,created_at,updated_at").single();
-
-  if (error) throw new Error(error.message || "تعذر حفظ الحجز. يرجى المحاولة مرة أخرى.");
-  return data as Booking;
+    status: "pending",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  };
 }
 
 export async function getUserBookings(): Promise<Booking[]> {
