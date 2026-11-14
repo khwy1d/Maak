@@ -5,7 +5,8 @@ import { useApp } from "../context/AppContext";
 import Logo from "./Logo";
 import { formatApiError, getReferralCode, supabase } from "../lib/supabase";
 import { siteConfig } from "../config/site";
-import { getUserBookings, bookingRef, type Booking } from "../lib/bookings";
+import { getUserBookings, bookingRef, updateBookingStatus, type Booking } from "../lib/bookings";
+import { buildFollowUpMessage, buildWhatsAppUrl } from "../lib/whatsapp";
 
 type Row = Record<string, any>;
 
@@ -51,6 +52,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
   const [passportBusy, setPassportBusy] = useState(false);
   const [orders, setOrders] = useState<Row[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [transactions, setTransactions] = useState<Row[]>([]);
   const [referrals, setReferrals] = useState<Row[]>([]);
   const [customers, setCustomers] = useState<Row[]>([]);
@@ -173,7 +175,15 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       setName(profileRow.full_name ?? "");
       setPhone(profileRow.phone ?? user.phone ?? "");
       setOrders(role?.role === "staff" ? (orderRows ?? []).filter((order: Row) => order.customer_id === user.id) : orderRows ?? []);
-      try { setBookings(await getUserBookings()); } catch { setBookings([]); }
+      try {
+        const userBookings = await getUserBookings(user.id);
+        if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
+        setBookings(userBookings);
+      } catch (bookingError) {
+        if (requestId !== refreshRequestRef.current || activeUserIdRef.current !== requestUserId) return;
+        setBookings([]);
+        setMessage(formatApiError(bookingError));
+      }
       setTransactions(walletRows ?? []);
       setReferrals(referralRows ?? []);
       setIsAdmin(role?.role === "admin");
@@ -198,6 +208,23 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       if (requestId === refreshRequestRef.current && activeUserIdRef.current === requestUserId) setMessage(formatApiError(error));
     } finally {
       if (requestId === refreshRequestRef.current) setBusy(false);
+    }
+  };
+
+  const cancelSelectedBooking = async () => {
+    if (!selectedBooking || !["pending", "confirmed"].includes(selectedBooking.status)) return;
+    if (!window.confirm(t("هل أنت متأكد من إلغاء هذا الحجز؟", "Are you sure you want to cancel this booking?"))) return;
+    setBusy(true);
+    setMessage("");
+    try {
+      await updateBookingStatus(selectedBooking.id, "cancelled");
+      setSelectedBooking({ ...selectedBooking, status: "cancelled" });
+      setMessage(t("تم إلغاء الحجز.", "Booking cancelled."));
+      await refresh();
+    } catch (error) {
+      setMessage(formatApiError(error));
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -638,7 +665,20 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
     {message && <p className="account-message" role="status">{message}</p>}
     {!showAdmin && <div className="account-overview"><article><Wallet/><span>{t("رصيد المحفظة", "Wallet balance")}</span><strong>{balance.toLocaleString()} {t("ر.ي", "YER")}</strong></article><article><span>{t("رمز دعوتك", "Your referral code")}</span><strong>{profile?.referral_code}</strong><button className="btn btn-ghost" onClick={copyInvite}>{copied ? <Check size={16}/> : <Copy size={16}/>} {copied ? t("نُسخ", "Copied") : t("نسخ رابط الدعوة", "Copy invite link")}</button></article></div>}
     <nav className="account-tabs">{(showAdmin ? ["admin-orders", "admin-customers", "admin-referrals", "admin-finance"] : ["orders", "wallet", "referrals"]).map(key => <button key={key} className={tab === key ? "active" : ""} onClick={() => setTab(key)}>{labels[key]}</button>)}</nav>
-    {!showAdmin && tab === "orders" && <section className="account-list"><h2>{t("الطلبات والحجوزات", "Orders and bookings")}</h2>{bookings.length > 0 && <div className="account-list"><h3>{t("حجوزاتي في نظام الحجوزات", "My internal bookings")}</h3>{bookings.map(booking => <article className="account-row" key={booking.id}><div><strong>{bookingServiceLabel(booking.service_type)}</strong><small dir="ltr">{bookingRef(booking.id)} · {new Date(booking.created_at).toLocaleString()}</small><p>{t("الحالة", "Status")}: {bookingStatusLabel(booking.status)}</p>{booking.preferred_date && <small>{t("الموعد المفضل", "Preferred date")}: {booking.preferred_date}</small>}</div></article>)}</div>}{orders.length ? orders.map(order => <article className="account-row" key={order.id}><div><strong>{order.service}</strong><small>{new Date(order.created_at).toLocaleString()}</small><p>{t("الخدمة", "Service")}: {order.status} · {t("الدفع", "Payment")}: {order.payment_status}</p></div><div><strong>{order.total_amount == null ? t("بانتظار التسعير", "Awaiting quote") : `${order.total_amount} ${order.currency}`}</strong>{order.total_amount != null && balance > Number(order.wallet_used) && order.payment_status === "unpaid" && <button className="btn btn-primary" disabled={busy} onClick={() => void applyWallet(order)}>{t("استخدام رصيد المحفظة", "Use wallet")}</button>}</div></article>) : <p>{t("لا توجد طلبات محفوظة بعد.", "No saved orders yet.")}</p>}</section>}
+    {!showAdmin && tab === "orders" && <section className="account-list"><h2>{t("الطلبات والحجوزات", "Orders and bookings")}</h2>{bookings.length > 0 && <div className="account-list"><h3>{t("حجوزاتي في نظام الحجوزات", "My internal bookings")}</h3>{bookings.map(booking => <article className="account-row maak-booking-account-row" key={booking.id} role="button" tabIndex={0} onClick={() => setSelectedBooking(booking)} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedBooking(booking); } }}><div><strong>{bookingServiceLabel(booking.service_type)}</strong><small dir="ltr">{bookingRef(booking.id)} · {new Date(booking.created_at).toLocaleString()}</small><p>{t("الحالة", "Status")}: {bookingStatusLabel(booking.status)}</p>{booking.preferred_date && <small>{t("الموعد المفضل", "Preferred date")}: {booking.preferred_date}</small>}<small>{t("اضغط لعرض الإجراءات", "Select to view actions")}</small></div></article>)}
+      {selectedBooking && <div className="account-modal-backdrop" role="presentation" onClick={event => { if (event.target === event.currentTarget) setSelectedBooking(null); }}>
+        <section className="account-card" role="dialog" aria-modal="true" aria-labelledby="booking-actions-title" dir={ar ? "rtl" : "ltr"}>
+          <button type="button" className="account-modal-close" onClick={() => setSelectedBooking(null)} aria-label={t("إغلاق", "Close")}>×</button>
+          <h2 id="booking-actions-title">{t("إجراءات الحجز", "Booking actions")}</h2>
+          <p><strong>{bookingServiceLabel(selectedBooking.service_type)}</strong></p>
+          <p>{t("الرقم المرجعي:", "Reference:")} <strong dir="ltr">{bookingRef(selectedBooking.id)}</strong></p>
+          <p>{t("الحالة:", "Status:")} {bookingStatusLabel(selectedBooking.status)}</p>
+          <div className="account-form">
+            <a className="btn btn-primary" href={buildWhatsAppUrl(buildFollowUpMessage(bookingRef(selectedBooking.id), selectedBooking.service_type))} target="_blank" rel="noopener noreferrer"><MessageCircle size={17}/>{t("متابعة الطلب عبر واتساب", "Follow up via WhatsApp")}</a>
+            {["pending", "confirmed"].includes(selectedBooking.status) && <button type="button" className="btn btn-ghost" disabled={busy} onClick={() => void cancelSelectedBooking()}>{t("إلغاء الحجز", "Cancel booking")}</button>}
+          </div>
+        </section>
+      </div>}</div>}{orders.length ? orders.map(order => <article className="account-row" key={order.id}><div><strong>{order.service}</strong><small>{new Date(order.created_at).toLocaleString()}</small><p>{t("الخدمة", "Service")}: {order.status} · {t("الدفع", "Payment")}: {order.payment_status}</p></div><div><strong>{order.total_amount == null ? t("بانتظار التسعير", "Awaiting quote") : `${order.total_amount} ${order.currency}`}</strong>{order.total_amount != null && balance > Number(order.wallet_used) && order.payment_status === "unpaid" && <button className="btn btn-primary" disabled={busy} onClick={() => void applyWallet(order)}>{t("استخدام رصيد المحفظة", "Use wallet")}</button>}</div></article>) : <p>{t("لا توجد طلبات محفوظة بعد.", "No saved orders yet.")}</p>}</section>}
     {!showAdmin && tab === "wallet" && <section className="account-list"><h2>{t("سجل المحفظة", "Wallet ledger")} · {balance.toLocaleString()} {t("ر.ي", "YER")}</h2>{transactions.length ? transactions.map(entry => <article className="account-row" key={entry.id}><div><strong>{entry.description}</strong><small>{new Date(entry.created_at).toLocaleString()}</small></div><strong className={entry.amount > 0 ? "credit" : "debit"}>{entry.amount > 0 ? "+" : ""}{entry.amount} {t("ر.ي", "YER")}</strong></article>) : <p>{t("لا توجد حركات في المحفظة.", "No wallet activity yet.")}</p>}</section>}
     {!showAdmin && tab === "referrals" && <section className="account-list"><h2>{t("الإحالات", "Referrals")}</h2><p>{t("تُضاف العمولة مرة واحدة بعد دفع أول حجز وإتمام خدمته.", "A single commission is credited after the invitee pays for and completes their first booking.")}</p>{referrals.length ? referrals.filter(item => item.referrer_id === session.user.id).map(item => <article className="account-row" key={item.id}><strong>{item.referred_phone ?? t("عميل مسجل", "Registered customer")}</strong><span>{item.status}</span><small>{new Date(item.created_at).toLocaleDateString()}</small></article>) : <p>{t("شارك رابطك لدعوة أصدقائك.", "Share your invite link with friends.")}</p>}</section>}
     {showAdmin && tab === "admin-orders" && <section className="account-list"><h2>{t("مراجعة الطلبات", "Review orders")}</h2>{orders.length ? orders.map(order => <article className="account-row" key={order.id}><div><strong>{order.service} · {order.customer_name}</strong><small>{order.customer_phone} · {new Date(order.created_at).toLocaleString()}</small><p>{JSON.stringify(order.request_data)}</p><span>{order.status} · {order.payment_status} · {order.total_amount ?? t("دون تسعير", "unpriced")}</span></div><button className="btn btn-primary" disabled={busy} onClick={() => void updateOrder(order)}>{t("تحديث الحالة", "Update status")}</button></article>) : <p>{t("لا توجد طلبات بعد.", "No orders yet.")}</p>}</section>}
