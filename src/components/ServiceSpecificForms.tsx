@@ -5,6 +5,7 @@ import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
 import { registerPassportFiles } from "../lib/passportUploads";
+import PassportUploadField from "./PassportUploadField";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -150,43 +151,68 @@ export function MedicalTravelForm({ lang }: ServiceFormProps) {
 }
 
 export function SecurityClearanceForm({ lang }: ServiceFormProps) {
-  const [requestType, setRequestType] = useState("");
   const [purpose, setPurpose] = useState("");
-  const [departureCity, setDepartureCity] = useState("");
   const [date, setDate] = useState("");
-  const [travellers, setTravellers] = useState("");
-  const [documentsReady, setDocumentsReady] = useState("");
+  const [travellers, setTravellers] = useState(1);
+  const [passengerNames, setPassengerNames] = useState<string[]>([""]);
+  const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
+  const [passportUploadKey] = useState(() => crypto.randomUUID());
   const [question, setQuestion] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
+  const changeTravellerCount = (next: number) => {
+    const count = Math.max(1, Math.min(9, next));
+    setTravellers(count);
+    setPassengerNames(names => [...names, ...Array(Math.max(0, count - names.length)).fill("")].slice(0, count));
+    setPassportFiles(files => { const updated = [...files, ...Array(Math.max(0, count - files.length)).fill(null)].slice(0, count); registerPassportFiles(passportUploadKey, updated); return updated; });
+  };
   const rows: Row[] = [
-    ...(requestType ? [[txt("مرحلة الطلب", "Request stage"), requestType === "new" ? txt("استفسار جديد", "New enquiry") : txt("متابعة طلب سابق", "Follow-up on an existing request")] as Row] : []),
     ...(purpose ? [[txt("غرض السفر", "Travel purpose"), ({ tourism: txt("زيارة أو سياحة", "Visit or tourism"), family: txt("زيارة عائلية", "Family visit"), business: txt("عمل", "Business"), transit: txt("عبور", "Transit"), other: txt("غرض آخر", "Other") } as Record<string, string>)[purpose]] as Row] : []),
-    ...(departureCity.trim() ? [[txt("مدينة المغادرة", "Departure city"), departureCity.trim()] as Row] : []),
     ...(date ? [[txt("موعد السفر المتوقع", "Expected travel date"), date] as Row] : []),
-    ...(travellers ? [[txt("عدد المسافرين", "Travellers"), travellers] as Row] : []),
-    ...(documentsReady ? [[txt("حالة المستندات", "Document status"), ({ yes: txt("نعم", "Yes"), partial: txt("بعضها", "Some are ready"), no: txt("ليس بعد", "Not yet") } as Record<string, string>)[documentsReady]] as Row] : []),
+    [txt("عدد المسافرين", "Number of travellers"), String(travellers)],
+    ...passengerNames.slice(0, travellers).map((name, index) => [txt("اسم المسافر", "Passenger name") + " " + (index + 1), name.trim() || txt("لم يحدد بعد", "Not provided")] as Row),
     ...(question.trim() ? [[txt("السؤال", "Question"), question.trim()] as Row] : []),
+    ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
-  return <RequestCard lang={lang} serviceCode="security_clearance" canReview={!!requestType && !!purpose} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
-    intro={txt("أدخل معلومات السفر العامة فقط لبدء الاستفسار. لا تكتب رقم جواز السفر أو أي بيانات تعريفية حساسة.", "Share general travel details to start your enquiry. Do not enter passport numbers or other sensitive identifiers.")}
-    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ request_type: requestType, purpose }}
-    note={txt("لا يمكن ضمان الموافقة أو مدة صدورها؛ تُراجع الإجراءات والمتطلبات عند التواصل.", "Approval and processing times cannot be guaranteed; requirements are reviewed during follow-up.")}>
+  const canReview = !!purpose && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+
+  return <RequestCard lang={lang} serviceCode="security_clearance" canReview={canReview} title={txt("الموافقات الأمنية لمصر", "Egypt Security Clearances")}
+    intro={txt("أدخل معلومات السفر وبيانات كل مسافر، وأرفق صورة جوازه لاستكمال الاستفسار.", "Share your travel details and each traveller’s name, and attach their passport image to complete the enquiry.")}
+    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ purpose, passenger_count: travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
+    note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ لا يمكن ضمان الموافقة أو مدة صدورها.", "Passport images are uploaded to private, secure storage and linked to the request; approval and processing times cannot be guaranteed.")}>
     <div className="flight-group"><h4>{txt("تفاصيل الاستفسار", "Enquiry details")}</h4>
       <div className="flight-input-grid">
-        <Field required title={txt("مرحلة الطلب", "Request stage")}><Select value={requestType} onChange={setRequestType} placeholder={txt("اختر المرحلة", "Choose a stage")} options={[["new", txt("استفسار جديد", "New enquiry")], ["follow-up", txt("متابعة طلب سابق", "Follow-up on an existing request")]]} /></Field>
         <Field required title={txt("غرض السفر", "Travel purpose")}><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر الغرض", "Choose a purpose")} options={[["tourism", txt("زيارة أو سياحة", "Visit or tourism")], ["family", txt("زيارة عائلية", "Family visit")], ["business", txt("عمل", "Business")], ["transit", txt("عبور", "Transit")], ["other", txt("غرض آخر", "Other")]]} /></Field>
       </div>
     </div>
-    <div className="flight-group"><h4>{txt("توقيت السفر والمسافرون", "Travel timing and party")}</h4>
+    <div className="flight-group"><h4>{txt("توقيت السفر والمسافرون", "Travel timing and travellers")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("مدينة المغادرة", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: عدن", "e.g. Aden")} /></Field>
         <Field title={<><CalendarDays size={16} />{txt("موعد السفر المتوقع", "Expected travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
-        <Field title={txt("عدد المسافرين", "Number of travellers")}><Select value={travellers} onChange={setTravellers} placeholder={txt("غير محدد", "Not specified")} options={countOptions(lang, 12)} /></Field>
-        <Field title={txt("هل مستندات السفر جاهزة؟", "Are your travel documents ready?")}><Select value={documentsReady} onChange={setDocumentsReady} placeholder={txt("اختر إجابة", "Choose an answer")} options={[["yes", txt("نعم", "Yes")], ["partial", txt("بعضها", "Some are ready")], ["no", txt("ليس بعد", "Not yet")]]} /></Field>
+      </div>
+      <div className="maak-passengers">
+        <div className="maak-passengers-title"><Users size={18}/><strong>{txt("المسافرون", "Travellers")}</strong></div>
+        <div className="maak-counter">
+          <span><strong>{txt("عدد المسافرين", "Number of travellers")} *</strong><small>{txt("اختر العدد المطلوب", "Select the number of travellers")}</small></span>
+          <div>
+            <button type="button" onClick={() => changeTravellerCount(travellers - 1)} aria-label={txt("تقليل العدد", "Decrease count")}><Minus size={16}/></button>
+            <output>{travellers}</output>
+            <button type="button" onClick={() => changeTravellerCount(travellers + 1)} aria-label={txt("زيادة العدد", "Increase count")}><Plus size={16}/></button>
+          </div>
+        </div>
+        <div className="maak-passenger-details">
+          <h4>{txt("أسماء المسافرين ومرفقات الجوازات", "Traveller names and passport attachments")}</h4>
+          <p>{txt("اكتب اسم كل مسافر كما يظهر في الجواز وأرفق صورة جوازه. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each traveller’s name exactly as shown on the passport and attach its image. Images are uploaded to private storage and are not public.")}</p>
+          {Array.from({ length: travellers }, (_, index) => <div className="maak-passenger-row" key={index}>
+            <div className="maak-field">
+              <label htmlFor={"security-passenger-name-" + index}>{txt("اسم المسافر", "Traveller name")} {index + 1} *</label>
+              <input id={"security-passenger-name-" + index} required value={passengerNames[index] || ""} onChange={event => setPassengerNames(names => names.map((name, i) => i === index ? event.target.value : name))} placeholder={txt("الاسم الكامل كما في الجواز", "Full name as in passport")} />
+            </div>
+            <PassportUploadField id={"security-passport-" + index} title={txt("إدخال صورة الجواز", "Add passport document")} file={passportFiles[index] || null} language={lang} required onChange={file => { const updated = passportFiles.map((current, i) => i === index ? file : current); setPassportFiles(updated); registerPassportFiles(passportUploadKey, updated); }} />
+          </div>)}
+        </div>
       </div>
     </div>
     <div className="flight-group"><h4>{txt("سؤالك أو ملاحظتك", "Your question")}</h4>
-      <Field title={txt("ما الذي تريد معرفته؟ (اختياري)", "What would you like to know? (optional)")}><textarea rows={3} value={question} onChange={event => setQuestion(event.target.value)} placeholder={txt("لا ترفق أرقام الجوازات أو صور الوثائق", "Do not include passport numbers or document images")} /></Field>
+      <Field title={txt("ما الذي تريد معرفته؟ (اختياري)", "What would you like to know? (optional)")}><textarea rows={3} value={question} onChange={event => setQuestion(event.target.value)} placeholder={txt("اكتب استفسارك هنا", "Enter your question here")} /></Field>
     </div>
   </RequestCard>;
 }
@@ -196,7 +222,6 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [travellers, setTravellers] = useState(1);
   const [passengerNames, setPassengerNames] = useState<string[]>([""]);
   const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
-  const [passportConsent, setPassportConsent] = useState(false);
   const [passportUploadKey] = useState(() => crypto.randomUUID());
   const [altPhone, setAltPhone] = useState("");
   const [details, setDetails] = useState("");
@@ -218,11 +243,11 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
     ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
-  const canReview = !!date && passportConsent && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+  const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
-    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean), passport_consent: passportConsent }} passportUploadKey={passportUploadKey}
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
     note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Passport images are uploaded to private, secure storage and linked to the request; sending the request does not mean a visa has been issued or a booking confirmed.")}>
     <div className="flight-group">
       <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
@@ -242,17 +267,13 @@ export function UmrahForm({ lang }: ServiceFormProps) {
       </div>
       <div className="maak-passenger-details">
         <h4>{txt("أسماء المعتمرين ومرفقات الجوازات", "Pilgrim names and passport attachments")}</h4>
-        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim. Images are uploaded to private storage and are not public.")}</p><label className="maak-passport-consent"><input type="checkbox" checked={passportConsent} onChange={event => setPassportConsent(event.target.checked)} />{txt("أوافق على رفع صور الجوازات وتخزينها بشكل خاص لمعالجة هذا الطلب.", "I agree to upload and privately store the passport images to process this request.")}</label>
+        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim. Images are uploaded to private storage and are not public.")}</p>
         {Array.from({ length: travellers }, (_, index) => <div className="maak-passenger-row" key={index}>
           <div className="maak-field">
             <label htmlFor={"umrah-name-" + index}>{txt("اسم المعتمر", "Pilgrim name")} {index + 1} *</label>
             <input id={"umrah-name-" + index} required value={passengerNames[index] || ""} onChange={event => setPassengerNames(names => names.map((name, i) => i === index ? event.target.value : name))} placeholder={txt("الاسم الكامل كما في الجواز", "Full name as in passport")} />
           </div>
-          <label className="maak-passport-upload">
-            <span>{txt("صورة الجواز", "Passport image")} *</span>
-            <input required type="file" accept="image/jpeg,image/png,application/pdf" onChange={event => { const next = passportFiles.map((file, i) => i === index ? event.target.files?.[0] || null : file); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
-            <small>{passportFiles[index]?.name || txt("إرفاق صورة أو ملف", "Attach image or file")}</small>
-          </label>
+          <PassportUploadField id={"umrah-passport-" + index} title={txt("إدخال صورة الجواز", "Add passport document")} file={passportFiles[index] || null} language={lang} required onChange={file => { const next = passportFiles.map((current, i) => i === index ? file : current); setPassportFiles(next); registerPassportFiles(passportUploadKey, next); }} />
         </div>)}
       </div>
     </div>

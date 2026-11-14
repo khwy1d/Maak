@@ -1,4 +1,4 @@
-import { ArrowUpRight, Building2, Bus, Car, Compass, FileCheck, HeartPulse, Hotel, Moon, Plane, MapPinned, Send, ShieldCheck, Target, Eye, Flag } from "lucide-react";
+import { ArrowUpRight, Bus, Car, Compass, FileCheck, HeartPulse, Hotel, Moon, Plane, MapPinned, Send, ShieldCheck, Target, Eye, Flag } from "lucide-react";
 import { useState } from "react";
 import { siteConfig } from "../config/site";
 import { useApp } from "../context/AppContext";
@@ -22,7 +22,7 @@ const routes = [
   { path: publicPathForKey("umrah"), key: "umrah", icon: Moon },
   { path: publicPathForKey("medical"), key: "medical", icon: HeartPulse },
   { path: publicPathForKey("car"), key: "car", topic: "car" as WaTopic, icon: Car },
-  { path: publicPathForKey("realEstate"), key: "realEstate", icon: Building2 },
+  // الخدمات العقارية مخفية مؤقتاً لعدم توفرها حالياً؛ أزل التعليق عند إعادة تقديم الخدمة.
   { path: publicPathForKey("tourism"), key: "tourism", icon: MapPinned },
 ];
 

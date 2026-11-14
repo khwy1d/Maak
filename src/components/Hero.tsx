@@ -11,7 +11,7 @@ export default function Hero() {
     let active = true;
     const client = supabase;
     if (!client) return;
-    void client.from("home_banners").select("id,storage_path,alt_text").eq("is_active", true).order("sort_order", { ascending: true }).then(({ data }) => {
+    void client.from("home_banners").select("id,storage_path,alt_text").eq("is_active", true).eq("display_target", "all").order("sort_order", { ascending: true }).then(({ data }) => {
       if (!active) return;
       setBanners((data ?? []).map(item => ({ id: item.id, alt: item.alt_text || "MAAK", url: client.storage.from("home-banners").getPublicUrl(item.storage_path).data.publicUrl })));
     });

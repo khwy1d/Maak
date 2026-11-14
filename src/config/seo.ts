@@ -11,7 +11,7 @@ export const publicSeoPages = [
   { path: "/medical-tourism", key: "medical", ar: ["السفر العلاجي | معك", "تنسيق استفسارات السفر العلاجي والمواعيد والإقامة والتنقل."], en: ["Medical Travel | MAAK", "Coordinate medical travel enquiries, appointments, accommodation and transport."] },
   { path: "/car-rental", key: "car", ar: ["تأجير السيارات | معك", "استفسر عن خيارات تأجير السيارات ومواقع الاستلام والتسليم ومدة الإيجار."], en: ["Car Rental | MAAK", "Enquire about car rental options, pickup locations and rental periods."] },
   { path: "/tourism", key: "tourism", ar: ["السياحة والرحلات | معك", "خطط لرحلتك واستفسر عن خدمات السياحة والسفر مع معك."], en: ["Tourism & Trips | MAAK", "Plan your trip and enquire about tourism and travel services with MAAK."] },
-  { path: "/real-estate", key: "realEstate", ar: ["الخدمات العقارية | معك", "استفسر عن تنسيق خدمات الإيجار والبيع والشراء وإدارة الأملاك."], en: ["Real Estate Services | MAAK", "Enquire about rental, sale, purchase and property-management coordination."] },
+  // الخدمات العقارية مخفية مؤقتاً لعدم توفرها حالياً؛ أعد إدراج بيانات SEO عند إعادة تفعيل الخدمة.
   { path: "/about", key: "about", ar: ["عن معك | MAAK", "تعرف على معك ورسالتها في تسهيل ترتيبات السفر والتواصل مع المسافرين."], en: ["About MAAK", "Learn about MAAK and its approach to making travel arrangements clearer and easier."] },
   { path: "/contact", key: "contact", ar: ["تواصل مع معك | MAAK", "تواصل مع معك للاستفسار عن خدمات السفر والسياحة."], en: ["Contact MAAK", "Contact MAAK with your travel and tourism service enquiries."] },
 ] as const;
