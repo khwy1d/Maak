@@ -22,7 +22,7 @@ const routes = [
   { path: publicPathForKey("umrah"), key: "umrah", icon: Moon },
   { path: publicPathForKey("medical"), key: "medical", icon: HeartPulse },
   { path: publicPathForKey("car"), key: "car", topic: "car" as WaTopic, icon: Car },
-  { path: publicPathForKey("realEstate"), key: "realEstate", icon: Building2 },
+  // الخدمات العقارية مخفية مؤقتاً لعدم توفرها حالياً؛ أزل التعليق عند إعادة تقديم الخدمة.
   { path: publicPathForKey("tourism"), key: "tourism", icon: MapPinned },
 ];
 
