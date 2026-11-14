@@ -152,7 +152,7 @@ export default function App() {
       <>
         <Header />
         <MobileHeader />
-        {path !== "/admin" && <InquiryCapture />}
+        {path !== "/admin" && <InquiryCapture lang={lang} />}
       </>
       {installPrompt && !installDismissed && (
         <aside className="pwa-install-prompt" aria-label={lang === "ar" ? "تثبيت تطبيق معك" : "Install MAAK app"} dir={lang === "ar" ? "rtl" : "ltr"}>
