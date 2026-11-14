@@ -398,3 +398,27 @@ body:has(.maak-flight-flow) nav[aria-label="Mobile navigation"] { display:none!i
   background: #f4f6f8;
   object-fit: contain;
 }
+
+
+/* Keep passport previews clipped to the form and crop oversized images. */
+.maak-passport-preview {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+.maak-passport-preview img {
+  width: 100%;
+  max-width: 100%;
+  height: min(62vw, 420px);
+  min-height: 190px;
+  object-fit: cover;
+  object-position: center;
+  overflow: hidden;
+  border-radius: 9px;
+}
+.maak-passport-preview iframe {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 9px;
+}
