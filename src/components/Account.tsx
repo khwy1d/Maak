@@ -80,7 +80,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         setProfile(null);
         setPassportSignedUrl("");
         setAccountPanel(null);
-        setOrders([]);\n        setBookings([]);
+        setOrders([]);
+        setBookings([]);
         setTransactions([]);
         setReferrals([]);
         setCustomers([]);
@@ -145,7 +146,8 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
       setProfile(profileRow);
       setName(profileRow.full_name ?? "");
       setPhone(profileRow.phone ?? user.phone ?? "");
-      setOrders(role?.role === "staff" ? (orderRows ?? []).filter((order: Row) => order.customer_id === user.id) : orderRows ?? []);\n      try { setBookings(await getUserBookings()); } catch { setBookings([]); }
+      setOrders(role?.role === "staff" ? (orderRows ?? []).filter((order: Row) => order.customer_id === user.id) : orderRows ?? []);
+      try { setBookings(await getUserBookings()); } catch { setBookings([]); }
       setTransactions(walletRows ?? []);
       setReferrals(referralRows ?? []);
       setIsAdmin(role?.role === "admin");
