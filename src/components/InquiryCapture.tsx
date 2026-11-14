@@ -170,6 +170,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       // bookings when an attachment upload needs to be retried.
       const passportFiles = pending.passportUploadKey ? getPassportFiles(pending.passportUploadKey) : [];
       let passportIdempotency: Awaited<ReturnType<typeof getOrCreateIdempotencyKey>> | null = null;
+      let passportOrderId: string | null = null;
       if (passportFiles.length) {
         const orderPayload = {
           customerName: name,
@@ -181,6 +182,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: passportIdempotency.key });
         const savedRecord = (Array.isArray(savedOrder) ? savedOrder[0] : savedOrder) as Record<string, unknown> | null;
         const orderId = typeof savedRecord?.id === "string" ? savedRecord.id : "";
+        passportOrderId = orderId || null;
         const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
         if (!orderId || passengerNames.length !== passportFiles.length || !supabase) {
           throw new Error(ar ? "تعذر تجهيز مرفقات الجواز. أعد المحاولة قبل إعادة إرسال الطلب." : "Could not prepare passport attachments. Retry before resubmitting the request.");
@@ -205,7 +207,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         customerName: name,
         customerPhone: normalizedPhone,
         serviceType: pending.service,
-        serviceDetails: details,
+        serviceDetails: passportOrderId ? { ...details, passport_order_id: passportOrderId } : details,
         preferredDate,
       });
       if (passportFiles.length) {
