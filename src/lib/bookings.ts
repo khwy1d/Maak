@@ -22,6 +22,9 @@ export type Booking = {
   notes: string | null;
   status: BookingStatus;
   admin_notes?: string | null;
+  review_assignee_id?: string | null;
+  review_assignee_name?: string | null;
+  review_started_at?: string | null;
   created_at: string;
   updated_at: string;
 };
