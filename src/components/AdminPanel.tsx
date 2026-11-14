@@ -115,7 +115,8 @@ export default function AdminPanel() {
     const client = supabase;
     if (!session || !isStaff || !client) return;
     const channel = client.channel("maak-staff-admin-panel")
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))\n      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => void load(session))
+      .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => void load(session))
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => void load(session))
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "staff_notifications", filter: `user_id=eq.${session.user.id}` }, () => void load(session))
       .subscribe();
     const refreshId = window.setInterval(() => void load(session), 30000);
@@ -181,7 +182,26 @@ export default function AdminPanel() {
     finally { setBusy(false); }
   };
 
-  const saveBookingStatus = async (booking: Booking, status: BookingStatus, adminNotes: string | null) => {\n    if (!isAdmin) return;\n    setBusy(true); setMessage("");\n    try {\n      await updateBookingStatus(booking.id, status, adminNotes);\n      setMessage(`تم تحديث الحجز ${bookingRef(booking.id)}.`);\n      await load(session);\n    } catch (error) { setMessage(formatApiError(error)); }\n    finally { setBusy(false); }\n  };\n\n  const editBooking = async (booking: Booking) => {\n    const status = window.prompt("الحالة: pending أو confirmed أو in_progress أو completed أو cancelled", booking.status);\n    if (!status || !["pending", "confirmed", "in_progress", "completed", "cancelled"].includes(status)) return;\n    const notes = window.prompt("ملاحظات إدارية داخلية", booking.admin_notes ?? "");\n    if (notes === null) return;\n    await saveBookingStatus(booking, status as BookingStatus, notes.trim() || null);\n  };\n\n  const markNotificationRead = async (item: Row) => {
+  const saveBookingStatus = async (booking: Booking, status: BookingStatus, adminNotes: string | null) => {
+    if (!isAdmin) return;
+    setBusy(true); setMessage("");
+    try {
+      await updateBookingStatus(booking.id, status, adminNotes);
+      setMessage(`تم تحديث الحجز ${bookingRef(booking.id)}.`);
+      await load(session);
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setBusy(false); }
+  };
+
+  const editBooking = async (booking: Booking) => {
+    const status = window.prompt("الحالة: pending أو confirmed أو in_progress أو completed أو cancelled", booking.status);
+    if (!status || !["pending", "confirmed", "in_progress", "completed", "cancelled"].includes(status)) return;
+    const notes = window.prompt("ملاحظات إدارية داخلية", booking.admin_notes ?? "");
+    if (notes === null) return;
+    await saveBookingStatus(booking, status as BookingStatus, notes.trim() || null);
+  };
+
+  const markNotificationRead = async (item: Row) => {
     if (!supabase || item.read_at) return;
     const { error } = await supabase.from("staff_notifications").update({ read_at: new Date().toISOString() }).eq("id", item.id);
     if (error) setMessage(formatApiError(error));
@@ -334,7 +354,8 @@ export default function AdminPanel() {
   if (!isStaff) return <main className="maak-admin-shell" dir="rtl"><section className="maak-admin-empty"><ShieldCheck size={38}/><h1>غير مصرح بالدخول</h1><p>هذه اللوحة مخصصة للمدير والموظفين الذين عيّنهم المدير.</p><a className="btn btn-ghost" href="/account">العودة إلى حسابي</a></section></main>;
 
   const tabs = [
-    { id: "orders" as const, label: "الطلبات", icon: ClipboardList },\n    ...(isAdmin ? [{ id: "bookings" as const, label: "الحجوزات الداخلية", icon: ClipboardList }] : []),
+    { id: "orders" as const, label: "الطلبات", icon: ClipboardList },
+    ...(isAdmin ? [{ id: "bookings" as const, label: "الحجوزات الداخلية", icon: ClipboardList }] : []),
     { id: "notifications" as const, label: "الإشعارات", icon: Bell },
     ...(isAdmin ? [{ id: "team" as const, label: "الموظفون", icon: Users }, { id: "banners" as const, label: "بنرات الرئيسية", icon: ImagePlus }] : []),
   ];
