@@ -151,15 +151,12 @@ export function MedicalTravelForm({ lang }: ServiceFormProps) {
 }
 
 export function SecurityClearanceForm({ lang }: ServiceFormProps) {
-  const [requestType, setRequestType] = useState("");
   const [purpose, setPurpose] = useState("");
-  const [departureCity, setDepartureCity] = useState("");
   const [date, setDate] = useState("");
   const [travellers, setTravellers] = useState(1);
   const [passengerNames, setPassengerNames] = useState<string[]>([""]);
   const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
   const [passportUploadKey] = useState(() => crypto.randomUUID());
-  const [documentsReady, setDocumentsReady] = useState("");
   const [question, setQuestion] = useState("");
   const txt = (ar: string, en: string) => label(lang, ar, en);
   const changeTravellerCount = (next: number) => {
@@ -169,33 +166,27 @@ export function SecurityClearanceForm({ lang }: ServiceFormProps) {
     setPassportFiles(files => { const updated = [...files, ...Array(Math.max(0, count - files.length)).fill(null)].slice(0, count); registerPassportFiles(passportUploadKey, updated); return updated; });
   };
   const rows: Row[] = [
-    ...(requestType ? [[txt("مرحلة الطلب", "Request stage"), requestType === "new" ? txt("استفسار جديد", "New enquiry") : txt("متابعة طلب سابق", "Follow-up on an existing request")] as Row] : []),
     ...(purpose ? [[txt("غرض السفر", "Travel purpose"), ({ tourism: txt("زيارة أو سياحة", "Visit or tourism"), family: txt("زيارة عائلية", "Family visit"), business: txt("عمل", "Business"), transit: txt("عبور", "Transit"), other: txt("غرض آخر", "Other") } as Record<string, string>)[purpose]] as Row] : []),
-    ...(departureCity.trim() ? [[txt("مدينة المغادرة", "Departure city"), departureCity.trim()] as Row] : []),
     ...(date ? [[txt("موعد السفر المتوقع", "Expected travel date"), date] as Row] : []),
     [txt("عدد المسافرين", "Number of travellers"), String(travellers)],
     ...passengerNames.slice(0, travellers).map((name, index) => [txt("اسم المسافر", "Passenger name") + " " + (index + 1), name.trim() || txt("لم يحدد بعد", "Not provided")] as Row),
-    ...(documentsReady ? [[txt("حالة المستندات", "Document status"), ({ yes: txt("نعم", "Yes"), partial: txt("بعضها", "Some are ready"), no: txt("ليس بعد", "Not yet") } as Record<string, string>)[documentsReady]] as Row] : []),
     ...(question.trim() ? [[txt("السؤال", "Question"), question.trim()] as Row] : []),
     ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
-  const canReview = !!requestType && !!purpose && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+  const canReview = !!purpose && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
   return <RequestCard lang={lang} serviceCode="security_clearance" canReview={canReview} title={txt("استفسر عن الموافقة الأمنية لمصر", "Enquire about Egypt security clearance")}
     intro={txt("أدخل معلومات السفر وبيانات كل مسافر، وأرفق صورة جوازه لاستكمال الاستفسار.", "Share your travel details and each traveller’s name, and attach their passport image to complete the enquiry.")}
-    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ request_type: requestType, purpose, passenger_count: travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
+    serviceName={txt("الموافقة الأمنية للسفر إلى مصر", "security clearance for travel to Egypt")} rows={rows} formData={{ purpose, passenger_count: travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
     note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ لا يمكن ضمان الموافقة أو مدة صدورها.", "Passport images are uploaded to private, secure storage and linked to the request; approval and processing times cannot be guaranteed.")}>
     <div className="flight-group"><h4>{txt("تفاصيل الاستفسار", "Enquiry details")}</h4>
       <div className="flight-input-grid">
-        <Field required title={txt("مرحلة الطلب", "Request stage")}><Select value={requestType} onChange={setRequestType} placeholder={txt("اختر المرحلة", "Choose a stage")} options={[["new", txt("استفسار جديد", "New enquiry")], ["follow-up", txt("متابعة طلب سابق", "Follow-up on an existing request")]]} /></Field>
         <Field required title={txt("غرض السفر", "Travel purpose")}><Select value={purpose} onChange={setPurpose} placeholder={txt("اختر الغرض", "Choose a purpose")} options={[["tourism", txt("زيارة أو سياحة", "Visit or tourism")], ["family", txt("زيارة عائلية", "Family visit")], ["business", txt("عمل", "Business")], ["transit", txt("عبور", "Transit")], ["other", txt("غرض آخر", "Other")]]} /></Field>
       </div>
     </div>
     <div className="flight-group"><h4>{txt("توقيت السفر والمسافرون", "Travel timing and travellers")}</h4>
       <div className="flight-input-grid">
-        <Field title={txt("مدينة المغادرة", "Departure city")}><input value={departureCity} onChange={event => setDepartureCity(event.target.value)} placeholder={txt("مثال: عدن", "e.g. Aden")} /></Field>
         <Field title={<><CalendarDays size={16} />{txt("موعد السفر المتوقع", "Expected travel date")}</>}><input type="date" min={today()} value={date} onChange={event => setDate(event.target.value)} /></Field>
-        <Field title={txt("هل مستندات السفر جاهزة؟", "Are your travel documents ready?")}><Select value={documentsReady} onChange={setDocumentsReady} placeholder={txt("اختر إجابة", "Choose an answer")} options={[["yes", txt("نعم", "Yes")], ["partial", txt("بعضها", "Some are ready")], ["no", txt("ليس بعد", "Not yet")]]} /></Field>
       </div>
       <div className="maak-passengers">
         <div className="maak-passengers-title"><Users size={18}/><strong>{txt("المسافرون", "Travellers")}</strong></div>
