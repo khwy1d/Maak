@@ -174,7 +174,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
           customerName: name,
           customerPhone: normalizedPhone,
           service: pending.service,
-          requestData: details,
+          requestData: { ...details, internal_booking: true },
         };
         passportIdempotency = await getOrCreateIdempotencyKey(pending.service, orderPayload);
         const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: passportIdempotency.key });
