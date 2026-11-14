@@ -233,7 +233,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         <label>{ar ? "رقم الهاتف بصيغة دولية" : "Phone number in international format"}<input required type="tel" minLength={7} maxLength={18} pattern="(?:[+]|00)?[1-9][0-9]{6,14}" title={ar ? "أدخل رقمًا دوليًا مع رمز الدولة، ويمكن استخدام + أو 00" : "Enter an international number with its country code; + or 00 is accepted"} value={phone} onChange={event => setPhone(event.target.value.replace(/[^+\d]/g, ""))} placeholder="+967…" autoComplete="tel"/></label>
         {error && <p className="account-message" role="alert">{error}</p>}
         <button className="btn btn-primary" disabled={busy}>{busy ? (ar ? "جارٍ تسجيل الحجز…" : "Registering booking…") : (ar ? "تأكيد الطلب وحفظه" : "Confirm request and save")}</button>
-      </form>
+      </form>}
     </section>
   </dialog>;
 }
