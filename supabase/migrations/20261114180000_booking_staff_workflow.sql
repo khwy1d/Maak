@@ -1,3 +1,65 @@
+-- The production project already had this inbox table, but the schema was
+-- missing from the checked-in migration history. Create it here so a fresh
+-- database can replay the migrations from zero.
+create table if not exists public.staff_notifications (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  order_id uuid references public.orders(id) on delete cascade,
+  booking_id uuid references public.bookings(id) on delete cascade,
+  title text not null,
+  body text not null,
+  created_at timestamptz not null default now(),
+  read_at timestamptz
+);
+
+create unique index if not exists staff_notifications_user_id_order_id_key
+  on public.staff_notifications(user_id, order_id)
+  where order_id is not null;
+create unique index if not exists staff_notifications_user_booking_uidx
+  on public.staff_notifications(user_id, booking_id)
+  where booking_id is not null;
+create index if not exists staff_notifications_user_created_idx
+  on public.staff_notifications(user_id, created_at desc);
+
+alter table public.staff_notifications enable row level security;
+drop policy if exists "Staff read own notifications" on public.staff_notifications;
+create policy "Staff read own notifications"
+  on public.staff_notifications for select to authenticated
+  using (user_id = auth.uid() and public.is_staff());
+drop policy if exists "Staff mark own notifications read" on public.staff_notifications;
+create policy "Staff mark own notifications read"
+  on public.staff_notifications for update to authenticated
+  using (user_id = auth.uid() and public.is_staff())
+  with check (user_id = auth.uid() and public.is_staff());
+
+revoke all on public.staff_notifications from anon, authenticated;
+grant select on public.staff_notifications to authenticated;
+grant update (read_at) on public.staff_notifications to authenticated;
+
+-- Keep the pre-existing order notification behavior in source control as well.
+create or replace function public.notify_staff_new_order()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $function$
+begin
+  insert into public.staff_notifications(user_id, order_id, title, body)
+  select ur.user_id, new.id, 'طلب جديد يحتاج مراجعة',
+    'وصل طلب جديد من ' || new.customer_name || ' لخدمة ' || new.service
+  from public.user_roles ur
+  where ur.role in ('admin', 'staff')
+  on conflict (user_id, order_id) where order_id is not null do nothing;
+  return new;
+end;
+$function$;
+
+revoke all on function public.notify_staff_new_order() from public, anon, authenticated;
+drop trigger if exists orders_notify_staff on public.orders;
+create trigger orders_notify_staff
+after insert on public.orders
+for each row execute function public.notify_staff_new_order();
+
 -- Let the existing staff inbox carry either an order or a booking notification.
 alter table public.staff_notifications
   alter column order_id drop not null,
