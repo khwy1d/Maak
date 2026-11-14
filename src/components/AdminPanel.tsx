@@ -60,12 +60,14 @@ export default function AdminPanel() {
       setRole(currentRole);
       setProfile(profileRow);
       if (currentRole !== "admin" && currentRole !== "staff") return;
+      const bookingRows = await getAllBookings();
+      setBookings(bookingRows);
 
       const [{ data: orderRows, error: orderError }, { data: notificationRows, error: notificationError }] = await Promise.all([
         supabase.from("orders")
           .select("id,customer_id,customer_name,customer_phone,service,request_data,status,payment_status,total_amount,wallet_used,currency,created_at,updated_at,review_assignee_id,review_assignee_name,review_started_at")
           .order("created_at", { ascending: false }).limit(250),
-        supabase.from("staff_notifications").select("id,order_id,title,body,created_at,read_at")
+        supabase.from("staff_notifications").select("id,order_id,booking_id,title,body,created_at,read_at")
           .eq("user_id", currentSession.user.id).order("created_at", { ascending: false }).limit(100),
       ]);
       if (orderError) throw orderError;
@@ -182,8 +184,21 @@ export default function AdminPanel() {
     finally { setBusy(false); }
   };
 
+  const claimBooking = async (booking: Booking) => {
+    if (!supabase || !isStaff) return;
+    setBusy(true); setMessage("");
+    try {
+      const { error } = await supabase.rpc("claim_booking_review", { p_booking_id: booking.id });
+      if (error) throw error;
+      setMessage(`بدأت مراجعة الحجز ${bookingRef(booking.id)}.`);
+      setExpandedOrder(booking.id);
+      await load(session);
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setBusy(false); }
+  };
+
   const saveBookingStatus = async (booking: Booking, status: BookingStatus, adminNotes: string | null) => {
-    if (!isAdmin) return;
+    if (!isStaff || (!isAdmin && booking.review_assignee_id !== session?.user.id)) return;
     setBusy(true); setMessage("");
     try {
       await updateBookingStatus(booking.id, status, adminNotes);
@@ -355,7 +370,7 @@ export default function AdminPanel() {
 
   const tabs = [
     { id: "orders" as const, label: "الطلبات", icon: ClipboardList },
-    ...(isAdmin ? [{ id: "bookings" as const, label: "الحجوزات الداخلية", icon: ClipboardList }] : []),
+    { id: "bookings" as const, label: "الحجوزات الداخلية", icon: ClipboardList },
     { id: "notifications" as const, label: "الإشعارات", icon: Bell },
     ...(isAdmin ? [{ id: "team" as const, label: "الموظفون", icon: Users }, { id: "banners" as const, label: "بنرات الرئيسية", icon: ImagePlus }] : []),
   ];
@@ -388,19 +403,20 @@ export default function AdminPanel() {
       })}</div> : <div className="maak-admin-empty"><ClipboardList size={34}/><h3>لا توجد طلبات في هذا التصنيف</h3><p>ستظهر الطلبات الجديدة هنا فور إرسال العملاء لها.</p></div>}
     </section>}
 
-    {tab === "bookings" && isAdmin && <section className="maak-admin-section">
+    {tab === "bookings" && isStaff && <section className="maak-admin-section">
       <div className="maak-admin-section-heading"><div><h2>الحجوزات الداخلية</h2><p>طلبات العملاء المسجلة مباشرة في نظام الحجوزات.</p></div><span>{bookings.length} حجز</span></div>
       <div className="maak-admin-filters">{[["all","الكل"],["pending","قيد المراجعة"],["confirmed","مؤكد"],["in_progress","قيد التنفيذ"],["completed","مكتمل"],["cancelled","ملغي"]].map(([key,label]) => <button key={key} className={bookingFilter === key ? "active" : ""} onClick={() => setBookingFilter(key as "all" | BookingStatus)}>{label}</button>)}</div>
       {bookings.filter(item => bookingFilter === "all" || item.status === bookingFilter).length ? <div className="maak-admin-order-list">{bookings.filter(item => bookingFilter === "all" || item.status === bookingFilter).map(booking => <article className="maak-admin-order" key={booking.id}>
         <div className="maak-admin-order-top"><div><span className="maak-admin-order-service">{serviceNames[booking.service_type] ?? booking.service_type}</span><h3>{booking.customer_name}</h3><a href={`tel:${booking.customer_phone}`} dir="ltr">{booking.customer_phone}</a><strong dir="ltr">{bookingRef(booking.id)}</strong></div><span className={`maak-admin-status ${booking.status}`}>{({pending:"قيد المراجعة",confirmed:"مؤكد",in_progress:"قيد التنفيذ",completed:"مكتمل",cancelled:"ملغي"} as Record<string,string>)[booking.status]}</span></div>
         <div className="maak-admin-order-meta"><span>{new Date(booking.created_at).toLocaleString("ar")}</span><span>{booking.preferred_date ? `الموعد المفضل: ${booking.preferred_date}` : "لا يوجد موعد محدد"}</span></div>
-        <div className="maak-admin-order-actions"><button className="btn btn-ghost" onClick={() => setExpandedOrder(expandedOrder === booking.id ? null : booking.id)}>{expandedOrder === booking.id ? "إخفاء التفاصيل" : "تفاصيل الطلب"}</button><button className="btn btn-primary" disabled={busy} onClick={() => void editBooking(booking)}>تحديث الحالة والملاحظات</button></div>
+        {booking.review_assignee_id ? <div className={`maak-admin-claimed ${booking.review_assignee_id === session.user.id ? "mine" : ""}`}><CheckCircle2 size={17}/>{booking.review_assignee_id === session.user.id ? "أنت تتولى مراجعة هذا الحجز" : `قيد المراجعة من قبل: ${booking.review_assignee_name ?? "موظف"}`}{booking.review_started_at && <small>{new Date(booking.review_started_at).toLocaleString("ar")}</small>}</div> : <div className="maak-admin-unclaimed"><Clock3 size={17}/>حجز جديد بانتظار أن يستلمه أحد الموظفين</div>}
+        <div className="maak-admin-order-actions"><button className="btn btn-ghost" onClick={() => setExpandedOrder(expandedOrder === booking.id ? null : booking.id)}>{expandedOrder === booking.id ? "إخفاء التفاصيل" : "تفاصيل الطلب"}</button>{!booking.review_assignee_id && <button className="btn btn-primary" disabled={busy} onClick={() => void claimBooking(booking)}>استلام ومراجعة</button>}{(isAdmin || booking.review_assignee_id === session.user.id) && <button className="btn btn-primary" disabled={busy} onClick={() => void editBooking(booking)}>تحديث الحالة والملاحظات</button>}</div>
         {expandedOrder === booking.id && <><pre className="maak-admin-request-data">{JSON.stringify(booking.service_details, null, 2)}</pre>{booking.notes && <p>ملاحظات العميل: {booking.notes}</p>}{booking.admin_notes && <p>ملاحظات الإدارة: {booking.admin_notes}</p>}</>}
       </article>)}</div> : <div className="maak-admin-empty"><ClipboardList size={34}/><h3>لا توجد حجوزات في هذا التصنيف</h3></div>}
     </section>}
 
     {tab === "notifications" && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>إشعارات الفريق</h2><p>تنبيهات الطلبات الجديدة المرسلة إلى حسابك.</p></div><span>{unreadCount} غير مقروء</span></div>
-      {notifications.length ? <div className="maak-admin-notification-list">{notifications.map(item => <button key={item.id} className={`maak-admin-notification ${item.read_at ? "read" : "unread"}`} onClick={() => { void markNotificationRead(item); setTab("orders"); setFilter("all"); setExpandedOrder(item.order_id); }}><Bell size={19}/><span><strong>{item.title}</strong><small>{item.body}</small><small>{new Date(item.created_at).toLocaleString("ar")}</small></span>{!item.read_at && <i/>}</button>)}</div> : <div className="maak-admin-empty"><Bell size={34}/><h3>لا توجد إشعارات</h3><p>سننبهك هنا عند وصول طلب جديد.</p></div>}
+      {notifications.length ? <div className="maak-admin-notification-list">{notifications.map(item => <button key={item.id} className={`maak-admin-notification ${item.read_at ? "read" : "unread"}`} onClick={() => { void markNotificationRead(item); if (item.booking_id) { setTab("bookings"); setExpandedOrder(item.booking_id); } else { setTab("orders"); setFilter("all"); setExpandedOrder(item.order_id); } }}><Bell size={19}/><span><strong>{item.title}</strong><small>{item.body}</small><small>{new Date(item.created_at).toLocaleString("ar")}</small></span>{!item.read_at && <i/>}</button>)}</div> : <div className="maak-admin-empty"><Bell size={34}/><h3>لا توجد إشعارات</h3><p>سننبهك هنا عند وصول طلب جديد.</p></div>}
     </section>}
 
     {tab === "team" && isAdmin && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>إدارة فريق العمل</h2><p>رقِّ حساب العميل إلى موظف أو ألغِ صلاحية الموظف. لا يتغير حسابه أو بياناته.</p></div><span>{customers.filter(c => roles[c.id] === "staff").length} موظف</span></div>
