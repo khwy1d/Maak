@@ -110,7 +110,7 @@ grant execute on function public.create_booking(text, text, text, jsonb, date, t
 
 -- Column-level grants keep admin_notes inaccessible to customer sessions.
 revoke all on public.bookings from anon, authenticated;
-grant insert (user_id, customer_name, customer_phone, service_type, service_details, preferred_date, notes)
+grant insert (id, user_id, customer_name, customer_phone, service_type, service_details, preferred_date, notes)
   on public.bookings to anon, authenticated;
 grant select (id, user_id, customer_name, customer_phone, service_type, service_details,
               preferred_date, notes, status, created_at, updated_at)
