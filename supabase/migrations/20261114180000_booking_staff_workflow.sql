@@ -9,12 +9,10 @@ create table if not exists public.staff_notifications (
   title text not null,
   body text not null,
   created_at timestamptz not null default now(),
-  read_at timestamptz
+  read_at timestamptz,
+  constraint staff_notifications_user_id_order_id_key unique (user_id, order_id)
 );
 
-create unique index if not exists staff_notifications_user_id_order_id_key
-  on public.staff_notifications(user_id, order_id)
-  where order_id is not null;
 create unique index if not exists staff_notifications_user_booking_uidx
   on public.staff_notifications(user_id, booking_id)
   where booking_id is not null;
@@ -67,7 +65,7 @@ begin
     'وصل طلب جديد من ' || new.customer_name || ' لخدمة ' || new.service
   from public.user_roles ur
   where ur.role in ('admin', 'staff')
-  on conflict (user_id, order_id) where order_id is not null do nothing;
+  on conflict (user_id, order_id) do nothing;
   return new;
 end;
 $function$;
