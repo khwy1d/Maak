@@ -1,0 +1,1 @@
+grant insert (id, user_id, customer_name, customer_phone, service_type, service_details, preferred_date, notes) on public.bookings to anon, authenticated;
