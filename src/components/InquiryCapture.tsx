@@ -59,7 +59,7 @@ function clearIdempotencyKey(intent: { key: string; storageKey: string | null; f
   }
 }
 
-export default function InquiryCapture() {
+export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
   useEffect(() => {
     const handleSave = async (event: Event) => {
       const detail = (event as CustomEvent<SaveInquiryDetail>).detail;
