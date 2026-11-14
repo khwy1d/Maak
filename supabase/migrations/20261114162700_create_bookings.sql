@@ -78,7 +78,7 @@ declare
   normalized_phone text := regexp_replace(coalesce(p_customer_phone, ''), '[^0-9+]', '', 'g');
 begin
   if char_length(btrim(coalesce(p_customer_name, ''))) not between 2 and 120
-    or normalized_phone !~ '^\\+[1-9][0-9]{6,14}$'
+    or normalized_phone !~ '^\+[1-9][0-9]{6,14}$'
     or char_length(btrim(coalesce(p_service_type, ''))) not between 1 and 80
     or jsonb_typeof(coalesce(p_service_details, '{}'::jsonb)) <> 'object'
     or octet_length(coalesce(p_service_details, '{}'::jsonb)::text) > 20000
