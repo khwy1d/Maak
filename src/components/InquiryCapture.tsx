@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { submitInquiry, type InquiryService } from "../lib/orders";
+import { submitInquiry, type InquiryOrder, type InquiryService } from "../lib/orders";
 import { createBooking, bookingRef } from "../lib/bookings";
 import { buildFollowUpMessage, buildWhatsAppUrl } from "../lib/whatsapp";
 import { formatApiError, supabase } from "../lib/supabase";
@@ -91,7 +91,7 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
         let passportIdempotency: Awaited<ReturnType<typeof getOrCreateIdempotencyKey>> | null = null;
         let passportOrderId: string | null = null;
         if (passportFiles.length) {
-          const orderPayload = {
+          const orderPayload: Omit<InquiryOrder, "idempotencyKey"> = {
             customerName,
             customerPhone,
             service: detail.service,
