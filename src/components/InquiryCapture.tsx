@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { submitInquiry, type InquiryService } from "../lib/orders";
 import { createBooking, bookingRef } from "../lib/bookings";
+import { buildFollowUpMessage, buildWhatsAppUrl } from "../lib/whatsapp";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 import { getPassportFiles, clearPassportFiles, getOrCreatePassportUploadToken } from "../lib/passportUploads";
@@ -214,7 +215,9 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
-      setSavedBooking({ reference: bookingRef(booking.id), url: pending.url });
+      const reference = bookingRef(booking.id);
+      const followUpUrl = buildWhatsAppUrl(buildFollowUpMessage(reference, pending.service));
+      setSavedBooking({ reference, url: followUpUrl });
     } catch (cause) {
       setError(formatApiError(cause));
     } finally { setBusy(false); }
