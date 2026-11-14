@@ -1,9 +1,8 @@
-import { Children, cloneElement, useEffect, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Minus, Plus, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
 import { useApp } from "../context/AppContext";
-import { useAccountName } from "../hooks/useAccountName";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
 import { registerPassportFiles } from "../lib/passportUploads";
 
@@ -54,15 +53,11 @@ function RequestCard({
   passportUploadKey?: string;
 }) {
   const [step, setStep] = useState(0);
-  const accountName = useAccountName();
-  const [requesterName, setRequesterName] = useState("");
-  useEffect(() => { if (accountName) setRequesterName(current => current || accountName); }, [accountName]);
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const reviewing = step === groups.length;
   const requestRows: Row[] = [
     ...rows,
-    ...(requesterName.trim() ? [[label(lang, "اسم صاحب الطلب", "Contact name"), requesterName.trim()] as Row] : []),
   ];
   const details = requestRows.length
     ? requestRows.map(([name, value]) => `${name}: ${value}`).join("\n")
@@ -81,7 +76,6 @@ function RequestCard({
     <p className="maak-request-intro">{intro}</p>
     {!reviewing && desktopForm && groups.map((group, index) => <div className="maak-desktop-step" data-step={index + 1} key={index}>{group}</div>)}
     {!reviewing && !desktopForm && <>{groups.map((group,index)=><div className="maak-desktop-step" data-step={index+1} key={index}>{group}</div>)}</>}
-    {!reviewing && <div className="flight-group maak-requester-name"><Field title={label(lang, "اسم صاحب الطلب", "Contact name")}><input autoComplete="name" value={requesterName} onChange={event => setRequesterName(event.target.value)} placeholder={label(lang, "اختياري", "Optional")} /></Field></div>}
     {!reviewing && !desktopForm && <div className="flight-step-nav maak-service-flow-nav maak-bottom-actions"><button type="button" className="btn btn-primary maak-next" disabled={!canReview || !datesValid} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
 
     {!reviewing && desktopForm && <div className="maak-desktop-actions"><button type="button" className="maak-next" disabled={!canReview || !datesValid} onClick={() => {setStep(groups.length);window.scrollTo({top:0,behavior:"smooth"})}}>{label(lang,"إرسال","Send")}<ArrowLeft size={19}/></button></div>}
