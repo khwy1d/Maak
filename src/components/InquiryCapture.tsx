@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { submitInquiry, type InquiryService } from "../lib/orders";
+import { createBooking, bookingRef } from "../lib/bookings";
 import { formatApiError, supabase } from "../lib/supabase";
 import { useAccountName } from "../hooks/useAccountName";
 import { getPassportFiles, clearPassportFiles, getOrCreatePassportUploadToken } from "../lib/passportUploads";
 
 type PendingInquiry = { service: InquiryService; message: string; url: string; requestData: Record<string, unknown>; passportUploadKey: string; passportUploadToken: string };
+type SavedBooking = { reference: string; url: string } | null;
 
 function normalizeInternationalPhone(value: string): string | null {
   let digits = value.replace(/\D/g, "");
@@ -63,6 +65,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
+  const [savedBooking, setSavedBooking] = useState<SavedBooking>(null);
   const [error, setError] = useState("");
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -121,6 +124,7 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
         return;
       }
       returnFocusRef.current = link;
+      setSavedBooking(null);
       setPending({ service, message, url: link.href, requestData, passportUploadKey: link.dataset.passportUploadKey ?? "", passportUploadToken: getOrCreatePassportUploadToken(link.dataset.passportUploadKey ?? "") });
       setName(accountName);
       setError("");
@@ -144,26 +148,46 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
       setError(ar ? "أدخل رقمًا دوليًا صحيحًا مع رمز الدولة." : "Enter a valid international phone number with its country code.");
       return;
     }
+    if (name.trim().length < 2) {
+      setError(ar ? "يرجى إدخال الاسم." : "Please enter your name.");
+      return;
+    }
     setBusy(true); setError("");
-    const whatsapp = window.open("about:blank", "_blank");
-    if (whatsapp) whatsapp.opener = null;
     try {
-      const orderPayload = {
+      const formData = pending.requestData.form_data as Record<string, unknown> | undefined;
+      const dateValues = Array.isArray(pending.requestData.date_values) ? pending.requestData.date_values : [];
+      const preferredDate = dateValues.find((value): value is string => typeof value === "string" && /^\\d{4}-\\d{2}-\\d{2}$/.test(value)) ?? null;
+      const details = {
+        ...pending.requestData,
+        ...(pending.passportUploadKey ? { passport_upload_token: pending.passportUploadToken } : {}),
+        message: pending.message,
+        source_path: window.location.pathname,
+      };
+      const booking = await createBooking({
         customerName: name,
         customerPhone: normalizedPhone,
-        service: pending.service,
-        requestData: { ...pending.requestData, ...(pending.passportUploadKey ? { passport_upload_token: pending.passportUploadToken } : {}), message: pending.message, source_path: window.location.pathname },
-      };
-      const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
-      const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+        serviceType: pending.service,
+        serviceDetails: details,
+        preferredDate,
+      });
+
+      // Passport uploads currently use the existing secure order-upload endpoint,
+      // so retain the legacy order record only for requests carrying passport files.
       const passportFiles = pending.passportUploadKey ? getPassportFiles(pending.passportUploadKey) : [];
       if (passportFiles.length) {
+        const orderPayload = {
+          customerName: name,
+          customerPhone: normalizedPhone,
+          service: pending.service,
+          requestData: details,
+        };
+        const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
+        const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
         const savedRecord = (Array.isArray(savedOrder) ? savedOrder[0] : savedOrder) as Record<string, unknown> | null;
         const orderId = typeof savedRecord?.id === "string" ? savedRecord.id : "";
-        const formData = pending.requestData.form_data as Record<string, unknown> | undefined;
         const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
         if (!orderId || passengerNames.length !== passportFiles.length || !supabase) {
-          throw new Error(ar ? "حُفظ الطلب، لكن تعذر تجهيز مرفقات الجواز. أعد المحاولة." : "The request was saved, but passport attachments could not be prepared. Please retry.");
+          throw new Error(ar ? "حُفظ الحجز، لكن تعذر تجهيز مرفقات الجواز. تواصل معنا مع رقم الحجز." : "The booking was saved, but passport attachments could not be prepared. Contact us with the booking reference.");
         }
         for (let index = 0; index < passportFiles.length; index += 1) {
           const passengerName = passengerNames[index];
@@ -180,16 +204,13 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
           if (uploadError) throw uploadError;
         }
         clearPassportFiles(pending.passportUploadKey);
+        clearIdempotencyKey(idempotencyIntent);
       }
-      if (whatsapp) whatsapp.location.href = pending.url;
-      else window.location.assign(pending.url);
-      clearIdempotencyKey(idempotencyIntent);
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
       }
-      setPending(null);
+      setSavedBooking({ reference: bookingRef(booking.id), url: pending.url });
     } catch (cause) {
-      whatsapp?.close();
       setError(formatApiError(cause));
     } finally { setBusy(false); }
   };
@@ -201,12 +222,12 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
     <section className="account-card inquiry-contact-modal">
       <button ref={closeButtonRef} type="button" className="account-modal-close" onClick={() => setPending(null)} aria-label={ar ? "إغلاق" : "Close"}>×</button>
       <h2 id="inquiry-capture-title">{ar ? "بيانات التواصل وحفظ الطلب" : "Contact details and save request"}</h2>
-      <p>{ar ? "سنحفظ طلبك في النظام قبل فتح واتساب. لا يُعد ذلك تأكيدًا للحجز." : "We will save your request before opening WhatsApp. This does not confirm a booking."}</p>
-      <form className="account-form" onSubmit={submit}>
+      <p>{ar ? "سيُسجّل طلبك في نظام الحجوزات الداخلي، ثم يمكنك متابعة التفاصيل عبر واتساب اختياريًا." : "Your request will be saved in the internal booking system. You can optionally follow up on WhatsApp."}</p>
+      {savedBooking ? <div className="account-form" role="status"><h3>{ar ? "تم تسجيل طلبك بنجاح" : "Your request has been registered"}</h3><p>{ar ? "الرقم المرجعي للحجز:" : "Booking reference:"} <strong dir="ltr">{savedBooking.reference}</strong></p><p>{ar ? "حالة الطلب: قيد المراجعة. يمكنك الاحتفاظ بالرقم لمتابعته." : "Status: pending review. Keep this reference to follow up."}</p><a className="btn btn-primary" href={savedBooking.url} target="_blank" rel="noopener noreferrer">{ar ? "متابعة اختيارية عبر واتساب" : "Optional WhatsApp follow-up"}</a><button type="button" className="btn btn-ghost" onClick={() => { setSavedBooking(null); setPending(null); }}>{ar ? "إغلاق" : "Close"}</button></div> : <form className="account-form" onSubmit={submit}>
         <label>{ar ? "الاسم" : "Name"}<input required minLength={2} maxLength={120} value={name} onChange={event => setName(event.target.value)} autoComplete="name"/></label>
         <label>{ar ? "رقم الهاتف بصيغة دولية" : "Phone number in international format"}<input required type="tel" minLength={7} maxLength={18} pattern="(?:\\+|00)?[1-9][0-9]{6,14}" title={ar ? "أدخل رقمًا دوليًا مع رمز الدولة، ويمكن استخدام + أو 00" : "Enter an international number with its country code; + or 00 is accepted"} value={phone} onChange={event => setPhone(event.target.value.replace(/[^+\d]/g, ""))} placeholder="+967…" autoComplete="tel"/></label>
         {error && <p className="account-message" role="alert">{error}</p>}
-        <button className="btn btn-primary" disabled={busy}>{busy ? (ar ? "جارٍ حفظ الطلب…" : "Saving request…") : (ar ? "حفظ الطلب والمتابعة إلى واتساب" : "Save request and continue to WhatsApp")}</button>
+        <button className="btn btn-primary" disabled={busy}>{busy ? (ar ? "جارٍ تسجيل الحجز…" : "Registering booking…") : (ar ? "تأكيد الطلب وحفظه" : "Confirm request and save")}</button>
       </form>
     </section>
   </dialog>;
