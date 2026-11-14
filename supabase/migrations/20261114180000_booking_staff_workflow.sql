@@ -21,6 +21,24 @@ create unique index if not exists staff_notifications_user_booking_uidx
 create index if not exists staff_notifications_user_created_idx
   on public.staff_notifications(user_id, created_at desc);
 
+-- The live project had this helper already, but it was never captured in
+-- migrations. Define it here for fresh installs and staff-only policies.
+create or replace function public.is_staff()
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $function$
+  select exists (
+    select 1 from public.user_roles
+    where user_id = auth.uid() and role in ('admin', 'staff')
+  );
+$function$;
+
+revoke all on function public.is_staff() from public, anon;
+grant execute on function public.is_staff() to authenticated;
+
 alter table public.staff_notifications enable row level security;
 drop policy if exists "Staff read own notifications" on public.staff_notifications;
 create policy "Staff read own notifications"
