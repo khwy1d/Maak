@@ -40,6 +40,7 @@ export default function AdminPanel() {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const isAdmin = role === "admin";
   const isStaff = role === "staff" || isAdmin;
+  const mobileBanner = banners.find(item => item.display_target === "mobile");
 
   const load = useCallback(async (currentSession: Session | null) => {
     if (!supabase || !currentSession) return;
@@ -211,7 +212,7 @@ export default function AdminPanel() {
       if (uploadError) throw uploadError;
       const { error: insertError } = await supabase.from("home_banners").insert({
         storage_path: path, alt_text: bannerAlt.trim(), sort_order: banners.length,
-        is_active: true, created_by: session?.user.id,
+        is_active: true, display_target: "all", created_by: session?.user.id,
       });
       if (insertError) {
         await supabase.storage.from("home-banners").remove([path]);
@@ -378,12 +379,12 @@ export default function AdminPanel() {
     {tab === "banners" && isAdmin && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>صور البنر في الصفحة الرئيسية</h2><p>يمكنك إدارة بنر الحاسوب وبنر الهاتف كلٌّ على حدة.</p></div><span>{banners.filter(b => b.is_active).length} منشور</span></div>
       <div className="maak-admin-mobile-banner-editor">
         <div><h3>بنر عرض الهاتف فقط</h3><p>هذه الصورة تظهر في الصفحة الرئيسية على الهواتف فقط، ولا تغيّر صورة البنر في عرض الحاسوب.</p></div>
-        {(() => { const current = banners.find(item => item.display_target === "mobile"); return current ? <img className="maak-admin-mobile-banner-current" src={publicBannerUrl(current.storage_path)} alt={current.alt_text || "بنر الهاتف الحالي"}/> : <p className="maak-admin-mobile-banner-empty">لم تُضف صورة خاصة بالهاتف بعد.</p>; })()}
+        {mobileBanner ? <img className="maak-admin-mobile-banner-current" src={publicBannerUrl(mobileBanner.storage_path)} alt={mobileBanner.alt_text || "بنر الهاتف الحالي"}/> : <p className="maak-admin-mobile-banner-empty">لم تُضف صورة خاصة بالهاتف بعد.</p>}
         <form className="maak-admin-mobile-banner-form" onSubmit={saveMobileBanner}>
           <label className="maak-admin-file-pick"><ImagePlus size={23}/><strong>{mobileBannerFile ? mobileBannerFile.name : "اختر صورة بنر الهاتف"}</strong><small>JPG أو PNG أو WebP · حتى 5 ميغابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => setMobileBannerFile(event.target.files?.[0] ?? null)}/></label>
           {mobileBannerPreview && <img className="maak-admin-banner-preview" src={mobileBannerPreview} alt="معاينة بنر الهاتف"/>}
           <label>وصف الصورة<input value={mobileBannerAlt} onChange={event => setMobileBannerAlt(event.target.value)} maxLength={180} placeholder="وصف مختصر للصورة"/></label>
-          <button className="btn btn-primary" disabled={busy || !mobileBannerFile}><ImagePlus size={17}/> {current ? "تحديث بنر الهاتف" : "إضافة بنر الهاتف"}</button>
+          <button className="btn btn-primary" disabled={busy || !mobileBannerFile}><ImagePlus size={17}/> {mobileBanner ? "تحديث بنر الهاتف" : "إضافة بنر الهاتف"}</button>
         </form>
       </div>
       <h3 className="maak-admin-desktop-banner-heading">بنرات عرض الحاسوب</h3>
