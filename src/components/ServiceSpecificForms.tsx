@@ -197,7 +197,6 @@ export function UmrahForm({ lang }: ServiceFormProps) {
   const [travellers, setTravellers] = useState(1);
   const [passengerNames, setPassengerNames] = useState<string[]>([""]);
   const [passportFiles, setPassportFiles] = useState<(File | null)[]>([null]);
-  const [passportConsent, setPassportConsent] = useState(false);
   const [passportUploadKey] = useState(() => crypto.randomUUID());
   const [altPhone, setAltPhone] = useState("");
   const [details, setDetails] = useState("");
@@ -219,11 +218,11 @@ export function UmrahForm({ lang }: ServiceFormProps) {
     ...(details.trim() ? [[txt("تفاصيل أخرى", "Other details"), details.trim()] as Row] : []),
     ...(passportFiles.some(Boolean) ? [[txt("مرفقات الجواز", "Passport attachments"), txt("سيتم رفع صور الجوازات بأمان إلى نظام معك مع الطلب.", "Passport images will be securely uploaded to MAAK with your request.")] as Row] : []),
   ];
-  const canReview = !!date && passportConsent && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
+  const canReview = !!date && passengerNames.slice(0, travellers).every(name => name.trim().length > 1) && passportFiles.slice(0, travellers).every(Boolean);
 
   return <RequestCard lang={lang} serviceCode="umrah" canReview={canReview} title={txt("طلب تأشيرة العمرة", "Umrah visa request")}
     intro={txt("أدخل تاريخ العمرة وبيانات كل معتمر وأرفق صورة جوازه لبدء طلب التأشيرة.", "Enter the Umrah date and each pilgrim’s details, and attach a passport image to start the visa request.")}
-    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean), passport_consent: passportConsent }} passportUploadKey={passportUploadKey}
+    serviceName={txt("تأشيرة العمرة", "an Umrah visa")} rows={rows} formData={{ date, travellers, passenger_names: passengerNames.slice(0, travellers).map(name => name.trim()), passport_files_attached: passportFiles.slice(0, travellers).every(Boolean) }} passportUploadKey={passportUploadKey}
     note={txt("ستُرفع صور الجوازات إلى تخزين خاص وآمن وتُربط بالطلب؛ إرسال الطلب لا يعني صدور التأشيرة أو تأكيد الحجز.", "Passport images are uploaded to private, secure storage and linked to the request; sending the request does not mean a visa has been issued or a booking confirmed.")}>
     <div className="flight-group">
       <h4>{txt("تاريخ العمرة", "Umrah date")}</h4>
@@ -243,7 +242,7 @@ export function UmrahForm({ lang }: ServiceFormProps) {
       </div>
       <div className="maak-passenger-details">
         <h4>{txt("أسماء المعتمرين ومرفقات الجوازات", "Pilgrim names and passport attachments")}</h4>
-        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim. Images are uploaded to private storage and are not public.")}</p><label className="maak-passport-consent"><input type="checkbox" checked={passportConsent} onChange={event => setPassportConsent(event.target.checked)} />{txt("أوافق على رفع صور الجوازات وتخزينها بشكل خاص لمعالجة هذا الطلب.", "I agree to upload and privately store the passport images to process this request.")}</label>
+        <p>{txt("اكتب الاسم كما يظهر في الجواز وأرفق صورة لكل معتمر. تُرفع الصور إلى مساحة خاصة ولا تكون متاحة للعامة.", "Enter each name exactly as shown on the passport and attach an image for each pilgrim. Images are uploaded to private storage and are not public.")}</p>
         {Array.from({ length: travellers }, (_, index) => <div className="maak-passenger-row" key={index}>
           <div className="maak-field">
             <label htmlFor={"umrah-name-" + index}>{txt("اسم المعتمر", "Pilgrim name")} {index + 1} *</label>
