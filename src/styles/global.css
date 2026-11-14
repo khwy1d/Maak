@@ -2254,3 +2254,13 @@ body:has(.account-auth-page) .header,body:has(.account-auth-page) .mobile-dock {
   background: #f4f6f8;
   object-fit: contain;
 }
+
+
+.maak-admin-mobile-banner-editor{display:grid;gap:14px;margin:18px 0 24px;padding:18px;border:1px solid var(--border,rgba(100,116,139,.2));border-radius:18px;background:rgba(22,140,134,.035)}
+.maak-admin-mobile-banner-editor h3,.maak-admin-desktop-banner-heading{margin:0;font-size:16px}
+.maak-admin-mobile-banner-editor p{margin:5px 0 0;color:var(--muted,#718096);font-size:13px}
+.maak-admin-mobile-banner-current{display:block;width:min(100%,520px);aspect-ratio:16/7;object-fit:cover;border-radius:13px;background:rgba(100,116,139,.1)}
+.maak-admin-mobile-banner-empty{padding:14px;border:1px dashed var(--border,rgba(100,116,139,.3));border-radius:12px}
+.maak-admin-mobile-banner-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,1fr) auto;align-items:end;gap:12px}
+.maak-admin-desktop-banner-heading{margin:22px 0 12px}
+@media(max-width:760px){.maak-admin-mobile-banner-form{grid-template-columns:1fr}}
