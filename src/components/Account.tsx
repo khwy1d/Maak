@@ -110,6 +110,7 @@ export default function Account({ adminOnly = false, initialTab = "profile", ini
         setAccountPanel(null);
         setOrders([]);
         setBookings([]);
+        setSelectedBooking(null);
         setTransactions([]);
         setReferrals([]);
         setCustomers([]);
