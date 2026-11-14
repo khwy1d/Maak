@@ -34,6 +34,9 @@ export default function AdminPanel() {
   const [bannerAlt, setBannerAlt] = useState("");
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState("");
+  const [mobileBannerFile, setMobileBannerFile] = useState<File | null>(null);
+  const [mobileBannerAlt, setMobileBannerAlt] = useState("بنر الهاتف");
+  const [mobileBannerPreview, setMobileBannerPreview] = useState("");
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const isAdmin = role === "admin";
   const isStaff = role === "staff" || isAdmin;
@@ -70,7 +73,7 @@ export default function AdminPanel() {
         const [{ data: customerRows, error: customerError }, { data: roleRows, error: rolesError }, { data: bannerRows, error: bannerError }] = await Promise.all([
           supabase.from("profiles").select("id,full_name,phone,referral_code,created_at").order("created_at", { ascending: false }).limit(500),
           supabase.from("user_roles").select("user_id,role"),
-          supabase.from("home_banners").select("id,storage_path,alt_text,sort_order,is_active,created_at").order("sort_order", { ascending: true }),
+          supabase.from("home_banners").select("id,storage_path,alt_text,sort_order,is_active,display_target,created_at").order("sort_order", { ascending: true }),
         ]);
         if (customerError) throw customerError;
         if (rolesError) throw rolesError;
@@ -121,6 +124,13 @@ export default function AdminPanel() {
     setBannerPreview(url);
     return () => URL.revokeObjectURL(url);
   }, [bannerFile]);
+
+  useEffect(() => {
+    if (!mobileBannerFile) { setMobileBannerPreview(""); return; }
+    const url = URL.createObjectURL(mobileBannerFile);
+    setMobileBannerPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [mobileBannerFile]);
 
   const unreadCount = notifications.filter(item => !item.read_at).length;
   const visibleOrders = useMemo(() => orders.filter(order => {
@@ -209,6 +219,44 @@ export default function AdminPanel() {
       }
       setBannerFile(null); setBannerAlt("");
       setMessage("تمت إضافة البنر إلى الصفحة الرئيسية.");
+      await load(session);
+    } catch (error) { setMessage(formatApiError(error)); }
+    finally { setBusy(false); }
+  };
+
+  const saveMobileBanner = async (event: ChangeEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!supabase || !isAdmin || !mobileBannerFile) return;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(mobileBannerFile.type) || mobileBannerFile.size > 5 * 1024 * 1024) {
+      setMessage("اختر صورة JPG أو PNG أو WebP لا يتجاوز حجمها 5 ميغابايت."); return;
+    }
+    setBusy(true); setMessage("");
+    const path = `home/mobile-${crypto.randomUUID()}-${mobileBannerFile.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+    const existing = banners.find(item => item.display_target === "mobile");
+    try {
+      const { error: uploadError } = await supabase.storage.from("home-banners").upload(path, mobileBannerFile, { contentType: mobileBannerFile.type, upsert: false });
+      if (uploadError) throw uploadError;
+      if (existing) {
+        const { error } = await supabase.from("home_banners").update({ storage_path: path, alt_text: mobileBannerAlt.trim() || "بنر الهاتف", is_active: true }).eq("id", existing.id);
+        if (error) {
+          await supabase.storage.from("home-banners").remove([path]);
+          throw error;
+        }
+        const { error: oldFileError } = await supabase.storage.from("home-banners").remove([existing.storage_path]);
+        if (oldFileError) setMessage("تم تحديث بنر الهاتف، لكن تعذر حذف الصورة السابقة من التخزين.");
+        else setMessage("تم تحديث صورة بنر الهاتف فقط.");
+      } else {
+        const { error } = await supabase.from("home_banners").insert({
+          storage_path: path, alt_text: mobileBannerAlt.trim() || "بنر الهاتف",
+          sort_order: 0, is_active: true, display_target: "mobile", created_by: session?.user.id,
+        });
+        if (error) {
+          await supabase.storage.from("home-banners").remove([path]);
+          throw error;
+        }
+        setMessage("تمت إضافة صورة بنر الهاتف.");
+      }
+      setMobileBannerFile(null);
       await load(session);
     } catch (error) { setMessage(formatApiError(error)); }
     finally { setBusy(false); }
@@ -327,14 +375,25 @@ export default function AdminPanel() {
       })}</div>
     </section>}
 
-    {tab === "banners" && isAdmin && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>صور البنر في الصفحة الرئيسية</h2><p>أضف الصور أو عدّل وصفها أو أخفها مؤقتًا أو احذفها.</p></div><span>{banners.filter(b => b.is_active).length} منشور</span></div>
+    {tab === "banners" && isAdmin && <section className="maak-admin-section"><div className="maak-admin-section-heading"><div><h2>صور البنر في الصفحة الرئيسية</h2><p>يمكنك إدارة بنر الحاسوب وبنر الهاتف كلٌّ على حدة.</p></div><span>{banners.filter(b => b.is_active).length} منشور</span></div>
+      <div className="maak-admin-mobile-banner-editor">
+        <div><h3>بنر عرض الهاتف فقط</h3><p>هذه الصورة تظهر في الصفحة الرئيسية على الهواتف فقط، ولا تغيّر صورة البنر في عرض الحاسوب.</p></div>
+        {(() => { const current = banners.find(item => item.display_target === "mobile"); return current ? <img className="maak-admin-mobile-banner-current" src={publicBannerUrl(current.storage_path)} alt={current.alt_text || "بنر الهاتف الحالي"}/> : <p className="maak-admin-mobile-banner-empty">لم تُضف صورة خاصة بالهاتف بعد.</p>; })()}
+        <form className="maak-admin-mobile-banner-form" onSubmit={saveMobileBanner}>
+          <label className="maak-admin-file-pick"><ImagePlus size={23}/><strong>{mobileBannerFile ? mobileBannerFile.name : "اختر صورة بنر الهاتف"}</strong><small>JPG أو PNG أو WebP · حتى 5 ميغابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => setMobileBannerFile(event.target.files?.[0] ?? null)}/></label>
+          {mobileBannerPreview && <img className="maak-admin-banner-preview" src={mobileBannerPreview} alt="معاينة بنر الهاتف"/>}
+          <label>وصف الصورة<input value={mobileBannerAlt} onChange={event => setMobileBannerAlt(event.target.value)} maxLength={180} placeholder="وصف مختصر للصورة"/></label>
+          <button className="btn btn-primary" disabled={busy || !mobileBannerFile}><ImagePlus size={17}/> {current ? "تحديث بنر الهاتف" : "إضافة بنر الهاتف"}</button>
+        </form>
+      </div>
+      <h3 className="maak-admin-desktop-banner-heading">بنرات عرض الحاسوب</h3>
       <form className="maak-admin-banner-form" onSubmit={uploadBanner}>
         <label className="maak-admin-file-pick"><ImagePlus size={23}/><strong>{bannerFile ? bannerFile.name : "اختر صورة البنر"}</strong><small>JPG أو PNG أو WebP · حتى 5 ميغابايت</small><input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => setBannerFile(event.target.files?.[0] ?? null)}/></label>
         {bannerPreview && <img className="maak-admin-banner-preview" src={bannerPreview} alt="معاينة البنر"/>}
         <label>وصف الصورة<input value={bannerAlt} onChange={event => setBannerAlt(event.target.value)} maxLength={180} placeholder="وصف مختصر للصورة"/></label>
         <button className="btn btn-primary" disabled={busy || !bannerFile}><ImagePlus size={17}/> إضافة إلى الصفحة الرئيسية</button>
       </form>
-      <div className="maak-admin-banner-list">{banners.map(banner => <article className="maak-admin-banner-row" key={banner.id}><img src={publicBannerUrl(banner.storage_path)} alt={banner.alt_text || "بنر معك"}/><div><strong>{banner.alt_text || "بنر بدون وصف"}</strong><small>{banner.is_active ? "ظاهر في الصفحة الرئيسية" : "مخفي مؤقتًا"}</small><div className="maak-admin-banner-actions"><button className="btn btn-ghost" disabled={busy} onClick={() => void editBannerText(banner)}>تعديل الوصف</button><label className="btn btn-ghost maak-admin-replace-image">استبدال الصورة<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { void replaceBannerImage(banner, event.target.files?.[0]); event.currentTarget.value = ""; }}/></label><button className="btn btn-ghost" disabled={busy} onClick={() => void toggleBanner(banner)}>{banner.is_active ? "إخفاء" : "إظهار"}</button><button className="btn btn-ghost danger" disabled={busy} onClick={() => void deleteBanner(banner)}>حذف</button></div></div></article>)}</div>
+      <div className="maak-admin-banner-list">{banners.filter(banner => banner.display_target !== "mobile").map(banner => <article className="maak-admin-banner-row" key={banner.id}><img src={publicBannerUrl(banner.storage_path)} alt={banner.alt_text || "بنر معك"}/><div><strong>{banner.alt_text || "بنر بدون وصف"}</strong><small>{banner.is_active ? "ظاهر في الصفحة الرئيسية" : "مخفي مؤقتًا"}</small><div className="maak-admin-banner-actions"><button className="btn btn-ghost" disabled={busy} onClick={() => void editBannerText(banner)}>تعديل الوصف</button><label className="btn btn-ghost maak-admin-replace-image">استبدال الصورة<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={event => { void replaceBannerImage(banner, event.target.files?.[0]); event.currentTarget.value = ""; }}/></label><button className="btn btn-ghost" disabled={busy} onClick={() => void toggleBanner(banner)}>{banner.is_active ? "إخفاء" : "إظهار"}</button><button className="btn btn-ghost danger" disabled={busy} onClick={() => void deleteBanner(banner)}>حذف</button></div></div></article>)}</div>
     </section>}
   </main>;
 }
