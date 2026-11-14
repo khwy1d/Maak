@@ -34,9 +34,9 @@ export function bookingRef(id: string): string {
 export async function createBooking(input: CreateBookingInput): Promise<Booking> {
   if (!supabase) throw new Error("خدمة الحجوزات غير متاحة حاليًا. حاول لاحقًا.");
   const customerName = input.customerName.trim();
-  const customerPhone = input.customerPhone.replace(/[^+\\d]/g, "");
+  const customerPhone = input.customerPhone.replace(/[^+\d]/g, "");
   if (customerName.length < 2) throw new Error("يرجى إدخال اسم صحيح.");
-  if (!/^\\+?[1-9]\\d{6,14}$/.test(customerPhone)) throw new Error("يرجى إدخال رقم هاتف دولي صحيح مع رمز الدولة.");
+  if (!/^\+?[1-9]\d{6,14}$/.test(customerPhone)) throw new Error("يرجى إدخال رقم هاتف دولي صحيح مع رمز الدولة.");
   if (!input.serviceType.trim()) throw new Error("نوع الخدمة غير محدد.");
 
   const { data: id, error } = await supabase.rpc("create_booking", {
