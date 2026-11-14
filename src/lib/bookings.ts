@@ -75,9 +75,7 @@ export async function getUserBookings(): Promise<Booking[]> {
 
 export async function getAllBookings(): Promise<Booking[]> {
   if (!supabase) throw new Error("خدمة الحجوزات غير متاحة حاليًا.");
-  const { data, error } = await supabase.from("admin_bookings")
-    .select("id,user_id,customer_name,customer_phone,service_type,service_details,preferred_date,notes,status,admin_notes,created_at,updated_at")
-    .order("created_at", { ascending: false }).limit(500);
+  const { data, error } = await supabase.rpc("admin_list_bookings");
   if (error) throw new Error(error.message || "تعذر تحميل قائمة الحجوزات.");
   return (data ?? []) as Booking[];
 }
