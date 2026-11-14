@@ -156,24 +156,19 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
     try {
       const formData = pending.requestData.form_data as Record<string, unknown> | undefined;
       const dateValues = Array.isArray(pending.requestData.date_values) ? pending.requestData.date_values : [];
-      const preferredDate = dateValues.find((value): value is string => typeof value === "string" && /^\\d{4}-\\d{2}-\\d{2}$/.test(value)) ?? null;
+      const preferredDate = dateValues.find((value): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) ?? null;
       const details = {
         ...pending.requestData,
         ...(pending.passportUploadKey ? { passport_upload_token: pending.passportUploadToken } : {}),
         message: pending.message,
         source_path: window.location.pathname,
       };
-      const booking = await createBooking({
-        customerName: name,
-        customerPhone: normalizedPhone,
-        serviceType: pending.service,
-        serviceDetails: details,
-        preferredDate,
-      });
 
-      // Passport uploads currently use the existing secure order-upload endpoint,
-      // so retain the legacy order record only for requests carrying passport files.
+      // Passport uploads still attach to the legacy secure order record. Finish
+      // that workflow before creating the internal booking to avoid duplicate
+      // bookings when an attachment upload needs to be retried.
       const passportFiles = pending.passportUploadKey ? getPassportFiles(pending.passportUploadKey) : [];
+      let passportIdempotency: Awaited<ReturnType<typeof getOrCreateIdempotencyKey>> | null = null;
       if (passportFiles.length) {
         const orderPayload = {
           customerName: name,
@@ -181,13 +176,13 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
           service: pending.service,
           requestData: details,
         };
-        const idempotencyIntent = await getOrCreateIdempotencyKey(pending.service, orderPayload);
-        const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: idempotencyIntent.key });
+        passportIdempotency = await getOrCreateIdempotencyKey(pending.service, orderPayload);
+        const savedOrder = await submitInquiry({ ...orderPayload, idempotencyKey: passportIdempotency.key });
         const savedRecord = (Array.isArray(savedOrder) ? savedOrder[0] : savedOrder) as Record<string, unknown> | null;
         const orderId = typeof savedRecord?.id === "string" ? savedRecord.id : "";
         const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
         if (!orderId || passengerNames.length !== passportFiles.length || !supabase) {
-          throw new Error(ar ? "حُفظ الحجز، لكن تعذر تجهيز مرفقات الجواز. تواصل معنا مع رقم الحجز." : "The booking was saved, but passport attachments could not be prepared. Contact us with the booking reference.");
+          throw new Error(ar ? "تعذر تجهيز مرفقات الجواز. أعد المحاولة قبل إعادة إرسال الطلب." : "Could not prepare passport attachments. Retry before resubmitting the request.");
         }
         for (let index = 0; index < passportFiles.length; index += 1) {
           const passengerName = passengerNames[index];
@@ -203,8 +198,18 @@ export default function InquiryCapture({ lang }: { lang: "ar" | "en" }) {
           const { error: uploadError } = await supabase.functions.invoke("upload-passport", { body: upload });
           if (uploadError) throw uploadError;
         }
+      }
+
+      const booking = await createBooking({
+        customerName: name,
+        customerPhone: normalizedPhone,
+        serviceType: pending.service,
+        serviceDetails: details,
+        preferredDate,
+      });
+      if (passportFiles.length) {
         clearPassportFiles(pending.passportUploadKey);
-        clearIdempotencyKey(idempotencyIntent);
+        if (passportIdempotency) clearIdempotencyKey(passportIdempotency);
       }
       if (pending.service === "flight") {
         try { localStorage.removeItem("maak-flight-request-v2"); } catch { /* storage may be unavailable */ }
