@@ -29,7 +29,7 @@ export default function AdminPanel() {
   const [customers, setCustomers] = useState<Row[]>([]);
   const [roles, setRoles] = useState<Record<string, Role>>({});
   const [banners, setBanners] = useState<Row[]>([]);
-  const [tab, setTab] = useState<"orders" | "notifications" | "team" | "banners">("orders");
+  const [tab, setTab] = useState<"orders" | "bookings" | "notifications" | "team" | "banners">("orders");
   const [filter, setFilter] = useState("all");
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
