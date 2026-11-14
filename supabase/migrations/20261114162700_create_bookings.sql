@@ -56,6 +56,111 @@ create policy "Admins can manage all bookings"
   using (public.is_admin())
   with check (public.is_admin());
 
+create or replace function public.create_booking(
+  p_customer_name text,
+  p_customer_phone text,
+  p_service_type text,
+  p_service_details jsonb default '{}'::jsonb,
+  p_preferred_date date default null,
+  p_notes text default null
+)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $
+declare
+  actor uuid := auth.uid();
+  created_id uuid;
+  normalized_phone text := regexp_replace(coalesce(p_customer_phone, ''), '[^0-9+]', '', 'g');
+begin
+  if char_length(btrim(coalesce(p_customer_name, ''))) not between 2 and 120
+    or normalized_phone !~ '^\+[1-9][0-9]{6,14} Admins use this
+-- protected view; customer queries use the base table's restricted columns.
+revoke all on public.bookings from anon, authenticated;
+grant insert (user_id, customer_name, customer_phone, service_type, service_details, preferred_date, notes)
+  on public.bookings to anon, authenticated;
+grant select (id, user_id, customer_name, customer_phone, service_type, service_details, preferred_date, notes, status, created_at, updated_at)
+  on public.bookings to authenticated;
+
+create or replace view public.admin_bookings
+with (security_barrier = true)
+as
+select id, user_id, customer_name, customer_phone, service_type, service_details,
+       preferred_date, notes, status, admin_notes, created_at, updated_at
+from public.bookings
+where public.is_admin();
+
+grant select on public.admin_bookings to authenticated;
+
+create or replace function public.admin_update_booking(
+  p_booking_id uuid,
+  p_status text,
+  p_admin_notes text default null
+)
+returns public.bookings
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare updated public.bookings;
+begin
+  if not public.is_admin() then
+    raise exception 'Admin access required' using errcode = '42501';
+  end if;
+  if p_status not in ('pending', 'confirmed', 'in_progress', 'completed', 'cancelled') then
+    raise exception 'Invalid booking status' using errcode = '22023';
+  end if;
+  if p_admin_notes is not null and char_length(p_admin_notes) > 4000 then
+    raise exception 'Admin notes are too long' using errcode = '22023';
+  end if;
+
+  update public.bookings
+  set status = p_status,
+      admin_notes = p_admin_notes
+  where id = p_booking_id
+  returning * into updated;
+
+  if not found then
+    raise exception 'Booking not found' using errcode = 'P0002';
+  end if;
+  return updated;
+end;
+$$;
+
+revoke all on function public.admin_update_booking(uuid, text, text) from public, anon;
+grant execute on function public.admin_update_booking(uuid, text, text) to authenticated;
+
+grant usage on schema public to anon, authenticated;
+
+    or char_length(btrim(coalesce(p_service_type, ''))) not between 1 and 80
+    or jsonb_typeof(coalesce(p_service_details, '{}'::jsonb)) <> 'object'
+    or octet_length(coalesce(p_service_details, '{}'::jsonb)::text) > 20000
+    or char_length(coalesce(p_notes, '')) > 4000 then
+    raise exception 'Invalid booking data' using errcode = '22023';
+  end if;
+
+  if actor is not null and not exists (
+    select 1 from public.profiles where id = actor and phone = normalized_phone
+  ) then
+    raise exception 'Phone does not match authenticated profile' using errcode = '42501';
+  end if;
+
+  insert into public.bookings (
+    user_id, customer_name, customer_phone, service_type,
+    service_details, preferred_date, notes
+  ) values (
+    actor, btrim(p_customer_name), normalized_phone, btrim(p_service_type),
+    coalesce(p_service_details, '{}'::jsonb), p_preferred_date, nullif(btrim(p_notes), '')
+  )
+  returning id into created_id;
+  return created_id;
+end;
+$;
+
+revoke all on function public.create_booking(text, text, text, jsonb, date, text) from public;
+grant execute on function public.create_booking(text, text, text, jsonb, date, text) to anon, authenticated;
+
 -- Customers must not be able to read internal admin notes. Admins use this
 -- protected view; customer queries use the base table's restricted columns.
 revoke all on public.bookings from anon, authenticated;
