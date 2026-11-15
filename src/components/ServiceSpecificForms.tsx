@@ -1,4 +1,4 @@
-import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useEffect, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Minus, Plus, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
@@ -6,6 +6,7 @@ import { useApp } from "../context/AppContext";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
 import { registerPassportFiles } from "../lib/passportUploads";
 import PassportUploadField from "./PassportUploadField";
+import { supabase } from "../lib/supabase";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -53,6 +54,14 @@ function RequestCard({
   canReview?: boolean;
   passportUploadKey?: string;
 }) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!supabase) { setIsAuthenticated(false); return; }
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => { if (active) setIsAuthenticated(!!data.user); });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => { if (active) setIsAuthenticated(!!session?.user); });
+    return () => { active = false; data.subscription.unsubscribe(); };
+  }, []);
   const [step, setStep] = useState(0);
   const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
@@ -106,7 +115,7 @@ function RequestCard({
       {savedBooking && <p className="account-message" role="status">{label(lang, "تم تسجيل الحجز بنجاح. الرقم المرجعي:", "Booking saved successfully. Reference:")} <strong dir="ltr">{savedBooking.reference}</strong></p>}
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <button type="button" className="btn btn-primary" onClick={confirmBooking} disabled={saving || !!savedBooking}>{saving ? label(lang, "جارٍ تأكيد الطلب…", "Confirming…") : savedBooking ? label(lang, "تم تأكيد الطلب", "Request confirmed") : label(lang, "تأكيد الطلب", "Confirm request")}</button>
+        {isAuthenticated === true && <button type="button" className="btn btn-primary" onClick={confirmBooking} disabled={saving || !!savedBooking}>{saving ? label(lang, "جارٍ تأكيد الطلب…", "Confirming…") : savedBooking ? label(lang, "تم تأكيد الطلب", "Request confirmed") : label(lang, "تأكيد الطلب", "Confirm request")}</button>}
         <a className="btn btn-ghost" href={savedBooking?.url ?? whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>{label(lang, "متابعة الطلب عبر واتساب", "Follow up via WhatsApp")}</a>
       </div>
     </section>}
