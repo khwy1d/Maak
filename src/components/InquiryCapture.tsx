@@ -68,6 +68,10 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
       let customerPhone = normalizeInternationalPhone(detail.customerPhone ?? "");
       const { data: authData } = await supabase?.auth.getUser() ?? { data: { user: null } };
       if (authData.user && supabase) {
+        const metadata = authData.user.user_metadata ?? {};
+        const metadataName = [metadata.full_name, metadata.name, metadata.display_name]
+          .find((value): value is string => typeof value === "string" && value.trim().length >= 2)?.trim() ?? "";
+        customerName ||= metadataName;
         const { data: profile } = await supabase.from("profiles").select("full_name,phone").eq("id", authData.user.id).maybeSingle();
         customerName ||= profile?.full_name?.trim() ?? "";
         customerPhone ||= normalizeInternationalPhone(profile?.phone ?? authData.user.phone ?? "");
@@ -75,10 +79,8 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
       const formData = detail.requestData.form_data as Record<string, unknown> | undefined;
       const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
       customerName ||= passengerNames.find((name): name is string => typeof name === "string" && name.trim().length >= 2)?.trim() ?? "";
-      if (customerName.length < 2) {
-        detail.onError("يرجى إدخال الاسم بشكل صحيح.");
-        return;
-      }
+      // Guest requests without a profile or passenger name remain valid; the admin can identify the requester from the request details.
+      customerName ||= "عميل معك";
       try {
         const dateValues = Array.isArray(detail.requestData.date_values) ? detail.requestData.date_values : [];
         const preferredDate = dateValues.find((value): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) ?? null;
