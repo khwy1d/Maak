@@ -127,7 +127,7 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
 
         const booking = await createBooking({
           customerName,
-          customerPhone,
+          customerPhone: customerPhone ?? undefined,
           serviceType: detail.service,
           serviceDetails: passportOrderId ? { ...details, passport_order_id: passportOrderId } : details,
           preferredDate,
