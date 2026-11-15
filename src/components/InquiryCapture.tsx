@@ -96,7 +96,7 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
         if (passportFiles.length) {
           const orderPayload: Omit<InquiryOrder, "idempotencyKey"> = {
             customerName,
-            customerPhone,
+            customerPhone: customerPhone ?? "",
             service: detail.service,
             requestData: { ...details, internal_booking: true },
           };
