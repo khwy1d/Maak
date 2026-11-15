@@ -10,8 +10,8 @@ type SaveInquiryDetail = {
   message: string;
   requestData: Record<string, unknown>;
   passportUploadKey: string;
-  customerName: string;
-  customerPhone: string;
+  customerName?: string;
+  customerPhone?: string;
   onSuccess: (result: { reference: string; url: string }) => void;
   onError: (message: string) => void;
 };
@@ -64,19 +64,22 @@ export default function InquiryCapture({ lang: _lang }: { lang: "ar" | "en" }) {
     const handleSave = async (event: Event) => {
       const detail = (event as CustomEvent<SaveInquiryDetail>).detail;
       if (!detail) return;
-      const customerName = detail.customerName.trim();
-      const customerPhone = normalizeInternationalPhone(detail.customerPhone);
+      let customerName = detail.customerName?.trim() ?? "";
+      let customerPhone = normalizeInternationalPhone(detail.customerPhone ?? "");
+      const { data: authData } = await supabase?.auth.getUser() ?? { data: { user: null } };
+      if (authData.user && supabase) {
+        const { data: profile } = await supabase.from("profiles").select("full_name,phone").eq("id", authData.user.id).maybeSingle();
+        customerName ||= profile?.full_name?.trim() ?? "";
+        customerPhone ||= normalizeInternationalPhone(profile?.phone ?? authData.user.phone ?? "");
+      }
+      const formData = detail.requestData.form_data as Record<string, unknown> | undefined;
+      const passengerNames = Array.isArray(formData?.passenger_names) ? formData.passenger_names : [];
+      customerName ||= passengerNames.find((name): name is string => typeof name === "string" && name.trim().length >= 2)?.trim() ?? "";
       if (customerName.length < 2) {
         detail.onError("يرجى إدخال الاسم بشكل صحيح.");
         return;
       }
-      if (!customerPhone) {
-        detail.onError("أدخل رقم هاتف دوليًا صحيحًا مع رمز الدولة.");
-        return;
-      }
-
       try {
-        const formData = detail.requestData.form_data as Record<string, unknown> | undefined;
         const dateValues = Array.isArray(detail.requestData.date_values) ? detail.requestData.date_values : [];
         const preferredDate = dateValues.find((value): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) ?? null;
         const passportUploadToken = detail.passportUploadKey ? getOrCreatePassportUploadToken(detail.passportUploadKey) : "";
