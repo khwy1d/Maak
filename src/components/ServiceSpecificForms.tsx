@@ -54,8 +54,6 @@ function RequestCard({
   passportUploadKey?: string;
 }) {
   const [step, setStep] = useState(0);
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
   const [saveError, setSaveError] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedBooking, setSavedBooking] = useState<{ reference: string; url: string } | null>(null);
@@ -78,17 +76,10 @@ function RequestCard({
   const datesValid = dateValues.every(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= today());
   const confirmBooking = () => {
     setSaveError("");
-    if (customerName.trim().length < 2) { setSaveError(label(lang, "يرجى إدخال الاسم بشكل صحيح.", "Please enter your name.")); return; }
-    const digits = customerPhone.replace(/[٠-٩۰-۹]/g, digit => {
-      const code = digit.charCodeAt(0);
-      return String(code >= 0x06f0 ? code - 0x06f0 : code - 0x0660);
-    }).replace(/\D/g, "");
-    const normalizedPhone = digits.startsWith("00") ? digits.slice(2) : digits;
-    if (!/^[1-9][0-9]{6,14}$/.test(normalizedPhone)) { setSaveError(label(lang, "أدخل رقم هاتف دوليًا صحيحًا مع رمز الدولة.", "Enter a valid international phone number with country code.")); return; }
     setSaving(true);
     window.dispatchEvent(new CustomEvent("maak:save-inquiry", { detail: {
       service: serviceCode, message, requestData: { date_values: dateValues, form_data: formData },
-      passportUploadKey: passportUploadKey ?? "", customerName: customerName.trim(), customerPhone: customerPhone.trim(),
+      passportUploadKey: passportUploadKey ?? "",
       onSuccess: (result: { reference: string; url: string }) => { setSavedBooking(result); setSaving(false); setSaveError(""); },
       onError: (error: string) => { setSaveError(error); setSaving(false); },
     }}));
@@ -111,10 +102,6 @@ function RequestCard({
       <p>{label(lang, "تأكد من التفاصيل قبل تأكيد الطلب.", "Please review the details before confirming your request.")}</p>
       <dl>{requestRows.length ? requestRows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
-      <div className="flight-input-grid maak-booking-contact-fields">
-        <Field required title={label(lang, "الاسم", "Name")}><input value={customerName} onChange={event => setCustomerName(event.target.value)} minLength={2} maxLength={120} autoComplete="name" placeholder={label(lang, "الاسم الكامل", "Full name")}/></Field>
-        <Field required title={label(lang, "رقم الهاتف مع رمز الدولة", "Phone number with country code")}><input type="tel" value={customerPhone} onChange={event => setCustomerPhone(event.target.value.replace(/[^+٠-٩۰-۹0-9]/g, ""))} minLength={7} maxLength={18} autoComplete="tel" placeholder="+967…"/></Field>
-      </div>
       {saveError && <p className="account-message" role="alert">{saveError}</p>}
       {savedBooking && <p className="account-message" role="status">{label(lang, "تم تسجيل الحجز بنجاح. الرقم المرجعي:", "Booking saved successfully. Reference:")} <strong dir="ltr">{savedBooking.reference}</strong></p>}
       <div className="flight-summary-actions">
