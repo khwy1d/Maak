@@ -4,7 +4,7 @@ export type BookingStatus = "pending" | "confirmed" | "in_progress" | "completed
 
 export type CreateBookingInput = {
   customerName: string;
-  customerPhone: string;
+  customerPhone?: string;
   serviceType: string;
   serviceDetails?: Record<string, unknown>;
   preferredDate?: string | null;
@@ -44,7 +44,7 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
 
   const { data: id, error } = await supabase.rpc("create_booking", {
     p_customer_name: customerName,
-    p_customer_phone: customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`,
+    p_customer_phone: customerPhone ? (customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`) : "",
     p_service_type: input.serviceType.trim(),
     p_service_details: input.serviceDetails ?? {},
     p_preferred_date: input.preferredDate || null,
@@ -57,7 +57,7 @@ export async function createBooking(input: CreateBookingInput): Promise<Booking>
     id: id as string,
     user_id: authData.user?.id ?? null,
     customer_name: customerName,
-    customer_phone: customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`,
+    customer_phone: customerPhone ? (customerPhone.startsWith("+") ? customerPhone : `+${customerPhone}`) : "",
     service_type: input.serviceType.trim(),
     service_details: input.serviceDetails ?? {},
     preferred_date: input.preferredDate || null,
