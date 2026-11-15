@@ -1,4 +1,4 @@
-import { Children, cloneElement, useId, useState, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, useEffect, useId, useState, type ReactElement, type ReactNode } from "react";
 import { ArrowLeft, CalendarDays, MessageCircle, Minus, Plus, Users, X } from "lucide-react";
 import { siteConfig } from "../config/site";
 import { useDesktopFormLayout } from "../hooks/useDesktopFormLayout";
@@ -6,6 +6,7 @@ import { useApp } from "../context/AppContext";
 import { buildWhatsAppUrl } from "../utils/whatsapp";
 import { registerPassportFiles } from "../lib/passportUploads";
 import PassportUploadField from "./PassportUploadField";
+import { supabase } from "../lib/supabase";
 
 type Lang = "ar" | "en";
 type Row = [string, string];
@@ -53,7 +54,18 @@ function RequestCard({
   canReview?: boolean;
   passportUploadKey?: string;
 }) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!supabase) { setIsAuthenticated(false); return; }
+    let active = true;
+    void supabase.auth.getUser().then(({ data }) => { if (active) setIsAuthenticated(!!data.user); });
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => { if (active) setIsAuthenticated(!!session?.user); });
+    return () => { active = false; data.subscription.unsubscribe(); };
+  }, []);
   const [step, setStep] = useState(0);
+  const [saveError, setSaveError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savedBooking, setSavedBooking] = useState<{ reference: string; url: string } | null>(null);
   const desktopForm = useDesktopFormLayout();
   const groups = Children.toArray(children);
   const reviewing = step === groups.length;
@@ -71,6 +83,17 @@ function RequestCard({
   const whatsappUrl = buildWhatsAppUrl(siteConfig.whatsappNumber, message);
   const dateValues = rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean);
   const datesValid = dateValues.every(value => /^\d{4}-\d{2}-\d{2}$/.test(value) && value >= today());
+  const confirmBooking = () => {
+    setSaveError("");
+    setSaving(true);
+    window.dispatchEvent(new CustomEvent("maak:save-inquiry", { detail: {
+      service: serviceCode, message, requestData: { date_values: dateValues, form_data: formData },
+      passportUploadKey: passportUploadKey ?? "",
+      onSuccess: (result: { reference: string; url: string }) => { setSavedBooking(result); setSaving(false); setSaveError(""); },
+      onError: (error: string) => { setSaveError(error); setSaving(false); },
+    }}));
+  };
+
 
   return <div className={`inquiry-form flight-booking-form specialized-request-form maak-service-flow maak-flight-flow${desktopForm ? " desktop-flow" : ""}${desktopForm && reviewing ? " desktop-reviewing" : ""}`}>
     <header className="maak-flight-head"><button type="button" className="maak-back" onClick={() => step === 0 ? window.history.back() : setStep(current => current - 1)} aria-label={label(lang, "رجوع", "Back")}><ArrowLeft size={20}/></button><div><span>{label(lang, "معك للسفر", "MAAK TRAVEL")}</span><h2>{title}</h2></div></header>
@@ -88,9 +111,12 @@ function RequestCard({
       <p>{label(lang, "تأكد من التفاصيل قبل تأكيد الطلب.", "Please review the details before confirming your request.")}</p>
       <dl>{requestRows.length ? requestRows.map(([name, value]) => <div key={name}><dt>{name}</dt><dd>{value}</dd></div>) : <div><dt>{label(lang, "الطلب", "Request")}</dt><dd>{serviceName}</dd></div>}</dl>
       <p className="flight-disclaimer">{note}</p>
+      {saveError && <p className="account-message" role="alert">{saveError}</p>}
+      {savedBooking && <p className="account-message" role="status">{label(lang, "تم تسجيل الحجز بنجاح. الرقم المرجعي:", "Booking saved successfully. Reference:")} <strong dir="ltr">{savedBooking.reference}</strong></p>}
       <div className="flight-summary-actions">
         <button type="button" className="btn btn-ghost" onClick={() => setStep(0)}>{label(lang, "العودة للتعديل", "Back to edit")}</button>
-        <a className="btn btn-primary" href={whatsappUrl} data-save-inquiry="true" data-inquiry-service={serviceCode} data-request-data={JSON.stringify({ date_values: rows.filter(([field]) => /تاريخ|موعد|date/i.test(field)).map(([, value]) => value).filter(Boolean), form_data: formData })} data-passport-upload-key={passportUploadKey} target="_blank" rel="noopener noreferrer"><MessageCircle size={18} />{label(lang, "تأكيد الطلب وحفظه", "Confirm request and save")}</a>
+        {isAuthenticated === true && <button type="button" className="btn btn-primary" onClick={confirmBooking} disabled={saving || !!savedBooking}>{saving ? label(lang, "جارٍ تأكيد الطلب…", "Confirming…") : savedBooking ? label(lang, "تم تأكيد الطلب", "Request confirmed") : label(lang, "تأكيد الطلب", "Confirm request")}</button>}
+        <a className="btn btn-ghost" href={savedBooking?.url ?? whatsappUrl} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>{label(lang, "متابعة الطلب عبر واتساب", "Follow up via WhatsApp")}</a>
       </div>
     </section>}
   </div>;
